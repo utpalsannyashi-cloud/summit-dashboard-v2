@@ -123,7 +123,7 @@ function LoginScreen({ onLogin }) {
           <div style={{width:56,height:56,borderRadius:'50%',background:t.accentGlow,border:'1px solid '+t.accent,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',fontSize:26}}>Ã°ÂÂÂÃ¯Â¸Â</div>
           <div style={{fontSize:11,color:t.muted,letterSpacing:'3px',textTransform:'uppercase',marginBottom:8}}>Event Management System</div>
           <h2 style={{margin:'0 0 4px',fontSize:20,fontWeight:600,color:t.text}}>Summit Dashboard v2</h2>
-          <p style={{margin:0,fontSize:13,color:t.muted}}>Multi-Team ÃÂ· Supabase Powered</p>
+          <p style={{margin:0,fontSize:13,color:t.muted}}>Secure · Multi-Team · Event Management</p>
         </div>
         <div style={{display:'flex',background:t.bg,borderRadius:10,padding:3,marginBottom:20,gap:4}}>
           {[['login','Sign In'],['create','New Team']].map(([m,l])=>(
