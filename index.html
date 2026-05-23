@@ -10,9 +10,28 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
     <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png" />
+  <script>
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); e.stopPropagation(); return false; }
+      if (e.ctrlKey && e.shiftKey && ['i','I','j','J','c','C'].includes(e.key)) { e.preventDefault(); e.stopPropagation(); return false; }
+      if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) { e.preventDefault(); e.stopPropagation(); return false; }
+      if (e.ctrlKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); e.stopPropagation(); return false; }
+    }, true);
+    (function devtoolsDetect() {
+      var threshold = 160;
+      setInterval(function() {
+        if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0f1117;color:#ef4444;font-family:system-ui;font-size:18px;text-align:center;padding:2rem;">\u{1F512} Access Denied \u2014 Developer tools are not permitted on this system.</div>';
+        }
+      }, 1000);
+    })();
+    document.addEventListener('selectstart', function(e) { e.preventDefault(); return false; });
+    document.addEventListener('dragstart', function(e) { e.preventDefault(); return false; });
+  <\/script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.jsx"><\/script>
   </body>
 </html>
