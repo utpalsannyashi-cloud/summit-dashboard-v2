@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <rect width="32" height="32" rx="6" fill="#0f1117"/>
-  <text x="13" y="22" font-family="system-ui,Arial,sans-serif" font-size="16" font-weight="900" fill="#3B82F6" text-anchor="middle">EMS</text>
-  <rect x="22" y="5" width="9" height="7" rx="2" fill="#3B82F6"/>
-  <text x="26.5" y="10.5" font-family="system-ui,Arial,sans-serif" font-size="4.2" font-weight="700" fill="white" text-anchor="middle">v2.0</text>
+  <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="5.5" fill="none" stroke="#3B82F6" stroke-width="0.8" opacity="0.35"/>
+  <text x="15" y="23" font-family="system-ui,Arial,sans-serif" font-size="12" font-weight="900" fill="#3B82F6" text-anchor="middle">EMS</text>
+  <rect x="21" y="4" width="9" height="7" rx="2" fill="#3B82F6"/>
+  <text x="25.5" y="9.5" font-family="system-ui,Arial,sans-serif" font-size="4.2" font-weight="700" fill="white" text-anchor="middle">v2.0</text>
 </svg>
