@@ -378,19 +378,19 @@ export default function App() {
     if(!vForm.name.trim()) return;
     const color = COLORS[Object.keys(verticals).length % COLORS.length];
     if(modalData.id) await supabase.from('sd_verticals').update({name:vForm.name,lead:vForm.lead,status:vForm.status}).eq('id',modalData.id).eq('team_id',teamId);
-    else await supabase.from('sd_verticals').insert({...vForm, color, team_id:teamId, created_at:new Date().toISOString()});
+    else await supabase.from('sd_verticals').insert({id:crypto.randomUUID(), ...vForm, color, team_id:teamId, created_at:new Date().toISOString()});
     setModal(null);
   };
   const saveOfficer = async ()=>{
     if(!oForm.name.trim()) return;
     if(modalData.id) await supabase.from('sd_officers').update(oForm).eq('id',modalData.id).eq('team_id',teamId);
-    else await supabase.from('sd_officers').insert({...oForm, team_id:teamId, created_at:new Date().toISOString()});
+    else await supabase.from('sd_officers').insert({id:crypto.randomUUID(), ...oForm, team_id:teamId, created_at:new Date().toISOString()});
     setModal(null);
   };
   const saveTask = async ()=>{
     if(!tForm.title.trim()||!tForm.vertical_id) return;
     if(modalData.id) await supabase.from('sd_tasks').update(tForm).eq('id',modalData.id).eq('team_id',teamId);
-    else await supabase.from('sd_tasks').insert({...tForm, team_id:teamId, created_at:new Date().toISOString()});
+    else await supabase.from('sd_tasks').insert({id:crypto.randomUUID(), ...tForm, team_id:teamId, created_at:new Date().toISOString()});
     setModal(null);
   };
   const handleDeleteConfirm = async ()=>{
