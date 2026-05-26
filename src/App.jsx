@@ -73,6 +73,38 @@ const mkInp = t => ({
   color:t.text,outline:'none',width:'100%',boxSizing:'border-box',
 });
 
+Since the new "Super Admin" feature adds new state variables, new functions, and new UI elements spread throughout the component, you need to replace the **entire `LoginScreen` function**.
+
+Here is exactly what to find and what to replace it with.
+
+### Step 1: Find this exact block of code
+
+Scroll to where your `LoginScreen` function starts (around line 53). Highlight everything from `function LoginScreen({ onLogin }) {` all the way down to the closing brace `}` right before your `App` component starts.
+
+**FIND AND HIGHLIGHT THIS ENTIRE SECTION:**
+
+```javascript
+function LoginScreen({ onLogin }) {
+  const [isDark] = useState(true);
+  const t = makeTheme(isDark);
+  // ... (all the state and functions inside LoginScreen) ...
+  // ... (all the return(...) UI code inside LoginScreen) ...
+      </div>
+    </div>
+  );
+}
+
+```
+
+---
+
+### Step 2: Replace it with this code
+
+Delete the highlighted section and paste this updated `LoginScreen` function in its place. *(Note: I have highlighted where you should change the default 'master123' password).*
+
+**REPLACE WITH THIS:**
+
+```javascript
 function LoginScreen({ onLogin }) {
   const [isDark] = useState(true);
   const t = makeTheme(isDark);
@@ -88,6 +120,13 @@ function LoginScreen({ onLogin }) {
   const [changeErr, setChangeErr] = useState('');
   const [changeOk, setChangeOk] = useState(false);
 
+  // --- SUPER ADMIN STATE ---
+  const [superAdminUnlocked, setSuperAdminUnlocked] = useState(false);
+  const [superPwInput, setSuperPwInput] = useState('');
+  const [superErr, setSuperErr] = useState('');
+  const [allTeams, setAllTeams] = useState([]);
+  const [editingTeam, setEditingTeam] = useState(null);
+
   const handleLogin = async () => {
     if (!teamNameInput.trim()) { setPwErr('Enter your team name.'); return; }
     if (!pwInput.trim()) { setPwErr('Enter your team password.'); return; }
@@ -97,6 +136,7 @@ function LoginScreen({ onLogin }) {
     if (error || !data || data.length === 0) { setPwErr('Team name or password is incorrect.'); return; }
     onLogin(data[0]);
   };
+
   const handleChangePw = async () => { const {teamName,currentPw,newPw,confirmPw} = changeForm; if (!teamName.trim()||!currentPw.trim()||!newPw.trim()||!confirmPw.trim()) { setChangeErr('All fields are required.'); return; } if (newPw!==confirmPw) { setChangeErr('New passwords do not match.'); return; } if (newPw.length<4) { setChangeErr('Password must be at least 4 characters.'); return; } setLoading(true); setChangeErr(''); setChangeOk(false); const {data,error} = await supabase.from('teams').select('*').eq('team_name',teamName.trim()).eq('site_password',currentPw.trim()); if (error||!data||data.length===0) { setLoading(false); setChangeErr('Team name or current password is incorrect.'); return; } const {error:upErr} = await supabase.from('teams').update({site_password:newPw.trim()}).eq('team_name',teamName.trim()); setLoading(false); if (upErr) { setChangeErr('Failed to update. Try again.'); return; } setChangeOk(true); };
 
   const handleCreate = async () => {
@@ -119,25 +159,78 @@ function LoginScreen({ onLogin }) {
     if (data) onLogin(data);
   };
 
+  // --- SUPER ADMIN HANDLERS ---
+  const handleSuperLogin = async () => {
+    // ⚠️ CHANGE THIS PASSWORD ⚠️
+    if (superPwInput === 'master123') {
+      setSuperErr('');
+      setLoading(true);
+      const { data, error } = await supabase.from('teams').select('*');
+      setLoading(false);
+      if (data) {
+        setAllTeams(data);
+        setSuperAdminUnlocked(true);
+      } else {
+        setSuperErr('Failed to load teams. Check Supabase connection.');
+      }
+    } else {
+      setSuperErr('Incorrect master password.');
+    }
+  };
+
+  const handleDeleteTeam = async (id) => {
+    if (!window.confirm('WARNING: Are you sure you want to permanently delete this team? All its data will become orphaned/inaccessible.')) return;
+    setLoading(true);
+    await supabase.from('teams').delete().eq('team_id', id);
+    const { data } = await supabase.from('teams').select('*');
+    if (data) setAllTeams(data);
+    setLoading(false);
+  };
+
+  const handleSaveTeamEdit = async () => {
+    setLoading(true);
+    const { error } = await supabase.from('teams').update({
+      team_name: editingTeam.team_name,
+      site_password: editingTeam.site_password,
+      admin_password: editingTeam.admin_password,
+      ai_rules_password: editingTeam.ai_rules_password
+    }).eq('team_id', editingTeam.team_id);
+    
+    if (!error) {
+      const { data } = await supabase.from('teams').select('*');
+      if (data) setAllTeams(data);
+      setEditingTeam(null);
+    } else {
+      alert("Failed to update team: " + error.message);
+    }
+    setLoading(false);
+  };
+
   return (
     <div style={{minHeight:'100vh',background:t.bg,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'system-ui,sans-serif'}}>
       <style>{`*{box-sizing:border-box}html,body{margin:0;padding:0;background:${t.bg}}`}</style>
-      <div style={{background:t.card,border:`1px solid ${t.accent}`,borderRadius:16,padding:'2.5rem 2rem',width:'100%',maxWidth:420,boxShadow:`0 0 30px ${t.accentGlow}`}}>
+      <div style={{background:t.card,border:`1px solid ${t.accent}`,borderRadius:16,padding:'2.5rem 2rem',width:'100%',maxWidth:420,boxShadow:`0 0 30px ${t.accentGlow}`,position:'relative'}}>
+        
         <div style={{textAlign:'center',marginBottom:'1.5rem'}}>
           <div style={{width:56,height:56,borderRadius:'50%',background:t.accentGlow,border:'1px solid '+t.accent,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',fontSize:26}}>🏛️</div>
           <div style={{fontSize:11,color:t.muted,letterSpacing:'3px',textTransform:'uppercase',marginBottom:8}}>Event Management System</div>
           <h2 style={{margin:'0 0 4px',fontSize:20,fontWeight:600,color:t.text}}>Summit Dashboard v2</h2>
           <p style={{margin:0,fontSize:13,color:t.muted}}>Multi-Team · Event Management</p>
         </div>
-        <div style={{display:'flex',background:t.bg,borderRadius:10,padding:3,marginBottom:20,gap:4}}>
-          {[['login','Sign In'],['create','New Team'],['change','Change Password']].map(([m,l])=>(
-            <button key={m} onClick={()=>{setMode(m);setPwErr('');setCreateErr('');setChangeErr('');setChangeOk(false);}}
-              style={{flex:1,padding:'7px 0',borderRadius:8,border:'none',fontSize:13,fontWeight:500,cursor:'pointer',
-                background:mode===m?t.accent:'transparent',color:mode===m?'#fff':t.muted,transition:'all 0.2s'}}>
-              {l}
-            </button>
-          ))}
-        </div>
+
+        {/* Tab Navigation (Hidden in SuperAdmin mode) */}
+        {mode !== 'superadmin' && (
+          <div style={{display:'flex',background:t.bg,borderRadius:10,padding:3,marginBottom:20,gap:4}}>
+            {[['login','Sign In'],['create','New Team'],['change','Change Password']].map(([m,l])=>(
+              <button key={m} onClick={()=>{setMode(m);setPwErr('');setCreateErr('');setChangeErr('');setChangeOk(false);}}
+                style={{flex:1,padding:'7px 0',borderRadius:8,border:'none',fontSize:13,fontWeight:500,cursor:'pointer',
+                  background:mode===m?t.accent:'transparent',color:mode===m?'#fff':t.muted,transition:'all 0.2s'}}>
+                {l}
+              </button>
+            ))}
+          </div>
+        )}
+
         {mode === 'login' && (
           <>
             <div style={{marginBottom:10}}>
@@ -212,10 +305,93 @@ function LoginScreen({ onLogin }) {
             </div>
           </>
         )}
+
+        {/* --- SUPER ADMIN MODES --- */}
+        {mode === 'superadmin' && !superAdminUnlocked && (
+          <div style={{display:'flex',flexDirection:'column',gap:12, animation:'fadeIn 0.3s'}}>
+            <h3 style={{margin:0,fontSize:16,color:t.text,textAlign:'center'}}>Super Admin Access</h3>
+            <div>
+              <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Master Password</label>
+              <input type="password" value={superPwInput} onChange={e=>{setSuperPwInput(e.target.value);setSuperErr('');}} onKeyDown={e=>e.key==='Enter'&&handleSuperLogin()} placeholder="Enter master password" style={inp} autoFocus/>
+            </div>
+            {superErr&&<p style={{margin:'0 0 8px',fontSize:12,color:'#ef4444',textAlign:'center'}}>{superErr}</p>}
+            <button onClick={handleSuperLogin} disabled={loading} style={{width:'100%',background:'#7c3aed',color:'#fff',border:'none',borderRadius:8,padding:12,fontSize:14,fontWeight:500,cursor:loading?'default':'pointer'}}>
+              {loading?'Loading...':'Unlock Admin Panel'}
+            </button>
+            <button onClick={()=>setMode('login')} style={{width:'100%',background:'transparent',color:t.text,border:'1px solid '+t.border,borderRadius:8,padding:12,fontSize:14,fontWeight:500,cursor:'pointer'}}>
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {mode === 'superadmin' && superAdminUnlocked && !editingTeam && (
+          <div style={{display:'flex',flexDirection:'column',gap:12, animation:'fadeIn 0.3s'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <h3 style={{margin:0,fontSize:16,color:t.text}}>Manage Teams <span style={{fontSize:12, background:t.accentGlow, color:t.accent, padding:'2px 8px', borderRadius:12}}>{allTeams.length} Total</span></h3>
+              <button onClick={()=>{setSuperAdminUnlocked(false);setMode('login');}} style={{background:'transparent',border:'none',color:t.muted,cursor:'pointer',fontSize:12}}>🔒 Lock</button>
+            </div>
+            
+            <div style={{maxHeight: 280, overflowY: 'auto', display:'flex', flexDirection:'column', gap:8, paddingRight:4}}>
+              {allTeams.map(tm => (
+                <div key={tm.team_id} style={{background:t.bg, border:'1px solid '+t.border, borderRadius:10, padding:12, display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                  <div style={{overflow:'hidden', textOverflow:'ellipsis'}}>
+                    <div style={{fontSize:14, fontWeight:600, color:t.text}}>{tm.team_name}</div>
+                    <div style={{fontSize:10, color:t.muted, fontFamily:'monospace', marginTop:2}}>{tm.team_id}</div>
+                  </div>
+                  <div style={{display:'flex', gap:6, flexShrink:0}}>
+                    <button onClick={()=>setEditingTeam(tm)} style={{background:t.surface,border:'1px solid '+t.border,borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer',color:t.text}}>Edit</button>
+                    <button onClick={()=>handleDeleteTeam(tm.team_id)} style={{background:'rgba(239,68,68,0.1)',border:'1px solid #ef4444',borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer',color:'#ef4444'}}>Del</button>
+                  </div>
+                </div>
+              ))}
+              {allTeams.length === 0 && <p style={{fontSize:13, color:t.muted, textAlign:'center', padding:'20px 0'}}>No teams found.</p>}
+            </div>
+          </div>
+        )}
+
+        {mode === 'superadmin' && superAdminUnlocked && editingTeam && (
+          <div style={{display:'flex',flexDirection:'column',gap:10, animation:'fadeIn 0.2s'}}>
+            <h3 style={{margin:0,fontSize:16,color:t.text,textAlign:'center',marginBottom:10}}>Edit: {editingTeam.team_name}</h3>
+            <div>
+              <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Team Name</label>
+              <input type="text" value={editingTeam.team_name} onChange={e=>setEditingTeam({...editingTeam, team_name: e.target.value})} style={inp}/>
+            </div>
+            <div>
+              <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Site Password</label>
+              <input type="text" value={editingTeam.site_password} onChange={e=>setEditingTeam({...editingTeam, site_password: e.target.value})} style={inp}/>
+            </div>
+            <div>
+              <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Admin Password</label>
+              <input type="text" value={editingTeam.admin_password} onChange={e=>setEditingTeam({...editingTeam, admin_password: e.target.value})} style={inp}/>
+            </div>
+            <div>
+              <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>AI Rules Password</label>
+              <input type="text" value={editingTeam.ai_rules_password} onChange={e=>setEditingTeam({...editingTeam, ai_rules_password: e.target.value})} style={inp}/>
+            </div>
+            <div style={{display:'flex', gap:10, marginTop:10}}>
+              <button onClick={()=>setEditingTeam(null)} disabled={loading} style={{flex:1, background:'transparent',border:'1px solid '+t.border,color:t.text,borderRadius:8,padding:10,fontSize:13,cursor:'pointer'}}>Cancel</button>
+              <button onClick={handleSaveTeamEdit} disabled={loading} style={{flex:1, background:'#10B981',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:13,fontWeight:500,cursor:loading?'default':'pointer'}}>{loading?'Saving...':'Save Changes'}</button>
+            </div>
+          </div>
+        )}
+
+        {/* Super Admin Trigger Button */}
+        {mode !== 'superadmin' && (
+          <div style={{marginTop: 20, textAlign: 'center'}}>
+            <button 
+              onClick={()=>{setMode('superadmin');setSuperPwInput('');setSuperErr('');}} 
+              style={{background:'transparent', border:'none', color:t.muted, fontSize:11, cursor:'pointer', opacity: 0.6}}
+            >
+              ⚙️ Manage Teams
+            </button>
+          </div>
+        )}
+
       </div>
     </div>
   );
 }
+
 // ── App Component — State & Data Loading ──────────────────────────────────
 export default function App() {
   // Auth
