@@ -138,7 +138,7 @@ function LoginScreen({ onLogin }) {
             </button>
           ))}
         </div>
-        {mode==='login' ? (
+        {mode === 'login' && (
           <>
             <div style={{marginBottom:10}}>
               <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Team Name</label>
@@ -159,7 +159,9 @@ function LoginScreen({ onLogin }) {
               {loading?'Checking...':'Enter'}
             </button>
           </>
-        ) : (
+        )}
+
+        {mode === 'create' && (
           <>
             <div style={{display:'flex',flexDirection:'column',gap:10}}>
               {[['teamName','Team Name','e.g. Team Alpha, PA-2 Section','text'],
@@ -182,7 +184,34 @@ function LoginScreen({ onLogin }) {
             <p style={{margin:'10px 0 0',fontSize:11,color:t.muted,textAlign:'center'}}>Each team gets completely isolated data. Share the site password with your members.</p>
           </>
         )}
-                {mode==='change'&&<><div style={{display:'flex',flexDirection:'column',gap:12}}><div style={{marginBottom:10}}><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Team Name</label><input type="text" value={changeForm.teamName} onChange={e=>setChangeForm(f=>({...f,teamName:e.target.value}))} placeholder="Your team name" style={inp}/></div><div style={{marginBottom:10}}><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Current Password</label><input type="password" value={changeForm.currentPw} onChange={e=>setChangeForm(f=>({...f,currentPw:e.target.value}))} placeholder="Current password" style={inp}/></div><div style={{marginBottom:10}}><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>New Password</label><input type="password" value={changeForm.newPw} onChange={e=>setChangeForm(f=>({...f,newPw:e.target.value}))} placeholder="New password" style={inp}/></div><div style={{marginBottom:10}}><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Confirm New Password</label><input type="password" value={changeForm.confirmPw} onChange={e=>setChangeForm(f=>({...f,confirmPw:e.target.value}))} placeholder="Confirm new password" style={inp}/></div>{changeErr&&<p style={{margin:'0 0 8px',fontSize:12,color:'#ef4444',textAlign:'center'}}>{changeErr}</p>}{changeOk&&<p style={{margin:'0 0 8px',fontSize:12,color:'#22c55e',textAlign:'center'}}>Password updated successfully!</p>}<button onClick={handleChangePw} disabled={loading} style={{width:'100%',background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:12,fontSize:14,fontWeight:500,cursor:loading?'default':'pointer',opacity:loading?0.7:1}}>{loading?'Updating...':'Change Password'}</button></div></>}
+
+        {mode === 'change' && (
+          <>
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              <div style={{marginBottom:10}}>
+                <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Team Name</label>
+                <input type="text" value={changeForm.teamName} onChange={e=>setChangeForm(f=>({...f,teamName:e.target.value}))} placeholder="Your team name" style={inp}/>
+              </div>
+              <div style={{marginBottom:10}}>
+                <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Current Password</label>
+                <input type="password" value={changeForm.currentPw} onChange={e=>setChangeForm(f=>({...f,currentPw:e.target.value}))} placeholder="Current password" style={inp}/>
+              </div>
+              <div style={{marginBottom:10}}>
+                <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>New Password</label>
+                <input type="password" value={changeForm.newPw} onChange={e=>setChangeForm(f=>({...f,newPw:e.target.value}))} placeholder="New password" style={inp}/>
+              </div>
+              <div style={{marginBottom:10}}>
+                <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Confirm New Password</label>
+                <input type="password" value={changeForm.confirmPw} onChange={e=>setChangeForm(f=>({...f,confirmPw:e.target.value}))} placeholder="Confirm new password" style={inp}/>
+              </div>
+              {changeErr&&<p style={{margin:'0 0 8px',fontSize:12,color:'#ef4444',textAlign:'center'}}>{changeErr}</p>}
+              {changeOk&&<p style={{margin:'0 0 8px',fontSize:12,color:'#22c55e',textAlign:'center'}}>Password updated successfully!</p>}
+              <button onClick={handleChangePw} disabled={loading} style={{width:'100%',background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:12,fontSize:14,fontWeight:500,cursor:loading?'default':'pointer',opacity:loading?0.7:1}}>
+                {loading?'Updating...':'Change Password'}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
