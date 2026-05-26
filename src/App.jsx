@@ -130,8 +130,7 @@ function LoginScreen({ onLogin }) {
 
   // --- SUPER ADMIN HANDLERS ---
   const handleSuperLogin = async () => {
-    // ⚠️ CHANGE THIS PASSWORD ⚠️
-    if (superPwInput === 'master123') {
+    if (superPwInput === 'master123') { // ⚠️ CHANGE THIS PASSWORD ⚠️
       setSuperErr('');
       setLoading(true);
       const { data, error } = await supabase.from('teams').select('*');
@@ -145,6 +144,15 @@ function LoginScreen({ onLogin }) {
     } else {
       setSuperErr('Incorrect master password.');
     }
+  };
+
+  // --- NEW: Super Admin Logout Function ---
+  const handleSuperLogout = () => {
+    setSuperAdminUnlocked(false);
+    setSuperPwInput('');     // Clear the master password from state
+    setAllTeams([]);         // Clear sensitive team data from state
+    setEditingTeam(null);
+    setMode('login');        // Return to normal login screen
   };
 
   const handleDeleteTeam = async (id) => {
@@ -297,7 +305,6 @@ function LoginScreen({ onLogin }) {
           <div style={{display:'flex',flexDirection:'column',gap:12, animation:'fadeIn 0.3s'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
               <h3 style={{margin:0,fontSize:16,color:t.text}}>Manage Teams <span style={{fontSize:12, background:t.accentGlow, color:t.accent, padding:'2px 8px', borderRadius:12}}>{allTeams.length} Total</span></h3>
-              <button onClick={()=>{setSuperAdminUnlocked(false);setMode('login');}} style={{background:'transparent',border:'none',color:t.muted,cursor:'pointer',fontSize:12}}>🔒 Lock</button>
             </div>
             
             <div style={{maxHeight: 280, overflowY: 'auto', display:'flex', flexDirection:'column', gap:8, paddingRight:4}}>
@@ -315,6 +322,15 @@ function LoginScreen({ onLogin }) {
               ))}
               {allTeams.length === 0 && <p style={{fontSize:13, color:t.muted, textAlign:'center', padding:'20px 0'}}>No teams found.</p>}
             </div>
+
+            {/* Prominent Super Admin Logout Button */}
+            <button 
+              onClick={handleSuperLogout} 
+              style={{marginTop:8, width:'100%', background:'transparent', border:'1px solid #ef4444', color:'#ef4444', borderRadius:8, padding:10, fontSize:13, fontWeight:600, cursor:'pointer', transition: 'all 0.2s'}}
+            >
+              🔒 Lock & Exit Admin Panel
+            </button>
+
           </div>
         )}
 
