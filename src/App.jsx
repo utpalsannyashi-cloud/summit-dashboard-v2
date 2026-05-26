@@ -73,38 +73,7 @@ const mkInp = t => ({
   color:t.text,outline:'none',width:'100%',boxSizing:'border-box',
 });
 
-Since the new "Super Admin" feature adds new state variables, new functions, and new UI elements spread throughout the component, you need to replace the **entire `LoginScreen` function**.
-
-Here is exactly what to find and what to replace it with.
-
-### Step 1: Find this exact block of code
-
-Scroll to where your `LoginScreen` function starts (around line 53). Highlight everything from `function LoginScreen({ onLogin }) {` all the way down to the closing brace `}` right before your `App` component starts.
-
-**FIND AND HIGHLIGHT THIS ENTIRE SECTION:**
-
-```javascript
-function LoginScreen({ onLogin }) {
-  const [isDark] = useState(true);
-  const t = makeTheme(isDark);
-  // ... (all the state and functions inside LoginScreen) ...
-  // ... (all the return(...) UI code inside LoginScreen) ...
-      </div>
-    </div>
-  );
-}
-
-```
-
----
-
-### Step 2: Replace it with this code
-
-Delete the highlighted section and paste this updated `LoginScreen` function in its place. *(Note: I have highlighted where you should change the default 'master123' password).*
-
-**REPLACE WITH THIS:**
-
-```javascript
+// ── Login Screen (with Super Admin) ──────────────────────────────────
 function LoginScreen({ onLogin }) {
   const [isDark] = useState(true);
   const t = makeTheme(isDark);
@@ -956,7 +925,7 @@ Be concise and professional.`;
                     <input type="file" ref={teamChatCameraRef} onChange={e=>setTeamChatFile(e.target.files[0]||null)} style={{display:'none'}} id="teamChatCameraInput" accept="image/*" capture="environment"/>
                     <label htmlFor="teamChatCameraInput" style={{background:t.bg,border:'1px solid '+t.border,color:t.muted,borderRadius:'50%',width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:18}} title="Take photo">📷</label>
                   </div>
-                  <textarea value={teamChatInput} onChange={e=>setTeamChatInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSendTeamMessage();}}} placeholder="Type a message or share a document..." style={{flex:1,padding:'12px 16px',borderRadius:22,border:'1px solid '+t.border,background:t.inputBg,color:t.text,fontSize:14,outline:'none',resize:'none',maxHeight:100,minHeight:44,fontFamily:'inherit'}}/>
+                  <textarea value={teamChatInput} onChange={e=>setTeamChatInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSendTeamMessage();}}} placeholder="Type a message or share a document..." style={{flex:1,padding:'12px 16px',borderRadius:22,border:'1px solid '+t.border,background:t.inputBg,color:t.text,fontSize:14,outline:'none',resize:'none',maxHeight:100,minHeight:44,fontFamily:'inherit'} }/>
                   <button onClick={handleSendTeamMessage} disabled={teamChatUploading||(!teamChatInput.trim()&&!teamChatFile)} style={{background:(teamChatInput.trim()||teamChatFile)?t.accent:'transparent',border:(teamChatInput.trim()||teamChatFile)?'none':'1px solid '+t.border,color:(teamChatInput.trim()||teamChatFile)?'#fff':t.muted,borderRadius:'50%',width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',cursor:(teamChatInput.trim()||teamChatFile)?'pointer':'default',transition:'all 0.2s',flexShrink:0}}>
                     {teamChatUploading?'⏳':'➤'}
                   </button>
