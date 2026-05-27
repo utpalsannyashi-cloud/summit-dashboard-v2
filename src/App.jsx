@@ -633,20 +633,67 @@ export default function App() {
   };
 
   // ── Drag & drop tasks ──────────────────────────────────────────────────
-  const handleDropAction = async (e, targetVerticalId, targetTaskId=null)=>{
+  const handleDropAction = async (e, targetVerticalId, targetTaskId = null) => {
     e.preventDefault();
     const draggedId = e.dataTransfer.getData('text/plain') || draggedTaskIdRef.current;
-    setDropTarget({verticalId:null,taskId:null}); dropTargetRef.current={verticalId:null,taskId:null};
-    if(!draggedId||targetTaskId===draggedId) return;
-    const draggedItem=tasks[draggedId]; if(!draggedItem) return;
-    let targetList=Object.values(tasks).filter(t=>t.vertical_id===targetVerticalId).sort((a,b)=>(a.task_order||0)-(b.task_order||0));
-    targetList=targetList.filter(t=>t.id!==draggedId);
-    if(targetTaskId){ const idx=targetList.findIndex(t=>t.id===targetTaskId); if(idx!==-1) targetList.splice(idx,0,draggedItem); else targetList.push(draggedItem); }
-    else targetList.push(draggedItem);
-    await Promise.all(targetList.map((t,idx)=>supabase.from('sd_tasks').update({task_order:idx+1,vertical_id:targetVerticalId}).eq('id',t.id).eq('team_id',teamId)));
-    if(draggedItem.vertical_id!==targetVerticalId){
-      let oldList=Object.values(tasks).filter(t=>t.vertical_id===draggedItem.vertical_id&&t.id!==draggedId).sort((a,b)=>(a.task_order||0)-(b.task_order||0));
-      await Promise.all(oldList.map((t,idx)=>supabase.from('sd_tasks').update({task_order:idx+1}).eq('id',t.id).eq('team_id',teamId)));
+    
+    setDropTarget({ verticalId: null, taskId: null }); 
+    dropTargetRef.current = { verticalId: null, taskId: null };
+    
+    if (!draggedId || targetTaskId === draggedId) return;
+    const draggedItem = tasks[draggedId]; 
+    if (!draggedItem) return;
+
+    const oldVerticalId = draggedItem.vertical_id;
+
+    let targetList = Object.values(tasks)
+      .filter(t => t.vertical_id === targetVerticalId)
+      .sort((a, b) => (a.task_order || 0) - (b.task_order || 0));
+    targetList = targetList.filter(t => t.id !== draggedId);
+
+    const updatedDraggedItem = { ...draggedItem, vertical_id: targetVerticalId };
+
+    if (targetTaskId) { 
+      const idx = targetList.findIndex(t => t.id === targetTaskId); 
+      if (idx !== -1) targetList.splice(idx, 0, updatedDraggedItem); 
+      else targetList.push(updatedDraggedItem); 
+    } else {
+      targetList.push(updatedDraggedItem);
+    }
+
+    const newTasksState = { ...tasks };
+    
+    targetList.forEach((t, idx) => {
+      newTasksState[t.id] = { ...t, task_order: idx + 1, vertical_id: targetVerticalId };
+    });
+
+    let oldList = [];
+    if (oldVerticalId !== targetVerticalId) {
+      oldList = Object.values(tasks)
+        .filter(t => t.vertical_id === oldVerticalId && t.id !== draggedId)
+        .sort((a, b) => (a.task_order || 0) - (b.task_order || 0));
+        
+      oldList.forEach((t, idx) => {
+        newTasksState[t.id] = { ...t, task_order: idx + 1 };
+      });
+    }
+
+    // Instantly commit visual state
+    setTasks(newTasksState);
+
+    // Database updates in the background
+    try {
+      await Promise.all(targetList.map((t, idx) => 
+        supabase.from('sd_tasks').update({ task_order: idx + 1, vertical_id: targetVerticalId }).eq('id', t.id).eq('team_id', teamId)
+      ));
+      
+      if (oldVerticalId !== targetVerticalId) {
+        await Promise.all(oldList.map((t, idx) => 
+          supabase.from('sd_tasks').update({ task_order: idx + 1 }).eq('id', t.id).eq('team_id', teamId)
+        ));
+      }
+    } catch (error) {
+      console.error("Failed to persist drag and drop action:", error);
     }
   };
   // ── Upload order PDF ───────────────────────────────────────────────────
