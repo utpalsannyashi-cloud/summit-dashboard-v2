@@ -431,6 +431,7 @@ export default function App() {
   const [taskFilter, setTaskFilter]       = useState('all');
   const [taskVerticalFilter, setTaskVerticalFilter] = useState('all');
   const [isNavOpen, setIsNavOpen]         = useState(false);
+  const isUpdatingTasksRef                = useRef(false); // <--- ADDED FIX
 
   // Drag & drop
   const [draggedTask, setDraggedTask]   = useState(null);
@@ -486,6 +487,7 @@ export default function App() {
     if (data) { const m={}; data.forEach(d=>m[d.id]=d); setOfficers(m); }
   };
   const loadTasks     = async (tid) => {
+    if (isUpdatingTasksRef.current) return; // <--- ADDED FIX
     const { data } = await supabase.from('sd_tasks').select('*').eq('team_id', tid);
     if (data) { const m={}; data.forEach(d=>m[d.id]=d); setTasks(m); }
   };
@@ -582,6 +584,8 @@ export default function App() {
     else await supabase.from('sd_officers').insert({id:crypto.randomUUID(), ...oForm, team_id:teamId, created_at:new Date().toISOString()});
     setModal(null);
   };
+  
+  // <--- ADDED FIX FOR IMMEDIATE TASK UI UPDATES --->
   const saveTask = async ()=>{
     if(!tForm.title.trim()||!tForm.vertical_id) return;
     
@@ -610,6 +614,7 @@ export default function App() {
       console.error("Failed to save task to database:", error);
     }
   };
+
   const handleDeleteConfirm = async ()=>{
     await supabase.from(modalData.col).delete().eq('id',modalData.id).eq('team_id',teamId);
     setModal(null);
@@ -654,7 +659,7 @@ export default function App() {
     setCopiedTask(null);
   };
 
-  // ── Drag & drop tasks ──────────────────────────────────────────────────
+  // ── Drag & drop tasks <--- ADDED FIX FOR RACE CONDITIONS --->
   const handleDropAction = async (e, targetVerticalId, targetTaskId = null) => {
     e.preventDefault();
     const draggedId = e.dataTransfer.getData('text/plain') || draggedTaskIdRef.current;
@@ -703,6 +708,9 @@ export default function App() {
     // Instantly commit visual state
     setTasks(newTasksState);
 
+    // LOCK REALTIME UPDATES
+    isUpdatingTasksRef.current = true;
+
     // Database updates in the background
     try {
       await Promise.all(targetList.map((t, idx) => 
@@ -716,8 +724,16 @@ export default function App() {
       }
     } catch (error) {
       console.error("Failed to persist drag and drop action:", error);
+    } finally {
+      // UNLOCK REALTIME UPDATES after a brief delay to let the DB settle
+      setTimeout(() => {
+        isUpdatingTasksRef.current = false;
+        loadTasks(teamId); // Fetch the final confirmed truth from the DB
+      }, 500); 
     }
   };
+
+
   // ── Upload order PDF ───────────────────────────────────────────────────
   const handleUploadOrder = async ()=>{
     if(!orderFile||!orderTitle.trim()||!orderDivision) return;
