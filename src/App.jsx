@@ -584,9 +584,31 @@ export default function App() {
   };
   const saveTask = async ()=>{
     if(!tForm.title.trim()||!tForm.vertical_id) return;
-    if(modalData.id) await supabase.from('sd_tasks').update(tForm).eq('id',modalData.id).eq('team_id',teamId);
-    else await supabase.from('sd_tasks').insert({id:crypto.randomUUID(), ...tForm, team_id:teamId, created_at:new Date().toISOString()});
-    setModal(null);
+    
+    const isEdit = !!modalData.id;
+    const taskId = isEdit ? modalData.id : crypto.randomUUID();
+    
+    const newTaskData = { 
+      id: taskId, 
+      ...tForm, 
+      team_id: teamId, 
+      created_at: isEdit && tasks[taskId] ? tasks[taskId].created_at : new Date().toISOString() 
+    };
+
+    // 1. OPTIMISTIC UI UPDATE: Update local state instantly
+    setTasks(prev => ({ ...prev, [taskId]: { ...prev[taskId], ...newTaskData } }));
+    setModal(null); // Close modal immediately
+
+    // 2. DATABASE UPDATE: Fire quietly in the background
+    try {
+      if(isEdit) {
+        await supabase.from('sd_tasks').update(tForm).eq('id', taskId).eq('team_id', teamId);
+      } else {
+        await supabase.from('sd_tasks').insert(newTaskData);
+      }
+    } catch (error) {
+      console.error("Failed to save task to database:", error);
+    }
   };
   const handleDeleteConfirm = async ()=>{
     await supabase.from(modalData.col).delete().eq('id',modalData.id).eq('team_id',teamId);
