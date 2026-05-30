@@ -89,7 +89,6 @@ function LoginScreen({ onLogin }) {
   const [changeErr, setChangeErr] = useState('');
   const [changeOk, setChangeOk] = useState(false);
 
-  // --- SUPER ADMIN STATE ---
   const [superAdminUnlocked, setSuperAdminUnlocked] = useState(false);
   const [superPwInput, setSuperPwInput] = useState('');
   const [superErr, setSuperErr] = useState('');
@@ -128,35 +127,25 @@ function LoginScreen({ onLogin }) {
     if (data) onLogin(data);
   };
 
-  // --- SUPER ADMIN HANDLERS ---
   const handleSuperLogin = async () => {
-    if (superPwInput === 'master123') { // ⚠️ CHANGE THIS PASSWORD ⚠️
+    if (superPwInput === 'master123') {
       setSuperErr('');
       setLoading(true);
       const { data, error } = await supabase.from('teams').select('*');
       setLoading(false);
-      if (data) {
-        setAllTeams(data);
-        setSuperAdminUnlocked(true);
-      } else {
-        setSuperErr('Failed to load teams. Check Supabase connection.');
-      }
+      if (data) { setAllTeams(data); setSuperAdminUnlocked(true); }
+      else setSuperErr('Failed to load teams. Check Supabase connection.');
     } else {
       setSuperErr('Incorrect master password.');
     }
   };
 
-  // --- NEW: Super Admin Logout Function ---
   const handleSuperLogout = () => {
-    setSuperAdminUnlocked(false);
-    setSuperPwInput('');     // Clear the master password from state
-    setAllTeams([]);         // Clear sensitive team data from state
-    setEditingTeam(null);
-    setMode('login');        // Return to normal login screen
+    setSuperAdminUnlocked(false); setSuperPwInput(''); setAllTeams([]); setEditingTeam(null); setMode('login');
   };
 
   const handleDeleteTeam = async (id) => {
-    if (!window.confirm('WARNING: Are you sure you want to permanently delete this team? All its data will become orphaned/inaccessible.')) return;
+    if (!window.confirm('WARNING: Are you sure you want to permanently delete this team?')) return;
     setLoading(true);
     await supabase.from('teams').delete().eq('team_id', id);
     const { data } = await supabase.from('teams').select('*');
@@ -167,19 +156,11 @@ function LoginScreen({ onLogin }) {
   const handleSaveTeamEdit = async () => {
     setLoading(true);
     const { error } = await supabase.from('teams').update({
-      team_name: editingTeam.team_name,
-      site_password: editingTeam.site_password,
-      admin_password: editingTeam.admin_password,
-      ai_rules_password: editingTeam.ai_rules_password
+      team_name: editingTeam.team_name, site_password: editingTeam.site_password,
+      admin_password: editingTeam.admin_password, ai_rules_password: editingTeam.ai_rules_password
     }).eq('team_id', editingTeam.team_id);
-    
-    if (!error) {
-      const { data } = await supabase.from('teams').select('*');
-      if (data) setAllTeams(data);
-      setEditingTeam(null);
-    } else {
-      alert("Failed to update team: " + error.message);
-    }
+    if (!error) { const { data } = await supabase.from('teams').select('*'); if (data) setAllTeams(data); setEditingTeam(null); }
+    else alert("Failed to update team: " + error.message);
     setLoading(false);
   };
 
@@ -187,7 +168,6 @@ function LoginScreen({ onLogin }) {
     <div style={{minHeight:'100vh',background:t.bg,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'system-ui,sans-serif'}}>
       <style>{`*{box-sizing:border-box}html,body{margin:0;padding:0;background:${t.bg}}`}</style>
       <div style={{background:t.card,border:`1px solid ${t.accent}`,borderRadius:16,padding:'2.5rem 2rem',width:'100%',maxWidth:420,boxShadow:`0 0 30px ${t.accentGlow}`,position:'relative'}}>
-        
         <div style={{textAlign:'center',marginBottom:'1.5rem'}}>
           <div style={{width:56,height:56,borderRadius:'50%',background:t.accentGlow,border:'1px solid '+t.accent,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',fontSize:26}}>🏛️</div>
           <div style={{fontSize:11,color:t.muted,letterSpacing:'3px',textTransform:'uppercase',marginBottom:8}}>Event Management System</div>
@@ -195,7 +175,6 @@ function LoginScreen({ onLogin }) {
           <p style={{margin:0,fontSize:13,color:t.muted}}>Multi-Team · Event Management</p>
         </div>
 
-        {/* Tab Navigation (Hidden in SuperAdmin mode) */}
         {mode !== 'superadmin' && (
           <div style={{display:'flex',background:t.bg,borderRadius:10,padding:3,marginBottom:20,gap:4}}>
             {[['login','Sign In'],['create','New Team'],['change','Change Password']].map(([m,l])=>(
@@ -214,8 +193,7 @@ function LoginScreen({ onLogin }) {
               <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Team Name</label>
               <input type="text" value={teamNameInput} onChange={e=>{setTeamNameInput(e.target.value);setPwErr('');}}
                 onKeyDown={e=>e.key==='Enter'&&document.getElementById('loginPwField').focus()}
-                placeholder="e.g. Team Alpha" autoFocus
-                style={{...inp,marginBottom:0}}/>
+                placeholder="e.g. Team Alpha" autoFocus style={{...inp,marginBottom:0}}/>
             </div>
             <div style={{marginBottom:10}}>
               <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Site Password</label>
@@ -258,22 +236,12 @@ function LoginScreen({ onLogin }) {
         {mode === 'change' && (
           <>
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
-              <div style={{marginBottom:10}}>
-                <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Team Name</label>
-                <input type="text" value={changeForm.teamName} onChange={e=>setChangeForm(f=>({...f,teamName:e.target.value}))} placeholder="Your team name" style={inp}/>
-              </div>
-              <div style={{marginBottom:10}}>
-                <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Current Password</label>
-                <input type="password" value={changeForm.currentPw} onChange={e=>setChangeForm(f=>({...f,currentPw:e.target.value}))} placeholder="Current password" style={inp}/>
-              </div>
-              <div style={{marginBottom:10}}>
-                <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>New Password</label>
-                <input type="password" value={changeForm.newPw} onChange={e=>setChangeForm(f=>({...f,newPw:e.target.value}))} placeholder="New password" style={inp}/>
-              </div>
-              <div style={{marginBottom:10}}>
-                <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Confirm New Password</label>
-                <input type="password" value={changeForm.confirmPw} onChange={e=>setChangeForm(f=>({...f,confirmPw:e.target.value}))} placeholder="Confirm new password" style={inp}/>
-              </div>
+              {[['teamName','Team Name','Your team name','text'],['currentPw','Current Password','Current password','password'],['newPw','New Password','New password','password'],['confirmPw','Confirm New Password','Confirm new password','password']].map(([key,label,ph,type])=>(
+                <div key={key} style={{marginBottom:10}}>
+                  <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>{label}</label>
+                  <input type={type} value={changeForm[key]} onChange={e=>setChangeForm(f=>({...f,[key]:e.target.value}))} placeholder={ph} style={inp}/>
+                </div>
+              ))}
               {changeErr&&<p style={{margin:'0 0 8px',fontSize:12,color:'#ef4444',textAlign:'center'}}>{changeErr}</p>}
               {changeOk&&<p style={{margin:'0 0 8px',fontSize:12,color:'#22c55e',textAlign:'center'}}>Password updated successfully!</p>}
               <button onClick={handleChangePw} disabled={loading} style={{width:'100%',background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:12,fontSize:14,fontWeight:500,cursor:loading?'default':'pointer',opacity:loading?0.7:1}}>
@@ -283,9 +251,8 @@ function LoginScreen({ onLogin }) {
           </>
         )}
 
-        {/* --- SUPER ADMIN MODES --- */}
         {mode === 'superadmin' && !superAdminUnlocked && (
-          <div style={{display:'flex',flexDirection:'column',gap:12, animation:'fadeIn 0.3s'}}>
+          <div style={{display:'flex',flexDirection:'column',gap:12,animation:'fadeIn 0.3s'}}>
             <h3 style={{margin:0,fontSize:16,color:t.text,textAlign:'center'}}>Super Admin Access</h3>
             <div>
               <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Master Password</label>
@@ -295,91 +262,67 @@ function LoginScreen({ onLogin }) {
             <button onClick={handleSuperLogin} disabled={loading} style={{width:'100%',background:'#7c3aed',color:'#fff',border:'none',borderRadius:8,padding:12,fontSize:14,fontWeight:500,cursor:loading?'default':'pointer'}}>
               {loading?'Loading...':'Unlock Admin Panel'}
             </button>
-            <button onClick={()=>setMode('login')} style={{width:'100%',background:'transparent',color:t.text,border:'1px solid '+t.border,borderRadius:8,padding:12,fontSize:14,fontWeight:500,cursor:'pointer'}}>
-              Cancel
-            </button>
+            <button onClick={()=>setMode('login')} style={{width:'100%',background:'transparent',color:t.text,border:'1px solid '+t.border,borderRadius:8,padding:12,fontSize:14,fontWeight:500,cursor:'pointer'}}>Cancel</button>
           </div>
         )}
 
         {mode === 'superadmin' && superAdminUnlocked && !editingTeam && (
-          <div style={{display:'flex',flexDirection:'column',gap:12, animation:'fadeIn 0.3s'}}>
+          <div style={{display:'flex',flexDirection:'column',gap:12,animation:'fadeIn 0.3s'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <h3 style={{margin:0,fontSize:16,color:t.text}}>Manage Teams <span style={{fontSize:12, background:t.accentGlow, color:t.accent, padding:'2px 8px', borderRadius:12}}>{allTeams.length} Total</span></h3>
+              <h3 style={{margin:0,fontSize:16,color:t.text}}>Manage Teams <span style={{fontSize:12,background:t.accentGlow,color:t.accent,padding:'2px 8px',borderRadius:12}}>{allTeams.length} Total</span></h3>
             </div>
-            
-            <div style={{maxHeight: 280, overflowY: 'auto', display:'flex', flexDirection:'column', gap:8, paddingRight:4}}>
+            <div style={{maxHeight:280,overflowY:'auto',display:'flex',flexDirection:'column',gap:8,paddingRight:4}}>
               {allTeams.map(tm => (
-                <div key={tm.team_id} style={{background:t.bg, border:'1px solid '+t.border, borderRadius:10, padding:12, display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                  <div style={{overflow:'hidden', textOverflow:'ellipsis'}}>
-                    <div style={{fontSize:14, fontWeight:600, color:t.text}}>{tm.team_name}</div>
-                    <div style={{fontSize:10, color:t.muted, fontFamily:'monospace', marginTop:2}}>{tm.team_id}</div>
+                <div key={tm.team_id} style={{background:t.bg,border:'1px solid '+t.border,borderRadius:10,padding:12,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <div style={{overflow:'hidden',textOverflow:'ellipsis'}}>
+                    <div style={{fontSize:14,fontWeight:600,color:t.text}}>{tm.team_name}</div>
+                    <div style={{fontSize:10,color:t.muted,fontFamily:'monospace',marginTop:2}}>{tm.team_id}</div>
                   </div>
-                  <div style={{display:'flex', gap:6, flexShrink:0}}>
+                  <div style={{display:'flex',gap:6,flexShrink:0}}>
                     <button onClick={()=>setEditingTeam(tm)} style={{background:t.surface,border:'1px solid '+t.border,borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer',color:t.text}}>Edit</button>
                     <button onClick={()=>handleDeleteTeam(tm.team_id)} style={{background:'rgba(239,68,68,0.1)',border:'1px solid #ef4444',borderRadius:6,padding:'4px 10px',fontSize:11,cursor:'pointer',color:'#ef4444'}}>Del</button>
                   </div>
                 </div>
               ))}
-              {allTeams.length === 0 && <p style={{fontSize:13, color:t.muted, textAlign:'center', padding:'20px 0'}}>No teams found.</p>}
+              {allTeams.length === 0 && <p style={{fontSize:13,color:t.muted,textAlign:'center',padding:'20px 0'}}>No teams found.</p>}
             </div>
-
-            {/* Prominent Super Admin Logout Button */}
-            <button 
-              onClick={handleSuperLogout} 
-              style={{marginTop:8, width:'100%', background:'transparent', border:'1px solid #ef4444', color:'#ef4444', borderRadius:8, padding:10, fontSize:13, fontWeight:600, cursor:'pointer', transition: 'all 0.2s'}}
-            >
+            <button onClick={handleSuperLogout} style={{marginTop:8,width:'100%',background:'transparent',border:'1px solid #ef4444',color:'#ef4444',borderRadius:8,padding:10,fontSize:13,fontWeight:600,cursor:'pointer'}}>
               🔒 Lock & Exit Admin Panel
             </button>
-
           </div>
         )}
 
         {mode === 'superadmin' && superAdminUnlocked && editingTeam && (
-          <div style={{display:'flex',flexDirection:'column',gap:10, animation:'fadeIn 0.2s'}}>
+          <div style={{display:'flex',flexDirection:'column',gap:10,animation:'fadeIn 0.2s'}}>
             <h3 style={{margin:0,fontSize:16,color:t.text,textAlign:'center',marginBottom:10}}>Edit: {editingTeam.team_name}</h3>
-            <div>
-              <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Team Name</label>
-              <input type="text" value={editingTeam.team_name} onChange={e=>setEditingTeam({...editingTeam, team_name: e.target.value})} style={inp}/>
-            </div>
-            <div>
-              <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Site Password</label>
-              <input type="text" value={editingTeam.site_password} onChange={e=>setEditingTeam({...editingTeam, site_password: e.target.value})} style={inp}/>
-            </div>
-            <div>
-              <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Admin Password</label>
-              <input type="text" value={editingTeam.admin_password} onChange={e=>setEditingTeam({...editingTeam, admin_password: e.target.value})} style={inp}/>
-            </div>
-            <div>
-              <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>AI Rules Password</label>
-              <input type="text" value={editingTeam.ai_rules_password} onChange={e=>setEditingTeam({...editingTeam, ai_rules_password: e.target.value})} style={inp}/>
-            </div>
-            <div style={{display:'flex', gap:10, marginTop:10}}>
-              <button onClick={()=>setEditingTeam(null)} disabled={loading} style={{flex:1, background:'transparent',border:'1px solid '+t.border,color:t.text,borderRadius:8,padding:10,fontSize:13,cursor:'pointer'}}>Cancel</button>
-              <button onClick={handleSaveTeamEdit} disabled={loading} style={{flex:1, background:'#10B981',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:13,fontWeight:500,cursor:loading?'default':'pointer'}}>{loading?'Saving...':'Save Changes'}</button>
+            {[['team_name','Team Name'],['site_password','Site Password'],['admin_password','Admin Password'],['ai_rules_password','AI Rules Password']].map(([key,label])=>(
+              <div key={key}>
+                <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>{label}</label>
+                <input type="text" value={editingTeam[key]} onChange={e=>setEditingTeam({...editingTeam,[key]:e.target.value})} style={inp}/>
+              </div>
+            ))}
+            <div style={{display:'flex',gap:10,marginTop:10}}>
+              <button onClick={()=>setEditingTeam(null)} disabled={loading} style={{flex:1,background:'transparent',border:'1px solid '+t.border,color:t.text,borderRadius:8,padding:10,fontSize:13,cursor:'pointer'}}>Cancel</button>
+              <button onClick={handleSaveTeamEdit} disabled={loading} style={{flex:1,background:'#10B981',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:13,fontWeight:500,cursor:loading?'default':'pointer'}}>{loading?'Saving...':'Save Changes'}</button>
             </div>
           </div>
         )}
 
-        {/* Super Admin Trigger Button */}
         {mode !== 'superadmin' && (
-          <div style={{marginTop: 20, textAlign: 'center'}}>
-            <button 
-              onClick={()=>{setMode('superadmin');setSuperPwInput('');setSuperErr('');}} 
-              style={{background:'transparent', border:'none', color:t.muted, fontSize:11, cursor:'pointer', opacity: 0.6}}
-            >
+          <div style={{marginTop:20,textAlign:'center'}}>
+            <button onClick={()=>{setMode('superadmin');setSuperPwInput('');setSuperErr('');}}
+              style={{background:'transparent',border:'none',color:t.muted,fontSize:11,cursor:'pointer',opacity:0.6}}>
               ⚙️ Manage Teams
             </button>
           </div>
         )}
-
       </div>
     </div>
   );
 }
 
-// ── App Component — State & Data Loading ──────────────────────────────────
+// ── App Component ──────────────────────────────────────────────────────────
 export default function App() {
-  // Auth
   const [team, setTeam]           = useState(null);
   const teamId                    = team?.team_id;
   const [authed, setAuthed]       = useState(false);
@@ -390,19 +333,16 @@ export default function App() {
   const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
   const [pwChangeForm, setPwChangeForm]       = useState({ auth:'', newSite:'', newAdmin:'', newAiRules:'' });
 
-  // Theme
   const [isDark, setIsDark] = useState(true);
   const t   = useMemo(()=>makeTheme(isDark),[isDark]);
   const inp = useMemo(()=>mkInp(t),[t]);
 
-  // AI Rules
   const [customAiRules, setCustomAiRules]             = useState('');
   const [showAiRulesAuthModal, setShowAiRulesAuthModal] = useState(false);
   const [showAiRulesModal, setShowAiRulesModal]         = useState(false);
   const [aiRulesPwInput, setAiRulesPwInput]             = useState('');
   const [aiRulesPwErr, setAiRulesPwErr]                 = useState(false);
 
-  // Data
   const [verticals, setVerticals]   = useState({});
   const [officers, setOfficers]     = useState({});
   const [tasks, setTasks]           = useState({});
@@ -410,7 +350,6 @@ export default function App() {
   const [orders, setOrders]         = useState([]);
   const [syncStatus, setSyncStatus] = useState('connecting');
 
-  // Team Chat
   const [teamMessages, setTeamMessages]       = useState([]);
   const [teamChatInput, setTeamChatInput]     = useState('');
   const [teamChatFile, setTeamChatFile]       = useState(null);
@@ -419,28 +358,25 @@ export default function App() {
   const teamChatFileRef = useRef(null);
   const teamChatCameraRef = useRef(null);
 
-  // Username
   const [username, setUsername]               = useState(()=>localStorage.getItem('ems_username')||'');
   const [usernameLastChanged, setUsernameLastChanged] = useState(()=>parseInt(localStorage.getItem('ems_username_time')||'0',10));
   const [showUsernameModal, setShowUsernameModal] = useState(false);
   const [usernameInput, setUsernameInput]     = useState('');
   const [usernameError, setUsernameError]     = useState('');
 
-  // View
   const [view, setView]                   = useState('dashboard');
   const [taskFilter, setTaskFilter]       = useState('all');
   const [taskVerticalFilter, setTaskVerticalFilter] = useState('all');
   const [isNavOpen, setIsNavOpen]         = useState(false);
-  const isUpdatingTasksRef                = useRef(false); // <--- ADDED FIX
+  const isUpdatingTasksRef                = useRef(false);
 
-  // Drag & drop
+  // ── Drag & drop state ──
   const [draggedTask, setDraggedTask]   = useState(null);
   const draggedTaskIdRef                = useRef(null);
   const [dropTarget, setDropTarget]     = useState({ verticalId:null, taskId:null });
   const dropTargetRef                   = useRef({ verticalId:null, taskId:null });
   const [copiedTask, setCopiedTask]     = useState(null);
 
-  // Modals
   const [modal, setModal]         = useState(null);
   const [modalData, setModalData] = useState({});
   const [vForm, setVForm]         = useState({ name:'', lead:'', status:'active' });
@@ -448,7 +384,6 @@ export default function App() {
   const [tForm, setTForm]         = useState({ title:'', description:'', goal:'', task_order:1, vertical_id:'', assigned_officer:'', status:'pending' });
   const [clearOpts, setClearOpts] = useState({ verticals:true, officers:true, tasks:true, movements:true });
 
-  // Orders upload
   const [orderFile, setOrderFile]           = useState(null);
   const [orderTitle, setOrderTitle]         = useState('');
   const [orderDivision, setOrderDivision]   = useState('');
@@ -458,7 +393,6 @@ export default function App() {
   const fileInputRef = useRef(null);
   const [viewPdf, setViewPdf]               = useState(null);
 
-  // AI Chat
   const [chatOpen, setChatOpen]         = useState(false);
   const [chatInput, setChatInput]       = useState('');
   const [chatHistory, setChatHistory]   = useState([]);
@@ -477,7 +411,7 @@ export default function App() {
   },[]);
   const startDragChat = e=>{ isDraggingChat.current=true; chatDragMoved.current=false; chatDragStart.current={x:e.clientX-chatPos.x,y:e.clientY-chatPos.y}; document.body.style.userSelect='none'; };
 
-  // ── Data loading helpers ───────────────────────────────────────────────
+  // ── Data loaders ──────────────────────────────────────────────────────
   const loadVerticals = async (tid) => {
     const { data } = await supabase.from('sd_verticals').select('*').eq('team_id', tid);
     if (data) { const m={}; data.forEach(d=>m[d.id]=d); setVerticals(m); setSyncStatus('live'); }
@@ -487,7 +421,7 @@ export default function App() {
     if (data) { const m={}; data.forEach(d=>m[d.id]=d); setOfficers(m); }
   };
   const loadTasks     = async (tid) => {
-    if (isUpdatingTasksRef.current) return; // <--- ADDED FIX
+    if (isUpdatingTasksRef.current) return;
     const { data } = await supabase.from('sd_tasks').select('*').eq('team_id', tid);
     if (data) { const m={}; data.forEach(d=>m[d.id]=d); setTasks(m); }
   };
@@ -504,7 +438,6 @@ export default function App() {
     if (data) setTeamMessages(data);
   };
 
-  // ── Seed initial data for new team ────────────────────────────────────
   const seedTeamData = async (tid) => {
     const { data: existV } = await supabase.from('sd_verticals').select('id').eq('team_id', tid);
     if (existV && existV.length > 0) return;
@@ -514,20 +447,14 @@ export default function App() {
     await supabase.from('sd_tasks').insert(SEED_TASKS.map(t=>({...t, team_id:tid, created_at:ts})));
   };
 
-  // ── Main effect: load data + realtime on login ─────────────────────────
   useEffect(()=>{
     if (!authed || !teamId) return;
     setSyncStatus('connecting');
-
     const init = async () => {
       await seedTeamData(teamId);
-      await Promise.all([
-        loadVerticals(teamId), loadOfficers(teamId), loadTasks(teamId),
-        loadMovements(teamId), loadOrders(teamId), loadMessages(teamId),
-      ]);
+      await Promise.all([loadVerticals(teamId), loadOfficers(teamId), loadTasks(teamId), loadMovements(teamId), loadOrders(teamId), loadMessages(teamId)]);
     };
     init();
-
     const channel = supabase.channel(`team-${teamId}`)
       .on('postgres_changes',{event:'*',schema:'public',table:'sd_verticals', filter:`team_id=eq.${teamId}`},()=>loadVerticals(teamId))
       .on('postgres_changes',{event:'*',schema:'public',table:'sd_officers',  filter:`team_id=eq.${teamId}`},()=>loadOfficers(teamId))
@@ -536,7 +463,6 @@ export default function App() {
       .on('postgres_changes',{event:'*',schema:'public',table:'sd_orders',    filter:`team_id=eq.${teamId}`},()=>loadOrders(teamId))
       .on('postgres_changes',{event:'*',schema:'public',table:'sd_messages',  filter:`team_id=eq.${teamId}`},()=>loadMessages(teamId))
       .subscribe(status=>{ if(status==='SUBSCRIBED') setSyncStatus('live'); else if(status==='CHANNEL_ERROR') setSyncStatus('error'); });
-
     return ()=>{ supabase.removeChannel(channel); };
   },[authed, teamId]);
 
@@ -544,7 +470,7 @@ export default function App() {
   useEffect(()=>{ teamChatEndRef.current?.scrollIntoView({behavior:'smooth'}); },[teamMessages,view]);
   useEffect(()=>{ if(view==='messages'&&!username){ setUsernameInput(''); setShowUsernameModal(true); } },[view,username]);
 
-  // ── Auth handlers ──────────────────────────────────────────────────────
+  // ── Auth ──────────────────────────────────────────────────────────────
   const handleLogout = ()=>{ setAuthed(false); setTeam(null); setAdminMode(false); setView('dashboard'); setIsNavOpen(false); };
   const handleAdminUnlock = ()=>{
     if(adminPwInput===team.admin_password){ setAdminMode(true); setAdminPwErr(false); setAdminPwInput(''); setShowAdminModal(false); setIsNavOpen(false); }
@@ -562,15 +488,12 @@ export default function App() {
     if(pwChangeForm.newSite)     updates.site_password     = pwChangeForm.newSite;
     if(pwChangeForm.newAdmin)    updates.admin_password    = pwChangeForm.newAdmin;
     if(pwChangeForm.newAiRules)  updates.ai_rules_password = pwChangeForm.newAiRules;
-    if(Object.keys(updates).length > 0){
-      await supabase.from('teams').update(updates).eq('team_id', teamId);
-      setTeam(prev=>({...prev, ...updates}));
-    }
+    if(Object.keys(updates).length > 0){ await supabase.from('teams').update(updates).eq('team_id', teamId); setTeam(prev=>({...prev, ...updates})); }
     setShowPasswordChangeModal(false); setPwChangeForm({auth:'',newSite:'',newAdmin:'',newAiRules:''});
     setModalData({icon:'✅',title:'Success',text:'Passwords updated and saved for your team.',danger:false}); setModal('alert');
   };
 
-  // ── CRUD handlers ──────────────────────────────────────────────────────
+  // ── CRUD ──────────────────────────────────────────────────────────────
   const saveVertical = async ()=>{
     if(!vForm.name.trim()) return;
     const color = COLORS[Object.keys(verticals).length % COLORS.length];
@@ -584,37 +507,18 @@ export default function App() {
     else await supabase.from('sd_officers').insert({id:crypto.randomUUID(), ...oForm, team_id:teamId, created_at:new Date().toISOString()});
     setModal(null);
   };
-  
-  // <--- ADDED FIX FOR IMMEDIATE TASK UI UPDATES --->
   const saveTask = async ()=>{
     if(!tForm.title.trim()||!tForm.vertical_id) return;
-    
     const isEdit = !!modalData.id;
     const taskId = isEdit ? modalData.id : crypto.randomUUID();
-    
-    const newTaskData = { 
-      id: taskId, 
-      ...tForm, 
-      team_id: teamId, 
-      created_at: isEdit && tasks[taskId] ? tasks[taskId].created_at : new Date().toISOString() 
-    };
-
-    // 1. OPTIMISTIC UI UPDATE: Update local state instantly
+    const newTaskData = { id:taskId, ...tForm, team_id:teamId, created_at:isEdit&&tasks[taskId]?tasks[taskId].created_at:new Date().toISOString() };
     setTasks(prev => ({ ...prev, [taskId]: { ...prev[taskId], ...newTaskData } }));
-    setModal(null); // Close modal immediately
-
-    // 2. DATABASE UPDATE: Fire quietly in the background
+    setModal(null);
     try {
-      if(isEdit) {
-        await supabase.from('sd_tasks').update(tForm).eq('id', taskId).eq('team_id', teamId);
-      } else {
-        await supabase.from('sd_tasks').insert(newTaskData);
-      }
-    } catch (error) {
-      console.error("Failed to save task to database:", error);
-    }
+      if(isEdit) await supabase.from('sd_tasks').update(tForm).eq('id', taskId).eq('team_id', teamId);
+      else await supabase.from('sd_tasks').insert(newTaskData);
+    } catch (error) { console.error("Failed to save task:", error); }
   };
-
   const handleDeleteConfirm = async ()=>{
     await supabase.from(modalData.col).delete().eq('id',modalData.id).eq('team_id',teamId);
     setModal(null);
@@ -631,7 +535,6 @@ export default function App() {
     await supabase.from('sd_officers').update({current_vertical:toV}).eq('id',oid).eq('team_id',teamId);
     await supabase.from('sd_movements').insert({ team_id:teamId, officer_id:oid, officer_name:o.name, from_vertical:o.current_vertical, to_vertical:toV, moved_by:movedBy, ts:new Date().toISOString() });
   };
-
   const handleClearData = async ()=>{
     const cols=[];
     if(clearOpts.verticals) cols.push('sd_verticals');
@@ -639,14 +542,11 @@ export default function App() {
     if(clearOpts.tasks)     cols.push('sd_tasks');
     if(clearOpts.movements) cols.push('sd_movements');
     await Promise.all(cols.map(c=>supabase.from(c).delete().eq('team_id',teamId)));
-    if(clearOpts.verticals){
-      const ts=new Date().toISOString();
-      await supabase.from('sd_verticals').insert(SEED_VERTICALS.map(v=>({...v,team_id:teamId,created_at:ts})));
-    }
+    if(clearOpts.verticals){ const ts=new Date().toISOString(); await supabase.from('sd_verticals').insert(SEED_VERTICALS.map(v=>({...v,team_id:teamId,created_at:ts}))); }
     setModal(null);
   };
 
-  // ── Paste task ─────────────────────────────────────────────────────────
+  // ── Paste task ────────────────────────────────────────────────────────
   const handlePasteTask = async (targetVerticalId, insertBeforeTaskId=null)=>{
     if(!copiedTask) return;
     const newId = 'task_' + Date.now().toString(36);
@@ -659,16 +559,19 @@ export default function App() {
     setCopiedTask(null);
   };
 
-  // ── Drag & drop tasks <--- ADDED FIX FOR RACE CONDITIONS --->
+  // ── DRAG & DROP (FIXED) ───────────────────────────────────────────────
   const handleDropAction = async (e, targetVerticalId, targetTaskId = null) => {
     e.preventDefault();
-    const draggedId = e.dataTransfer.getData('text/plain') || draggedTaskIdRef.current;
-    
-    setDropTarget({ verticalId: null, taskId: null }); 
+    e.stopPropagation();
+
+    // FIX 1: Capture draggedId BEFORE clearing any state
+    const draggedId = draggedTaskIdRef.current || e.dataTransfer.getData('text/plain');
+
+    setDropTarget({ verticalId: null, taskId: null });
     dropTargetRef.current = { verticalId: null, taskId: null };
-    
+
     if (!draggedId || targetTaskId === draggedId) return;
-    const draggedItem = tasks[draggedId]; 
+    const draggedItem = tasks[draggedId];
     if (!draggedItem) return;
 
     const oldVerticalId = draggedItem.vertical_id;
@@ -680,16 +583,15 @@ export default function App() {
 
     const updatedDraggedItem = { ...draggedItem, vertical_id: targetVerticalId };
 
-    if (targetTaskId) { 
-      const idx = targetList.findIndex(t => t.id === targetTaskId); 
-      if (idx !== -1) targetList.splice(idx, 0, updatedDraggedItem); 
-      else targetList.push(updatedDraggedItem); 
+    if (targetTaskId) {
+      const idx = targetList.findIndex(t => t.id === targetTaskId);
+      if (idx !== -1) targetList.splice(idx, 0, updatedDraggedItem);
+      else targetList.push(updatedDraggedItem);
     } else {
       targetList.push(updatedDraggedItem);
     }
 
     const newTasksState = { ...tasks };
-    
     targetList.forEach((t, idx) => {
       newTasksState[t.id] = { ...t, task_order: idx + 1, vertical_id: targetVerticalId };
     });
@@ -699,42 +601,34 @@ export default function App() {
       oldList = Object.values(tasks)
         .filter(t => t.vertical_id === oldVerticalId && t.id !== draggedId)
         .sort((a, b) => (a.task_order || 0) - (b.task_order || 0));
-        
       oldList.forEach((t, idx) => {
         newTasksState[t.id] = { ...t, task_order: idx + 1 };
       });
     }
 
-    // Instantly commit visual state
     setTasks(newTasksState);
-
-    // LOCK REALTIME UPDATES
     isUpdatingTasksRef.current = true;
 
-    // Database updates in the background
     try {
-      await Promise.all(targetList.map((t, idx) => 
+      await Promise.all(targetList.map((t, idx) =>
         supabase.from('sd_tasks').update({ task_order: idx + 1, vertical_id: targetVerticalId }).eq('id', t.id).eq('team_id', teamId)
       ));
-      
       if (oldVerticalId !== targetVerticalId) {
-        await Promise.all(oldList.map((t, idx) => 
+        await Promise.all(oldList.map((t, idx) =>
           supabase.from('sd_tasks').update({ task_order: idx + 1 }).eq('id', t.id).eq('team_id', teamId)
         ));
       }
     } catch (error) {
-      console.error("Failed to persist drag and drop action:", error);
+      console.error("Failed to persist drag and drop:", error);
     } finally {
-      // UNLOCK REALTIME UPDATES after a brief delay to let the DB settle
       setTimeout(() => {
         isUpdatingTasksRef.current = false;
-        loadTasks(teamId); // Fetch the final confirmed truth from the DB
-      }, 500); 
+        loadTasks(teamId);
+      }, 500);
     }
   };
 
-
-  // ── Upload order PDF ───────────────────────────────────────────────────
+  // ── Orders / Chat / Username ──────────────────────────────────────────
   const handleUploadOrder = async ()=>{
     if(!orderFile||!orderTitle.trim()||!orderDivision) return;
     setOrderUploading(true); setOrderProgress(50);
@@ -749,7 +643,6 @@ export default function App() {
     } catch(e){ setOrderProgress(0); setModalData({icon:'⚠️',title:'Upload Failed',text:e.message,danger:true}); setModal('alert'); }
     setOrderUploading(false);
   };
-
   const handleDeleteOrder = async (order)=>{
     try {
       if(order.storage_path) await supabase.storage.from('Orders').remove([order.storage_path]);
@@ -757,8 +650,6 @@ export default function App() {
       setModal(null);
     } catch(e){ setModalData({icon:'⚠️',title:'Delete Failed',text:e.message,danger:true}); setModal('alert'); }
   };
-
-  // ── Team Chat handlers ─────────────────────────────────────────────────
   const handleSendTeamMessage = async ()=>{
     if(!teamChatInput.trim()&&!teamChatFile) return;
     setTeamChatUploading(true);
@@ -778,14 +669,12 @@ export default function App() {
     } catch(e){ setModalData({icon:'⚠️',title:'Message Failed',text:e.message,danger:true}); setModal('alert'); }
     setTeamChatUploading(false);
   };
-
   const handleDeleteTeamMessage = async (msg)=>{
     try {
       if(msg.file?.path) await supabase.storage.from('Orders').remove([msg.file.path]);
       await supabase.from('sd_messages').delete().eq('id',msg.id).eq('team_id',teamId);
     } catch(e){ setModalData({icon:'⚠️',title:'Delete Failed',text:e.message,danger:true}); setModal('alert'); }
   };
-
   const handleClearTeamChat = async ()=>{
     try {
       const { data:msgs } = await supabase.from('sd_messages').select('*').eq('team_id',teamId);
@@ -795,7 +684,6 @@ export default function App() {
       setModal(null);
     } catch(e){ setModalData({icon:'⚠️',title:'Clear Failed',text:e.message,danger:true}); setModal('alert'); }
   };
-
   const handleSaveUsername = ()=>{
     const trimmed=usernameInput.trim();
     if(!trimmed){ setUsernameError('Username cannot be empty.'); return; }
@@ -806,7 +694,7 @@ export default function App() {
     setShowUsernameModal(false); setUsernameError('');
   };
 
-  // ── AI Chat ────────────────────────────────────────────────────────────
+  // ── AI Chat ───────────────────────────────────────────────────────────
   const sendChat = async (msg)=>{
     const text=msg||chatInput.trim(); if(!text) return;
     setChatInput('');
@@ -855,7 +743,7 @@ Be concise and professional.`;
     setChatLoading(false);
   };
 
-  // ── Derived ────────────────────────────────────────────────────────────
+  // ── Derived ───────────────────────────────────────────────────────────
   const vArr=Object.values(verticals);
   const oArr=Object.values(officers);
   const tArr=Object.values(tasks);
@@ -878,7 +766,6 @@ Be concise and professional.`;
     {id:'orders',   label:'📄 Issued Orders'},
   ];
 
-  // Show login screen if not authed
   if(!authed) return <LoginScreen onLogin={teamData=>{ setTeam(teamData); setAuthed(true); }}/>;
 
   return (
@@ -935,7 +822,6 @@ Be concise and professional.`;
 
       {/* ── Main content ── */}
       <div className={`main-content ${isNavOpen?'nav-open':''}`} style={{flex:1,padding:24,overflowY:'auto',overflowX:'hidden'}}>
-        {/* Header */}
         <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:'1.5rem',flexWrap:'wrap',gap:12}}>
           <div style={{display:'flex',gap:14}}>
             <button className="menu-btn" onClick={()=>setIsNavOpen(p=>!p)}>{isNavOpen?'✖':'☰'}</button>
@@ -957,7 +843,6 @@ Be concise and professional.`;
           <ThemeToggle isDark={isDark} onToggle={()=>setIsDark(d=>!d)} t={t}/>
         </div>
 
-        {/* Stat cards */}
         {view!=='messages'&&(
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(140px, 1fr))',gap:16,marginBottom:24}}>
             {[['Verticals',vArr.length,'🗂️','#3B82F6'],['Officers',oArr.length,'👥','#10b981'],['Tasks Done',doneTasks,'✅','#34D399'],['All Tasks',tArr.length,'📋','#8b5cf6']].map(([l,n,i,c])=>(
@@ -971,6 +856,7 @@ Be concise and professional.`;
             ))}
           </div>
         )}
+
         {/* ── TEAM CHAT ── */}
         {view==='messages'&&(
           <div style={{animation:'fadeIn 0.3s ease',display:'flex',flexDirection:'column',height:'calc(100vh - 120px)'}}>
@@ -1026,7 +912,7 @@ Be concise and professional.`;
                     <input type="file" ref={teamChatCameraRef} onChange={e=>setTeamChatFile(e.target.files[0]||null)} style={{display:'none'}} id="teamChatCameraInput" accept="image/*" capture="environment"/>
                     <label htmlFor="teamChatCameraInput" style={{background:t.bg,border:'1px solid '+t.border,color:t.muted,borderRadius:'50%',width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:18}} title="Take photo">📷</label>
                   </div>
-                  <textarea value={teamChatInput} onChange={e=>setTeamChatInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSendTeamMessage();}}} placeholder="Type a message or share a document..." style={{flex:1,padding:'12px 16px',borderRadius:22,border:'1px solid '+t.border,background:t.inputBg,color:t.text,fontSize:14,outline:'none',resize:'none',maxHeight:100,minHeight:44,fontFamily:'inherit'} }/>
+                  <textarea value={teamChatInput} onChange={e=>setTeamChatInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSendTeamMessage();}}} placeholder="Type a message or share a document..." style={{flex:1,padding:'12px 16px',borderRadius:22,border:'1px solid '+t.border,background:t.inputBg,color:t.text,fontSize:14,outline:'none',resize:'none',maxHeight:100,minHeight:44,fontFamily:'inherit'}}/>
                   <button onClick={handleSendTeamMessage} disabled={teamChatUploading||(!teamChatInput.trim()&&!teamChatFile)} style={{background:(teamChatInput.trim()||teamChatFile)?t.accent:'transparent',border:(teamChatInput.trim()||teamChatFile)?'none':'1px solid '+t.border,color:(teamChatInput.trim()||teamChatFile)?'#fff':t.muted,borderRadius:'50%',width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',cursor:(teamChatInput.trim()||teamChatFile)?'pointer':'default',transition:'all 0.2s',flexShrink:0}}>
                     {teamChatUploading?'⏳':'➤'}
                   </button>
@@ -1141,6 +1027,7 @@ Be concise and professional.`;
             })()}
           </div>
         )}
+
         {/* ── TASKS ── */}
         {view==='tasks'&&(
           <div style={{animation:'fadeIn 0.3s ease'}}>
@@ -1193,12 +1080,38 @@ Be concise and professional.`;
                                 <div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow,flexShrink:0,margin:'0 8px'}}/>
                                 <div style={{color:t.muted,fontSize:18,padding:'0 8px'}}>──▶</div>
                               </div>
+                              {/* ── TASK CARD (FIXED DRAG HANDLERS) ── */}
                               <div draggable={true}
-                                onDragStart={e=>{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',tk.id);draggedTaskIdRef.current=tk.id;setTimeout(()=>setDraggedTask(tk),0);}}
-                                onDragEnd={()=>{draggedTaskIdRef.current=null;setDraggedTask(null);setDropTarget({verticalId:null,taskId:null});dropTargetRef.current={verticalId:null,taskId:null};}}
-                                onDragEnter={e=>{e.preventDefault();e.stopPropagation();}}
-                                onDragOver={e=>{e.preventDefault();e.stopPropagation();e.dataTransfer.dropEffect='move';if(dropTargetRef.current.verticalId!==vt.id||dropTargetRef.current.taskId!==tk.id){dropTargetRef.current={verticalId:vt.id,taskId:tk.id};setDropTarget({verticalId:vt.id,taskId:tk.id});}}}
-                                onDrop={e=>{e.preventDefault();e.stopPropagation();handleDropAction(e,vt.id,tk.id);}}
+                                onDragStart={e=>{
+                                  e.dataTransfer.effectAllowed='move';
+                                  e.dataTransfer.setData('text/plain',tk.id);
+                                  draggedTaskIdRef.current=tk.id;
+                                  setTimeout(()=>setDraggedTask(tk),0);
+                                }}
+                                onDragEnd={()=>{
+                                  // FIX 2: Delay clearing the ref so onDrop can still read it
+                                  setTimeout(()=>{ draggedTaskIdRef.current=null; setDraggedTask(null); },100);
+                                  setDropTarget({verticalId:null,taskId:null});
+                                  dropTargetRef.current={verticalId:null,taskId:null};
+                                }}
+                                onDragEnter={e=>{
+                                  e.preventDefault();
+                                  // No stopPropagation here
+                                }}
+                                onDragOver={e=>{
+                                  e.preventDefault();
+                                  // FIX 3: Removed stopPropagation — was blocking drop targeting
+                                  e.dataTransfer.dropEffect='move';
+                                  if(dropTargetRef.current.verticalId!==vt.id||dropTargetRef.current.taskId!==tk.id){
+                                    dropTargetRef.current={verticalId:vt.id,taskId:tk.id};
+                                    setDropTarget({verticalId:vt.id,taskId:tk.id});
+                                  }
+                                }}
+                                onDrop={e=>{
+                                  e.preventDefault();
+                                  e.stopPropagation(); // Only here to prevent container double-fire
+                                  handleDropAction(e,vt.id,tk.id);
+                                }}
                                 style={{background:t.bg,border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`,borderRadius:10,padding:'12px 14px',position:'relative',minWidth:160,maxWidth:195,flexShrink:0,cursor:'grab',transition:'all 0.2s',userSelect:'none',opacity:isDragged?0.3:1,transform:isDragged?'scale(0.95)':'scale(1)'}}>
                                 <button onClick={()=>{copiedTask?.id===tk.id?setCopiedTask(null):setCopiedTask(tk);}} style={{position:'absolute',top:-8,right:-8,background:copiedTask?.id===tk.id?t.accent:t.surface,border:'1px solid '+(copiedTask?.id===tk.id?t.accent:t.border),borderRadius:12,padding:'4px 10px',fontSize:10,fontWeight:600,cursor:'pointer',color:copiedTask?.id===tk.id?'#fff':t.muted,transition:'all 0.2s',boxShadow:t.shadow,zIndex:10}}>{copiedTask?.id===tk.id?'Cancel copy':'Copy task'}</button>
                                 <div style={{fontSize:10,color:sc.text,fontWeight:600,marginBottom:3}}>{SL[tk.status]}</div>
