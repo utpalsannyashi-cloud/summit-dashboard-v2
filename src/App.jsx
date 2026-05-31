@@ -371,6 +371,9 @@ export default function App() {
   const isUpdatingTasksRef                = useRef(false);
   const tasksRef                          = useRef({});
 
+  // Keep tasksRef always current — avoids stale closure in handleDropAction
+  useEffect(()=>{ tasksRef.current = tasks; },[tasks]);
+
   // ── Drag & drop state ──
   const [draggedTask, setDraggedTask]   = useState(null);
   const draggedTaskIdRef                = useRef(null);
@@ -561,11 +564,12 @@ export default function App() {
     setCopiedTask(null);
   };
 
-  // ── DRAG & DROP (FIXED — uses tasksRef to avoid stale closure) ──────
+  // ── DRAG & DROP — ported from working Firebase version, adapted for Supabase ──
   const handleDropAction = async (e, targetVerticalId, targetTaskId = null) => {
     e.preventDefault();
     e.stopPropagation();
 
+    // Read draggedId BEFORE clearing state
     const draggedId = draggedTaskIdRef.current || e.dataTransfer.getData('text/plain');
 
     setDropTarget({ verticalId: null, taskId: null });
@@ -580,54 +584,60 @@ export default function App() {
 
     const oldVerticalId = draggedItem.vertical_id;
 
-    let targetList = Object.values(currentTasks)
-      .filter(t => t.vertical_id === targetVerticalId)
-      .sort((a, b) => (a.task_order || 0) - (b.task_order || 0));
-    targetList = targetList.filter(t => t.id !== draggedId);
+    // ── Step 1: Reorder old vertical if moving across verticals ──
+    const updates = [];
 
-    const updatedDraggedItem = { ...draggedItem, vertical_id: targetVerticalId };
-
-    if (targetTaskId) {
-      const idx = targetList.findIndex(t => t.id === targetTaskId);
-      if (idx !== -1) targetList.splice(idx, 0, updatedDraggedItem);
-      else targetList.push(updatedDraggedItem);
-    } else {
-      targetList.push(updatedDraggedItem);
-    }
-
-    const newTasksState = { ...currentTasks };
-    targetList.forEach((t, idx) => {
-      newTasksState[t.id] = { ...t, task_order: idx + 1, vertical_id: targetVerticalId };
-    });
-
-    let oldList = [];
     if (oldVerticalId !== targetVerticalId) {
-      oldList = Object.values(currentTasks)
+      const oldList = Object.values(currentTasks)
         .filter(t => t.vertical_id === oldVerticalId && t.id !== draggedId)
         .sort((a, b) => (a.task_order || 0) - (b.task_order || 0));
+
       oldList.forEach((t, idx) => {
-        newTasksState[t.id] = { ...t, task_order: idx + 1 };
+        updates.push({ id: t.id, task_order: idx + 1, vertical_id: oldVerticalId });
       });
     }
 
-    setTasks(newTasksState);
-    isUpdatingTasksRef.current = true;
+    // ── Step 2: Build new target list ──
+    let targetList = Object.values(currentTasks)
+      .filter(t => t.vertical_id === targetVerticalId)
+      .sort((a, b) => (a.task_order || 0) - (b.task_order || 0));
 
+    targetList = targetList.filter(t => t.id !== draggedId);
+
+    const draggedWithNewVertical = { ...draggedItem, vertical_id: targetVerticalId };
+
+    if (targetTaskId) {
+      const idx = targetList.findIndex(t => t.id === targetTaskId);
+      if (idx !== -1) targetList.splice(idx, 0, draggedWithNewVertical);
+      else targetList.push(draggedWithNewVertical);
+    } else {
+      targetList.push(draggedWithNewVertical);
+    }
+
+    targetList.forEach((t, idx) => {
+      updates.push({ id: t.id, task_order: idx + 1, vertical_id: targetVerticalId });
+    });
+
+    // ── Step 3: Optimistic UI update ──
+    const newTasksState = { ...currentTasks };
+    updates.forEach(u => {
+      newTasksState[u.id] = { ...newTasksState[u.id], task_order: u.task_order, vertical_id: u.vertical_id };
+    });
+    setTasks(newTasksState);
+
+    // ── Step 4: Persist to Supabase (all in parallel) ──
+    isUpdatingTasksRef.current = true;
     try {
-      await Promise.all(targetList.map((t, idx) =>
+      await Promise.all(updates.map(u =>
         supabase.from('sd_tasks')
-          .update({ task_order: idx + 1, vertical_id: targetVerticalId })
-          .eq('id', t.id).eq('team_id', teamId)
+          .update({ task_order: u.task_order, vertical_id: u.vertical_id })
+          .eq('id', u.id)
+          .eq('team_id', teamId)
       ));
-      if (oldVerticalId !== targetVerticalId) {
-        await Promise.all(oldList.map((t, idx) =>
-          supabase.from('sd_tasks')
-            .update({ task_order: idx + 1 })
-            .eq('id', t.id).eq('team_id', teamId)
-        ));
-      }
     } catch (err) {
       console.error('DnD persist failed:', err);
+      setModalData({ icon: '⚠️', title: 'Reorder Failed', text: err.message, danger: true });
+      setModal('alert');
     } finally {
       setTimeout(() => {
         isUpdatingTasksRef.current = false;
@@ -1057,7 +1067,7 @@ Be concise and professional.`;
               const allDone=tArr.filter(x=>x.vertical_id===vt.id&&x.status==='done').length;
               const allTotal=tArr.filter(x=>x.vertical_id===vt.id).length;
               return(
-                <div key={vt.id} style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,marginBottom:20,overflow:'hidden',boxShadow:t.shadow}}>
+                <div key={vt.id} style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,marginBottom:20,boxShadow:t.shadow}}>
                   <div style={{padding:'14px 20px',borderBottom:'1px solid '+t.border,borderLeft:`4px solid ${vt.color||t.accent}`,display:'flex',justifyContent:'space-between',alignItems:'center',background:t.surface}}>
                     <div><span style={{fontSize:15,fontWeight:600,color:t.text}}>{vt.name}</span><span style={{fontSize:12,color:t.muted,marginLeft:12}}>Goal: {vtasks[0]?.goal||''}</span></div>
                     <div style={{display:'flex',alignItems:'center',gap:12}}>
@@ -1097,8 +1107,8 @@ Be concise and professional.`;
                                   setTimeout(()=>setDraggedTask(tk),0);
                                 }}
                                 onDragEnd={()=>{
-                                  // FIX 2: Delay clearing the ref so onDrop can still read it
-                                  setTimeout(()=>{ draggedTaskIdRef.current=null; setDraggedTask(null); },100);
+                                  // Delay clearing ref so onDrop can still read it
+                                  setTimeout(()=>{ draggedTaskIdRef.current=null; setDraggedTask(null); }, 100);
                                   setDropTarget({verticalId:null,taskId:null});
                                   dropTargetRef.current={verticalId:null,taskId:null};
                                 }}
