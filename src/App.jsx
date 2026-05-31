@@ -570,36 +570,38 @@ export default function App() {
   const ghostRef = useRef(null);
 
   const startPointerDrag = (e, tk, vt) => {
-    if (e.target.tagName === 'BUTTON') return; // don't drag when clicking buttons
+    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return;
     e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
 
     draggedTaskIdRef.current = tk.id;
     setDraggedTask(tk);
     draggingRef.current = false;
     pointerStartRef.current = { x: e.clientX, y: e.clientY };
 
-    // Create ghost element
+    // Ghost element
     const ghost = document.createElement('div');
-    ghost.innerHTML = `<div style="background:#1e2235;border:2px solid #3B82F6;border-radius:10px;padding:12px 14px;min-width:160px;max-width:195px;color:#e8eaf6;font-family:system-ui,sans-serif;font-size:13px;font-weight:600;box-shadow:0 8px 25px rgba(0,0,0,0.5);opacity:0.95">${tk.title}</div>`;
-    ghost.style.cssText = 'position:fixed;top:-9999px;left:-9999px;pointer-events:none;z-index:99999;';
+    ghost.style.cssText = `position:fixed;pointer-events:none;z-index:99999;background:#1e2235;border:2px solid #3B82F6;border-radius:10px;padding:12px 14px;min-width:160px;color:#e8eaf6;font-family:system-ui,sans-serif;font-size:13px;font-weight:600;box-shadow:0 8px 25px rgba(0,0,0,0.5);top:${e.clientY - 20}px;left:${e.clientX - 80}px;`;
+    ghost.textContent = tk.title;
     document.body.appendChild(ghost);
     ghostRef.current = ghost;
 
-    const onMove = (e) => {
-      const dx = Math.abs(e.clientX - pointerStartRef.current.x);
-      const dy = Math.abs(e.clientY - pointerStartRef.current.y);
-      if (!draggingRef.current && (dx > 5 || dy > 5)) {
-        draggingRef.current = true;
-      }
-      if (draggingRef.current && ghost) {
-        ghost.style.top = (e.clientY - 20) + 'px';
-        ghost.style.left = (e.clientX - 80) + 'px';
+    const card = e.currentTarget;
+
+    const onMove = (ev) => {
+      const dx = Math.abs(ev.clientX - pointerStartRef.current.x);
+      const dy = Math.abs(ev.clientY - pointerStartRef.current.y);
+      if (dx > 5 || dy > 5) draggingRef.current = true;
+
+      if (ghostRef.current) {
+        ghostRef.current.style.top = (ev.clientY - 20) + 'px';
+        ghostRef.current.style.left = (ev.clientX - 80) + 'px';
       }
 
-      // Find drop target
-      ghost.style.display = 'none';
-      const el = document.elementFromPoint(e.clientX, e.clientY);
-      ghost.style.display = '';
+      // Detect drop target using elementFromPoint
+      if (ghostRef.current) ghostRef.current.style.display = 'none';
+      const el = document.elementFromPoint(ev.clientX, ev.clientY);
+      if (ghostRef.current) ghostRef.current.style.display = '';
 
       if (el) {
         const taskEl = el.closest('[data-taskid]');
@@ -611,30 +613,28 @@ export default function App() {
             dropTargetRef.current = { verticalId: vid, taskId: tid };
             setDropTarget({ verticalId: vid, taskId: tid });
           }
-        } else if (vertEl && !taskEl) {
+        } else if (vertEl) {
           const vid = vertEl.dataset.verticalid;
           if (dropTargetRef.current.verticalId !== vid || dropTargetRef.current.taskId !== null) {
             dropTargetRef.current = { verticalId: vid, taskId: null };
             setDropTarget({ verticalId: vid, taskId: null });
           }
+        } else {
+          if (dropTargetRef.current.verticalId !== null) {
+            dropTargetRef.current = { verticalId: null, taskId: null };
+            setDropTarget({ verticalId: null, taskId: null });
+          }
         }
       }
     };
 
-    const onUp = async (e) => {
-      document.removeEventListener('pointermove', onMove);
-      document.removeEventListener('pointerup', onUp);
-      if (ghost) ghost.remove();
-      ghostRef.current = null;
+    const onUp = async (ev) => {
+      card.removeEventListener('pointermove', onMove);
+      card.removeEventListener('pointerup', onUp);
+      card.removeEventListener('pointercancel', onUp);
+      if (ghostRef.current) { ghostRef.current.remove(); ghostRef.current = null; }
 
-      if (!draggingRef.current) {
-        draggedTaskIdRef.current = null;
-        setDraggedTask(null);
-        setDropTarget({ verticalId: null, taskId: null });
-        dropTargetRef.current = { verticalId: null, taskId: null };
-        return;
-      }
-
+      const didDrag = draggingRef.current;
       const targetVerticalId = dropTargetRef.current.verticalId;
       const targetTaskId = dropTargetRef.current.taskId;
       const draggedId = draggedTaskIdRef.current;
@@ -645,7 +645,7 @@ export default function App() {
       dropTargetRef.current = { verticalId: null, taskId: null };
       draggingRef.current = false;
 
-      if (!targetVerticalId || !draggedId) return;
+      if (!didDrag || !targetVerticalId || !draggedId) return;
 
       const currentTasks = tasksRef.current;
       const draggedItem = currentTasks[draggedId];
@@ -674,12 +674,11 @@ export default function App() {
       } else {
         targetList.push(draggedWithNew);
       }
-
       targetList.forEach((t, idx) => updates.push({ id: t.id, task_order: idx + 1, vertical_id: targetVerticalId }));
 
-      const newTasksState = { ...currentTasks };
-      updates.forEach(u => { newTasksState[u.id] = { ...newTasksState[u.id], task_order: u.task_order, vertical_id: u.vertical_id }; });
-      setTasks(newTasksState);
+      const newState = { ...currentTasks };
+      updates.forEach(u => { newState[u.id] = { ...newState[u.id], task_order: u.task_order, vertical_id: u.vertical_id }; });
+      setTasks(newState);
 
       isUpdatingTasksRef.current = true;
       try {
@@ -693,8 +692,9 @@ export default function App() {
       }
     };
 
-    document.addEventListener('pointermove', onMove);
-    document.addEventListener('pointerup', onUp);
+    card.addEventListener('pointermove', onMove);
+    card.addEventListener('pointerup', onUp);
+    card.addEventListener('pointercancel', onUp);
   };
 
   // ── Orders / Chat / Username ──────────────────────────────────────────
@@ -1149,39 +1149,12 @@ Be concise and professional.`;
                                 <div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow,flexShrink:0,margin:'0 8px'}}/>
                                 <div style={{color:t.muted,fontSize:18,padding:'0 8px'}}>──▶</div>
                               </div>
-                              {/* ── TASK CARD (FIXED DRAG HANDLERS) ── */}
-                              <div draggable={true}
-                                onDragStart={e=>{
-                                  e.dataTransfer.effectAllowed='move';
-                                  e.dataTransfer.setData('text/plain',tk.id);
-                                  draggedTaskIdRef.current=tk.id;
-                                  setTimeout(()=>setDraggedTask(tk),0);
-                                }}
-                                onDragEnd={()=>{
-                                  // Delay clearing ref so onDrop can still read it
-                                  setTimeout(()=>{ draggedTaskIdRef.current=null; setDraggedTask(null); }, 100);
-                                  setDropTarget({verticalId:null,taskId:null});
-                                  dropTargetRef.current={verticalId:null,taskId:null};
-                                }}
-                                onDragEnter={e=>{
-                                  e.preventDefault();
-                                  // No stopPropagation here
-                                }}
-                                onDragOver={e=>{
-                                  e.preventDefault();
-                                  // FIX 3: Removed stopPropagation — was blocking drop targeting
-                                  e.dataTransfer.dropEffect='move';
-                                  if(dropTargetRef.current.verticalId!==vt.id||dropTargetRef.current.taskId!==tk.id){
-                                    dropTargetRef.current={verticalId:vt.id,taskId:tk.id};
-                                    setDropTarget({verticalId:vt.id,taskId:tk.id});
-                                  }
-                                }}
-                                onDrop={e=>{
-                                  e.preventDefault();
-                                  e.stopPropagation(); // Only here to prevent container double-fire
-                                  handleDropAction(e,vt.id,tk.id);
-                                }}
-                                style={{background:t.bg,border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`,borderRadius:10,padding:'12px 14px',position:'relative',minWidth:160,maxWidth:195,flexShrink:0,cursor:'grab',transition:'all 0.2s',userSelect:'none',opacity:isDragged?0.3:1,transform:isDragged?'scale(0.95)':'scale(1)'}}>
+                              {/* ── TASK CARD (POINTER-BASED DRAG) ── */}
+                              <div
+                                data-taskid={tk.id}
+                                data-verticalid={vt.id}
+                                onPointerDown={e => startPointerDrag(e, tk, vt)}
+                                style={{background:t.bg,border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`,borderRadius:10,padding:'12px 14px',position:'relative',minWidth:160,maxWidth:195,flexShrink:0,cursor:'grab',transition:'all 0.2s',userSelect:'none',opacity:draggedTask?.id===tk.id?0.3:1,transform:draggedTask?.id===tk.id?'scale(0.95)':'scale(1)'}}>
                                 <button onClick={()=>{copiedTask?.id===tk.id?setCopiedTask(null):setCopiedTask(tk);}} style={{position:'absolute',top:-8,right:-8,background:copiedTask?.id===tk.id?t.accent:t.surface,border:'1px solid '+(copiedTask?.id===tk.id?t.accent:t.border),borderRadius:12,padding:'4px 10px',fontSize:10,fontWeight:600,cursor:'pointer',color:copiedTask?.id===tk.id?'#fff':t.muted,transition:'all 0.2s',boxShadow:t.shadow,zIndex:10}}>{copiedTask?.id===tk.id?'Cancel copy':'Copy task'}</button>
                                 <div style={{fontSize:10,color:sc.text,fontWeight:600,marginBottom:3}}>{SL[tk.status]}</div>
                                 <div style={{fontSize:13,fontWeight:600,color:t.text,marginBottom:3}}>{tk.title}</div>
