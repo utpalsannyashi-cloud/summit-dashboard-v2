@@ -564,86 +564,137 @@ export default function App() {
     setCopiedTask(null);
   };
 
-  // ── DRAG & DROP — ported from working Firebase version, adapted for Supabase ──
-  const handleDropAction = async (e, targetVerticalId, targetTaskId = null) => {
+  // ── DRAG & DROP — pointer-based (reliable cross-browser) ──────────────
+  const draggingRef = useRef(false);
+  const pointerStartRef = useRef({ x: 0, y: 0 });
+  const ghostRef = useRef(null);
+
+  const startPointerDrag = (e, tk, vt) => {
+    if (e.target.tagName === 'BUTTON') return; // don't drag when clicking buttons
     e.preventDefault();
-    e.stopPropagation();
 
-    // Read draggedId BEFORE clearing state
-    const draggedId = draggedTaskIdRef.current || e.dataTransfer.getData('text/plain');
+    draggedTaskIdRef.current = tk.id;
+    setDraggedTask(tk);
+    draggingRef.current = false;
+    pointerStartRef.current = { x: e.clientX, y: e.clientY };
 
-    setDropTarget({ verticalId: null, taskId: null });
-    dropTargetRef.current = { verticalId: null, taskId: null };
+    // Create ghost element
+    const ghost = document.createElement('div');
+    ghost.innerHTML = `<div style="background:#1e2235;border:2px solid #3B82F6;border-radius:10px;padding:12px 14px;min-width:160px;max-width:195px;color:#e8eaf6;font-family:system-ui,sans-serif;font-size:13px;font-weight:600;box-shadow:0 8px 25px rgba(0,0,0,0.5);opacity:0.95">${tk.title}</div>`;
+    ghost.style.cssText = 'position:fixed;top:-9999px;left:-9999px;pointer-events:none;z-index:99999;';
+    document.body.appendChild(ghost);
+    ghostRef.current = ghost;
 
-    if (!draggedId || targetTaskId === draggedId) return;
+    const onMove = (e) => {
+      const dx = Math.abs(e.clientX - pointerStartRef.current.x);
+      const dy = Math.abs(e.clientY - pointerStartRef.current.y);
+      if (!draggingRef.current && (dx > 5 || dy > 5)) {
+        draggingRef.current = true;
+      }
+      if (draggingRef.current && ghost) {
+        ghost.style.top = (e.clientY - 20) + 'px';
+        ghost.style.left = (e.clientX - 80) + 'px';
+      }
 
-    // Always read from ref — never stale
-    const currentTasks = tasksRef.current;
-    const draggedItem = currentTasks[draggedId];
-    if (!draggedItem) return;
+      // Find drop target
+      ghost.style.display = 'none';
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      ghost.style.display = '';
 
-    const oldVerticalId = draggedItem.vertical_id;
+      if (el) {
+        const taskEl = el.closest('[data-taskid]');
+        const vertEl = el.closest('[data-verticalid]');
+        if (taskEl && taskEl.dataset.taskid !== tk.id) {
+          const vid = taskEl.dataset.verticalid;
+          const tid = taskEl.dataset.taskid;
+          if (dropTargetRef.current.verticalId !== vid || dropTargetRef.current.taskId !== tid) {
+            dropTargetRef.current = { verticalId: vid, taskId: tid };
+            setDropTarget({ verticalId: vid, taskId: tid });
+          }
+        } else if (vertEl && !taskEl) {
+          const vid = vertEl.dataset.verticalid;
+          if (dropTargetRef.current.verticalId !== vid || dropTargetRef.current.taskId !== null) {
+            dropTargetRef.current = { verticalId: vid, taskId: null };
+            setDropTarget({ verticalId: vid, taskId: null });
+          }
+        }
+      }
+    };
 
-    // ── Step 1: Reorder old vertical if moving across verticals ──
-    const updates = [];
+    const onUp = async (e) => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      if (ghost) ghost.remove();
+      ghostRef.current = null;
 
-    if (oldVerticalId !== targetVerticalId) {
-      const oldList = Object.values(currentTasks)
-        .filter(t => t.vertical_id === oldVerticalId && t.id !== draggedId)
-        .sort((a, b) => (a.task_order || 0) - (b.task_order || 0));
+      if (!draggingRef.current) {
+        draggedTaskIdRef.current = null;
+        setDraggedTask(null);
+        setDropTarget({ verticalId: null, taskId: null });
+        dropTargetRef.current = { verticalId: null, taskId: null };
+        return;
+      }
 
-      oldList.forEach((t, idx) => {
-        updates.push({ id: t.id, task_order: idx + 1, vertical_id: oldVerticalId });
-      });
-    }
+      const targetVerticalId = dropTargetRef.current.verticalId;
+      const targetTaskId = dropTargetRef.current.taskId;
+      const draggedId = draggedTaskIdRef.current;
 
-    // ── Step 2: Build new target list ──
-    let targetList = Object.values(currentTasks)
-      .filter(t => t.vertical_id === targetVerticalId)
-      .sort((a, b) => (a.task_order || 0) - (b.task_order || 0));
+      draggedTaskIdRef.current = null;
+      setDraggedTask(null);
+      setDropTarget({ verticalId: null, taskId: null });
+      dropTargetRef.current = { verticalId: null, taskId: null };
+      draggingRef.current = false;
 
-    targetList = targetList.filter(t => t.id !== draggedId);
+      if (!targetVerticalId || !draggedId) return;
 
-    const draggedWithNewVertical = { ...draggedItem, vertical_id: targetVerticalId };
+      const currentTasks = tasksRef.current;
+      const draggedItem = currentTasks[draggedId];
+      if (!draggedItem) return;
 
-    if (targetTaskId) {
-      const idx = targetList.findIndex(t => t.id === targetTaskId);
-      if (idx !== -1) targetList.splice(idx, 0, draggedWithNewVertical);
-      else targetList.push(draggedWithNewVertical);
-    } else {
-      targetList.push(draggedWithNewVertical);
-    }
+      const oldVerticalId = draggedItem.vertical_id;
+      const updates = [];
 
-    targetList.forEach((t, idx) => {
-      updates.push({ id: t.id, task_order: idx + 1, vertical_id: targetVerticalId });
-    });
+      if (oldVerticalId !== targetVerticalId) {
+        Object.values(currentTasks)
+          .filter(t => t.vertical_id === oldVerticalId && t.id !== draggedId)
+          .sort((a, b) => (a.task_order || 0) - (b.task_order || 0))
+          .forEach((t, idx) => updates.push({ id: t.id, task_order: idx + 1, vertical_id: oldVerticalId }));
+      }
 
-    // ── Step 3: Optimistic UI update ──
-    const newTasksState = { ...currentTasks };
-    updates.forEach(u => {
-      newTasksState[u.id] = { ...newTasksState[u.id], task_order: u.task_order, vertical_id: u.vertical_id };
-    });
-    setTasks(newTasksState);
+      let targetList = Object.values(currentTasks)
+        .filter(t => t.vertical_id === targetVerticalId)
+        .sort((a, b) => (a.task_order || 0) - (b.task_order || 0))
+        .filter(t => t.id !== draggedId);
 
-    // ── Step 4: Persist to Supabase (all in parallel) ──
-    isUpdatingTasksRef.current = true;
-    try {
-      await Promise.all(updates.map(u =>
-        supabase.from('sd_tasks')
-          .update({ task_order: u.task_order, vertical_id: u.vertical_id })
-          .eq('id', u.id)
-          .eq('team_id', teamId)
-      ));
-    } catch (err) {
-      console.error('DnD persist failed:', err);
-      setModalData({ icon: '⚠️', title: 'Reorder Failed', text: err.message, danger: true });
-      setModal('alert');
-    } finally {
-      setTimeout(() => {
-        isUpdatingTasksRef.current = false;
-        loadTasks(teamId);
-      }, 500);
-    }
+      const draggedWithNew = { ...draggedItem, vertical_id: targetVerticalId };
+      if (targetTaskId) {
+        const idx = targetList.findIndex(t => t.id === targetTaskId);
+        if (idx !== -1) targetList.splice(idx, 0, draggedWithNew);
+        else targetList.push(draggedWithNew);
+      } else {
+        targetList.push(draggedWithNew);
+      }
+
+      targetList.forEach((t, idx) => updates.push({ id: t.id, task_order: idx + 1, vertical_id: targetVerticalId }));
+
+      const newTasksState = { ...currentTasks };
+      updates.forEach(u => { newTasksState[u.id] = { ...newTasksState[u.id], task_order: u.task_order, vertical_id: u.vertical_id }; });
+      setTasks(newTasksState);
+
+      isUpdatingTasksRef.current = true;
+      try {
+        await Promise.all(updates.map(u =>
+          supabase.from('sd_tasks').update({ task_order: u.task_order, vertical_id: u.vertical_id }).eq('id', u.id).eq('team_id', teamId)
+        ));
+      } catch (err) {
+        console.error('DnD failed:', err);
+      } finally {
+        setTimeout(() => { isUpdatingTasksRef.current = false; loadTasks(teamId); }, 500);
+      }
+    };
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
   };
 
   // ── Orders / Chat / Username ──────────────────────────────────────────
