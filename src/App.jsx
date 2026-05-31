@@ -369,6 +369,7 @@ export default function App() {
   const [taskVerticalFilter, setTaskVerticalFilter] = useState('all');
   const [isNavOpen, setIsNavOpen]         = useState(false);
   const isUpdatingTasksRef                = useRef(false);
+  const tasksRef                          = useRef({});
 
   // ── Drag & drop state ──
   const [draggedTask, setDraggedTask]   = useState(null);
@@ -469,6 +470,7 @@ export default function App() {
   useEffect(()=>{ chatEndRef.current?.scrollIntoView({behavior:'smooth'}); },[chatHistory,chatLoading]);
   useEffect(()=>{ teamChatEndRef.current?.scrollIntoView({behavior:'smooth'}); },[teamMessages,view]);
   useEffect(()=>{ if(view==='messages'&&!username){ setUsernameInput(''); setShowUsernameModal(true); } },[view,username]);
+  useEffect(()=>{ tasksRef.current = tasks; },[tasks]);
 
   // ── Auth ──────────────────────────────────────────────────────────────
   const handleLogout = ()=>{ setAuthed(false); setTeam(null); setAdminMode(false); setView('dashboard'); setIsNavOpen(false); };
@@ -559,24 +561,26 @@ export default function App() {
     setCopiedTask(null);
   };
 
-  // ── DRAG & DROP (FIXED) ───────────────────────────────────────────────
+  // ── DRAG & DROP (FIXED — uses tasksRef to avoid stale closure) ──────
   const handleDropAction = async (e, targetVerticalId, targetTaskId = null) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // FIX 1: Capture draggedId BEFORE clearing any state
     const draggedId = draggedTaskIdRef.current || e.dataTransfer.getData('text/plain');
 
     setDropTarget({ verticalId: null, taskId: null });
     dropTargetRef.current = { verticalId: null, taskId: null };
 
     if (!draggedId || targetTaskId === draggedId) return;
-    const draggedItem = tasks[draggedId];
+
+    // Always read from ref — never stale
+    const currentTasks = tasksRef.current;
+    const draggedItem = currentTasks[draggedId];
     if (!draggedItem) return;
 
     const oldVerticalId = draggedItem.vertical_id;
 
-    let targetList = Object.values(tasks)
+    let targetList = Object.values(currentTasks)
       .filter(t => t.vertical_id === targetVerticalId)
       .sort((a, b) => (a.task_order || 0) - (b.task_order || 0));
     targetList = targetList.filter(t => t.id !== draggedId);
@@ -591,14 +595,14 @@ export default function App() {
       targetList.push(updatedDraggedItem);
     }
 
-    const newTasksState = { ...tasks };
+    const newTasksState = { ...currentTasks };
     targetList.forEach((t, idx) => {
       newTasksState[t.id] = { ...t, task_order: idx + 1, vertical_id: targetVerticalId };
     });
 
     let oldList = [];
     if (oldVerticalId !== targetVerticalId) {
-      oldList = Object.values(tasks)
+      oldList = Object.values(currentTasks)
         .filter(t => t.vertical_id === oldVerticalId && t.id !== draggedId)
         .sort((a, b) => (a.task_order || 0) - (b.task_order || 0));
       oldList.forEach((t, idx) => {
@@ -611,15 +615,19 @@ export default function App() {
 
     try {
       await Promise.all(targetList.map((t, idx) =>
-        supabase.from('sd_tasks').update({ task_order: idx + 1, vertical_id: targetVerticalId }).eq('id', t.id).eq('team_id', teamId)
+        supabase.from('sd_tasks')
+          .update({ task_order: idx + 1, vertical_id: targetVerticalId })
+          .eq('id', t.id).eq('team_id', teamId)
       ));
       if (oldVerticalId !== targetVerticalId) {
         await Promise.all(oldList.map((t, idx) =>
-          supabase.from('sd_tasks').update({ task_order: idx + 1 }).eq('id', t.id).eq('team_id', teamId)
+          supabase.from('sd_tasks')
+            .update({ task_order: idx + 1 })
+            .eq('id', t.id).eq('team_id', teamId)
         ));
       }
-    } catch (error) {
-      console.error("Failed to persist drag and drop:", error);
+    } catch (err) {
+      console.error('DnD persist failed:', err);
     } finally {
       setTimeout(() => {
         isUpdatingTasksRef.current = false;
