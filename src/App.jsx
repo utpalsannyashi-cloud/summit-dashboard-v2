@@ -1,3 +1,16 @@
+To completely eliminate this issue, we need to bring out the "nuclear option" for text selection.
+
+Sometimes, setting `userSelect = 'none'` via JavaScript isn't fast enough, or it misses certain browser-specific prefixes (like `-webkit-user-select` for Safari/Chrome). Additionally, if you click slightly before dragging, the browser might have already started a text highlight before the drag script even runs.
+
+### What changed in this version:
+
+1. **Aggressive CSS Rule:** I added a `.is-dragging * { user-select: none !important; }` rule to the global stylesheet. This forces every single element on the page to become un-highlightable.
+2. **Class Toggle:** The `startPointerDrag` function now adds this `.is-dragging` class to the `document.body` the millisecond you click, and removes it the millisecond you let go.
+3. **Wipe Existing Highlights:** I added `window.getSelection()?.removeAllRanges();` right at the start of the drag. If you accidentally highlighted a letter while clicking down, this instantly wipes it clean so it doesn't get dragged across the screen.
+
+Here is the complete, updated code:
+
+```javascript
 import { createClient } from '@supabase/supabase-js';
 import { useState, useEffect, useMemo, useRef, Fragment } from 'react';
 import { COLORS, STATUS_COLORS, SEED_VERTICALS, SEED_OFFICERS, SEED_TASKS } from './constants';
@@ -323,9 +336,12 @@ function LoginScreen({ onLogin }) {
 
 // ── App Component ──────────────────────────────────────────────────────────
 export default function App() {
-  const [team, setTeam]            = useState(null);
-  const teamId                     = team?.team_id;
-  const [authed, setAuthed]        = useState(false);
+  const [team, setTeam] = useState(() => {
+    const saved = localStorage.getItem('ems_team_session');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const teamId = team?.team_id;
+  const [authed, setAuthed] = useState(() => !!localStorage.getItem('ems_team_session'));
   const [adminMode, setAdminMode] = useState(false);
   const [adminPwInput, setAdminPwInput]       = useState('');
   const [adminPwErr, setAdminPwErr]           = useState(false);
@@ -408,11 +424,11 @@ export default function App() {
 
   useEffect(()=>{
     const onMove = e=>{ if(!isDraggingChat.current) return; chatDragMoved.current=true; setChatPos({x:e.clientX-chatDragStart.current.x,y:e.clientY-chatDragStart.current.y}); };
-    const onUp   = ()=>{ isDraggingChat.current=false; document.body.style.userSelect=''; setTimeout(()=>{chatDragMoved.current=false;},50); };
+    const onUp   = ()=>{ isDraggingChat.current=false; setTimeout(()=>{chatDragMoved.current=false;},50); };
     window.addEventListener('pointermove',onMove); window.addEventListener('pointerup',onUp);
     return ()=>{ window.removeEventListener('pointermove',onMove); window.removeEventListener('pointerup',onUp); };
   },[]);
-  const startDragChat = e=>{ isDraggingChat.current=true; chatDragMoved.current=false; chatDragStart.current={x:e.clientX-chatPos.x,y:e.clientY-chatPos.y}; document.body.style.userSelect='none'; };
+  const startDragChat = e=>{ isDraggingChat.current=true; chatDragMoved.current=false; chatDragStart.current={x:e.clientX-chatPos.x,y:e.clientY-chatPos.y}; };
 
   // ── Data loaders ──────────────────────────────────────────────────────
   const loadVerticals = async (tid) => {
@@ -475,7 +491,7 @@ export default function App() {
   useEffect(()=>{ tasksRef.current = tasks; },[tasks]);
 
   // ── Auth ──────────────────────────────────────────────────────────────
-  const handleLogout = ()=>{ setAuthed(false); setTeam(null); setAdminMode(false); setView('dashboard'); setIsNavOpen(false); };
+  const handleLogout = ()=>{ setAuthed(false); setTeam(null); setAdminMode(false); setView('dashboard'); setIsNavOpen(false); localStorage.removeItem('ems_team_session'); };
   const handleAdminUnlock = ()=>{
     if(adminPwInput===team.admin_password){ setAdminMode(true); setAdminPwErr(false); setAdminPwInput(''); setShowAdminModal(false); setIsNavOpen(false); }
     else setAdminPwErr(true);
@@ -492,7 +508,12 @@ export default function App() {
     if(pwChangeForm.newSite)     updates.site_password     = pwChangeForm.newSite;
     if(pwChangeForm.newAdmin)    updates.admin_password    = pwChangeForm.newAdmin;
     if(pwChangeForm.newAiRules)  updates.ai_rules_password = pwChangeForm.newAiRules;
-    if(Object.keys(updates).length > 0){ await supabase.from('teams').update(updates).eq('team_id', teamId); setTeam(prev=>({...prev, ...updates})); }
+    if(Object.keys(updates).length > 0){ 
+      await supabase.from('teams').update(updates).eq('team_id', teamId); 
+      const newTeam = {...team, ...updates};
+      setTeam(newTeam); 
+      localStorage.setItem('ems_team_session', JSON.stringify(newTeam));
+    }
     setShowPasswordChangeModal(false); setPwChangeForm({auth:'',newSite:'',newAdmin:'',newAiRules:''});
     setModalData({icon:'✅',title:'Success',text:'Passwords updated and saved for your team.',danger:false}); setModal('alert');
   };
@@ -570,11 +591,15 @@ export default function App() {
 
   const startPointerDrag = (e, tk, vt) => {
     if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return;
+    
+    // Clear any accidental text selection made exactly on click
+    window.getSelection()?.removeAllRanges();
+
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
 
-    // 👇 Prevents the blue text-selection highlighting during drag
-    document.body.style.userSelect = 'none';
+    // Apply strict non-selection class to body
+    document.body.classList.add('is-dragging');
 
     draggedTaskIdRef.current = tk.id;
     setDraggedTask(tk);
@@ -661,8 +686,8 @@ export default function App() {
       if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
       if (ghostRef.current) { ghostRef.current.remove(); ghostRef.current = null; }
 
-      // 👇 Restores text selection after you drop the item
-      document.body.style.userSelect = '';
+      // Remove the non-selection class
+      document.body.classList.remove('is-dragging');
 
       const didDrag = draggingRef.current;
       const targetVerticalId = dropTargetRef.current.verticalId;
@@ -865,7 +890,7 @@ Be concise and professional.`;
     {id:'orders',   label:'📄 Issued Orders'},
   ];
 
-  if(!authed) return <LoginScreen onLogin={teamData=>{ setTeam(teamData); setAuthed(true); }}/>;
+  if(!authed) return <LoginScreen onLogin={teamData=>{ setTeam(teamData); setAuthed(true); localStorage.setItem('ems_team_session', JSON.stringify(teamData)); }}/>;
 
   return (
     <div style={{display:'flex',minHeight:'100vh',background:t.bg,fontFamily:'system-ui,sans-serif',marginRight:chatOpen&&window.innerWidth>768?'380px':'0',transition:'margin-right 0.3s cubic-bezier(0.4,0,0.2,1)'}}>
@@ -885,6 +910,14 @@ Be concise and professional.`;
         .main-content{margin-left:0;width:100%;transition:all 0.3s cubic-bezier(0.4,0,0.2,1)}
         .main-content.nav-open{margin-left:220px;width:calc(100% - 220px)}
         .chat-panel{position:fixed;background:${t.card};display:flex;flex-direction:column;z-index:5500;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);overflow:hidden}
+        
+        /* NUCLEAR OPTION TO PREVENT TEXT HIGHLIGHTING WHILE DRAGGING */
+        .is-dragging, .is-dragging * {
+          user-select: none !important;
+          -webkit-user-select: none !important;
+          -moz-user-select: none !important;
+        }
+
         @media(max-width:768px){.chat-panel{bottom:105px;right:16px;width:calc(100vw - 32px);height:450px;max-height:calc(100vh - 130px);border-radius:16px;border:1px solid ${t.border};box-shadow:0 10px 40px rgba(0,0,0,0.3);transform:translateY(20px) scale(0.95);opacity:0;pointer-events:none}.chat-panel.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}}
         @media(min-width:769px){.chat-panel{top:0;right:-380px;width:380px;height:100vh;border-left:1px solid ${t.border}}.chat-panel.open{right:0;box-shadow:-10px 0 40px rgba(0,0,0,0.2)}}
         @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -997,7 +1030,7 @@ Be concise and professional.`;
                 )}
                 <div ref={teamChatEndRef}/>
               </div>
-              <div style={{padding:16,background:t.surface,borderTop:'1px solid '+t.border,display:'flex',flexDirection:'column',gap:10}}>
+              <div style={{padding:'16px 90px 16px 16px',background:t.surface,borderTop:'1px solid '+t.border,display:'flex',flexDirection:'column',gap:10}}>
                 {teamChatFile&&(
                   <div style={{display:'flex',alignItems:'center',gap:10,background:t.bg,padding:'8px 12px',borderRadius:8,width:'fit-content',border:'1px solid '+t.border}}>
                     <span style={{fontSize:12,color:t.text,fontWeight:500}}>{teamChatFile.type?.includes('image')?'📷':'📎'} {teamChatFile.name}</span>
@@ -1094,20 +1127,26 @@ Be concise and professional.`;
                 <div key={vt.id} style={{marginBottom:24}}>
                   <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}><div style={{width:4,height:20,background:vt.color||t.accent,borderRadius:2}}/><h3 style={{margin:0,fontSize:15,fontWeight:600,color:t.text}}>{vt.name}</h3><span style={{fontSize:12,color:t.muted}}>{vt.officers.length} officer{vt.officers.length!==1?'s':''}</span></div>
                   <div style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,overflow:'hidden',boxShadow:t.shadow}}>
-                    <table style={{width:'100%',borderCollapse:'collapse'}}>
-                      <thead><tr style={{background:t.bg}}>{['Name','Designation','Move To','Actions'].map(h=><th key={h} style={{padding:'11px 14px',textAlign:'left',fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>{h}</th>)}</tr></thead>
+                    <table style={{width:'100%',borderCollapse:'collapse',tableLayout:'fixed'}}>
+                      <thead>
+                        <tr style={{background:t.bg}}>
+                          {['Name','Designation','Move To','Actions'].map((h, i)=>(
+                            <th key={h} style={{width:i===0?'30%':i===1?'30%':i===2?'25%':'15%',padding:'11px 14px',textAlign:'left',fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
                       <tbody>
                         {vt.officers.map((o,i)=>(
                           <tr key={o.id} style={{borderTop:'1px solid '+t.border,background:i%2===0?'transparent':t.surface}}>
-                            <td style={{padding:'11px 14px'}}>
+                            <td style={{padding:'11px 14px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
                               <div style={{display:'flex',alignItems:'center',gap:8}}>
                                 <div style={{width:30,height:30,borderRadius:'50%',background:t.accentGlow,border:'1px solid '+t.accent,display:'grid',placeItems:'center',fontSize:11,fontWeight:600,color:t.accent,flexShrink:0}}>{o.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
                                 <span style={{fontSize:13,fontWeight:500,color:t.text}}>{o.name}</span>
                               </div>
                             </td>
-                            <td style={{padding:'11px 14px',fontSize:13,color:t.muted}}>{o.designation}</td>
+                            <td style={{padding:'11px 14px',fontSize:13,color:t.muted,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{o.designation}</td>
                             <td style={{padding:'11px 14px'}}>
-                              <select onChange={e=>handleQuickMove(o.id,e.target.value)} defaultValue="" style={{...inp,width:'auto',padding:'4px 8px',fontSize:12,minWidth:110}}>
+                              <select onChange={e=>handleQuickMove(o.id,e.target.value)} defaultValue="" style={{...inp,width:'100%',padding:'4px 8px',fontSize:12}}>
                                 <option value="">Move to...</option>
                                 {vArr.filter(v=>v.id!==o.current_vertical).map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
                               </select>
@@ -1143,7 +1182,7 @@ Be concise and professional.`;
               <button onClick={()=>setTaskVerticalFilter('all')} style={{background:taskVerticalFilter==='all'?t.accentGlow:'transparent',border:'1px solid '+(taskVerticalFilter==='all'?t.accent:t.border),borderRadius:20,padding:'4px 14px',fontSize:12,cursor:'pointer',color:taskVerticalFilter==='all'?t.accent:t.muted}}>All Verticals</button>
               {vArr.map(vt=><button key={vt.id} onClick={()=>setTaskVerticalFilter(vt.id)} style={{background:taskVerticalFilter===vt.id?(vt.color||t.accent)+'22':'transparent',border:'1px solid '+(taskVerticalFilter===vt.id?vt.color||t.accent:t.border),borderRadius:20,padding:'4px 14px',fontSize:12,cursor:'pointer',color:taskVerticalFilter===vt.id?vt.color||t.accent:t.muted,fontWeight:taskVerticalFilter===vt.id?500:400}}>{vt.name}</button>)}
             </div>
-            {vArr.map(vt=>{
+            {vArr.filter(vt => taskVerticalFilter === 'all' || vt.id === taskVerticalFilter).map(vt=>{
               const vtasks=filteredTasks.filter(x=>x.vertical_id===vt.id).sort((a,b)=>(a.task_order||0)-(b.task_order||0));
               const allDone=tArr.filter(x=>x.vertical_id===vt.id&&x.status==='done').length;
               const allTotal=tArr.filter(x=>x.vertical_id===vt.id).length;
@@ -1189,8 +1228,7 @@ Be concise and professional.`;
                                 data-verticalid={vt.id}
                                 onPointerDown={e => startPointerDrag(e, tk, vt)}
                                 style={{
-                                  background:t.bg, border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`, borderRadius:10, padding:'12px 14px', position:'relative', minWidth:160, maxWidth:195, flexShrink:0, cursor:'grab', transition:'all 0.2s', userSelect:'none', 
-                                  touchAction:'none',
+                                  background:t.bg, border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`, borderRadius:10, padding:'12px 14px', position:'relative', minWidth:160, maxWidth:195, flexShrink:0, cursor:'grab', transition:'all 0.2s', userSelect:'none', touchAction:'none',
                                   opacity:draggedTask?.id===tk.id?0.3:1, transform:draggedTask?.id===tk.id?'scale(0.95)':'scale(1)'
                                 }}>
                                 <button onClick={()=>{copiedTask?.id===tk.id?setCopiedTask(null):setCopiedTask(tk);}} style={{position:'absolute',top:-8,right:-8,background:copiedTask?.id===tk.id?t.accent:t.surface,border:'1px solid '+(copiedTask?.id===tk.id?t.accent:t.border),borderRadius:12,padding:'4px 10px',fontSize:10,fontWeight:600,cursor:'pointer',color:copiedTask?.id===tk.id?'#fff':t.muted,transition:'all 0.2s',boxShadow:t.shadow,zIndex:10}}>{copiedTask?.id===tk.id?'Cancel copy':'Copy task'}</button>
@@ -1372,3 +1410,5 @@ Be concise and professional.`;
     </div>
   );
 }
+
+```
