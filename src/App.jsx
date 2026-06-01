@@ -180,7 +180,7 @@ function LoginScreen({ onLogin }) {
             {[['login','Sign In'],['create','New Team'],['change','Change Password']].map(([m,l])=>(
               <button key={m} onClick={()=>{setMode(m);setPwErr('');setCreateErr('');setChangeErr('');setChangeOk(false);}}
                 style={{flex:1,padding:'7px 0',borderRadius:8,border:'none',fontSize:13,fontWeight:500,cursor:'pointer',
-                  background:mode===m?t.accent:'transparent',color:mode===m?'#fff':t.muted,transition:'all 0.2s'}}>
+                background:mode===m?t.accent:'transparent',color:mode===m?'#fff':t.muted,transition:'all 0.2s'}}>
                 {l}
               </button>
             ))}
@@ -371,7 +371,7 @@ export default function App() {
   const isUpdatingTasksRef                = useRef(false);
   const tasksRef                          = useRef({});
 
-  // Keep tasksRef always current — avoids stale closure in handleDropAction
+  // Keep tasksRef always current
   useEffect(()=>{ tasksRef.current = tasks; },[tasks]);
 
   // ── Drag & drop state ──
@@ -587,20 +587,45 @@ export default function App() {
 
     const card = e.currentTarget;
     let rafId = null;
+    let scrollRafId = null;
     let lastX = e.clientX, lastY = e.clientY;
+
+    // Advanced recursive auto-scroll loop during drag
+    const autoScroll = () => {
+      if (!draggingRef.current) return;
+      
+      const mc = document.querySelector('.main-content');
+      if (mc) {
+        const rect = mc.getBoundingClientRect();
+        if (lastY < rect.top + 80) mc.scrollBy(0, -12);
+        else if (lastY > rect.bottom - 80) mc.scrollBy(0, 12);
+      }
+      
+      const hzScrolls = document.querySelectorAll('.hz-scroll');
+      hzScrolls.forEach(hz => {
+         const hRect = hz.getBoundingClientRect();
+         // If pointer is vertically within the bounds of this horizontal list...
+         if (lastY >= hRect.top && lastY <= hRect.bottom) {
+            if (lastX < hRect.left + 80) hz.scrollBy(-12, 0);
+            else if (lastX > hRect.right - 80) hz.scrollBy(12, 0);
+         }
+      });
+      scrollRafId = requestAnimationFrame(autoScroll);
+    };
 
     const onMove = (ev) => {
       lastX = ev.clientX; lastY = ev.clientY;
       const dx = Math.abs(lastX - pointerStartRef.current.x);
       const dy = Math.abs(lastY - pointerStartRef.current.y);
-      if (dx > 5 || dy > 5) draggingRef.current = true;
+      if (!draggingRef.current && (dx > 5 || dy > 5)) {
+        draggingRef.current = true;
+        autoScroll(); // Start scrolling listeners as soon as drag fully begins
+      }
 
-      // Move ghost immediately — no RAF needed, just transform
       if (ghostRef.current) {
         ghostRef.current.style.transform = `translate(${lastX - e.clientX}px, ${lastY - e.clientY}px)`;
       }
 
-      // Throttle drop target detection with RAF
       if (rafId) return;
       rafId = requestAnimationFrame(() => {
         rafId = null;
@@ -638,6 +663,7 @@ export default function App() {
       card.removeEventListener('pointerup', onUp);
       card.removeEventListener('pointercancel', onUp);
       if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      if (scrollRafId) { cancelAnimationFrame(scrollRafId); scrollRafId = null; }
       if (ghostRef.current) { ghostRef.current.remove(); ghostRef.current = null; }
 
       const didDrag = draggingRef.current;
@@ -656,6 +682,14 @@ export default function App() {
       const currentTasks = tasksRef.current;
       const draggedItem = currentTasks[draggedId];
       if (!draggedItem) return;
+
+      // Make sure we're not dropping the last item of a vertical at the end of the exact same vertical (no-op)
+      const isDroppingLastToSameEnd = (
+         draggedItem.vertical_id === targetVerticalId && 
+         targetTaskId === null && 
+         Object.values(currentTasks).filter(t => t.vertical_id === targetVerticalId).sort((a,b) => (a.task_order||0)-(b.task_order||0)).pop()?.id === draggedId
+      );
+      if (isDroppingLastToSameEnd) return;
 
       const oldVerticalId = draggedItem.vertical_id;
       const updates = [];
@@ -1123,6 +1157,10 @@ Be concise and professional.`;
               const vtasks=filteredTasks.filter(x=>x.vertical_id===vt.id).sort((a,b)=>(a.task_order||0)-(b.task_order||0));
               const allDone=tArr.filter(x=>x.vertical_id===vt.id&&x.status==='done').length;
               const allTotal=tArr.filter(x=>x.vertical_id===vt.id).length;
+              
+              const isDraggedLastInSameVertical = draggedTask?.vertical_id === vt.id && vtasks.length > 0 && draggedTask?.id === vtasks[vtasks.length - 1].id;
+              const showEndPlaceholder = dropTarget.verticalId === vt.id && dropTarget.taskId === null && !copiedTask && !isDraggedLastInSameVertical;
+
               return(
                 <div key={vt.id} style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,marginBottom:20,boxShadow:t.shadow}}>
                   <div style={{padding:'14px 20px',borderBottom:'1px solid '+t.border,borderLeft:`4px solid ${vt.color||t.accent}`,display:'flex',justifyContent:'space-between',alignItems:'center',background:t.surface}}>
@@ -1132,14 +1170,12 @@ Be concise and professional.`;
                       <span style={{fontSize:12,color:t.muted}}>{allDone}/{allTotal} complete</span>
                     </div>
                   </div>
-                  <div style={{padding:20,overflowX:'auto',minHeight:130,transition:'background 0.2s',display:'flex',alignItems:'center'}}
-                    onDragEnter={e=>e.preventDefault()}
-                    onDragOver={e=>{e.preventDefault();e.dataTransfer.dropEffect='move';if(dropTargetRef.current.verticalId!==vt.id||dropTargetRef.current.taskId!==null){dropTargetRef.current={verticalId:vt.id,taskId:null};setDropTarget({verticalId:vt.id,taskId:null});}}}
-                    onDrop={e=>{e.preventDefault();handleDropAction(e,vt.id,null);}}>
+                  <div className="hz-scroll" data-verticalid={vt.id} style={{padding:20,overflowX:'auto',minHeight:130,transition:'background 0.2s',display:'flex',alignItems:'center'}}>
                     {vtasks.length===0?(
                       <div style={{position:'relative',width:'100%',height:110,display:'flex',alignItems:'center'}}>
                         {copiedTask?<button onClick={()=>handlePasteTask(vt.id,null)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`2px dashed ${t.accent}`,borderRadius:10,padding:'10px 20px',fontSize:13,fontWeight:600,cursor:'pointer',transition:'all 0.2s'}}>📋 Paste Here</button>:<div style={{color:t.muted,fontSize:13,fontStyle:'italic',position:'absolute',left:0,pointerEvents:'none'}}>No tasks. Drop tasks here or add one.</div>}
-                        <div style={{width:(dropTarget.verticalId===vt.id&&!copiedTask)?170:0,opacity:(dropTarget.verticalId===vt.id&&!copiedTask)?1:0,transition:'all 0.25s',overflow:'hidden',height:100,zIndex:1}}><div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow}}/></div>
+                        
+                        <div data-verticalid={vt.id} style={{width:(dropTarget.verticalId===vt.id&&!copiedTask)?170:0,opacity:(dropTarget.verticalId===vt.id&&!copiedTask)?1:0,transition:'all 0.25s',overflow:'hidden',height:100,zIndex:1}}><div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow}}/></div>
                       </div>
                     ):(
                       <div style={{display:'flex',alignItems:'center',minWidth:'max-content',gap:0}}>
@@ -1151,16 +1187,18 @@ Be concise and professional.`;
                           return(
                             <Fragment key={tk.id}>
                               {copiedTask&&<div style={{padding:'0 8px',display:'flex',alignItems:'center'}}><button onClick={()=>handlePasteTask(vt.id,tk.id)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`1px dashed ${t.accent}`,borderRadius:16,padding:'4px 10px',fontSize:11,cursor:'pointer',fontWeight:600,whiteSpace:'nowrap',transition:'all 0.2s'}}>+ Paste</button></div>}
-                              <div style={{width:(isDropTarget&&!isDragged&&!copiedTask)?195:0,opacity:(isDropTarget&&!isDragged&&!copiedTask)?1:0,transition:'all 0.25s',overflow:'hidden',display:'flex',alignItems:'center'}}>
+                              
+                              <div data-taskid={tk.id} data-verticalid={vt.id} style={{width:(isDropTarget&&!isDragged&&!copiedTask)?195:0,opacity:(isDropTarget&&!isDragged&&!copiedTask)?1:0,transition:'all 0.25s',overflow:'hidden',display:'flex',alignItems:'center'}}>
                                 <div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow,flexShrink:0,margin:'0 8px'}}/>
                                 <div style={{color:t.muted,fontSize:18,padding:'0 8px'}}>──▶</div>
                               </div>
+                              
                               {/* ── TASK CARD (POINTER-BASED DRAG) ── */}
                               <div
                                 data-taskid={tk.id}
                                 data-verticalid={vt.id}
                                 onPointerDown={e => startPointerDrag(e, tk, vt)}
-                                style={{background:t.bg,border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`,borderRadius:10,padding:'12px 14px',position:'relative',minWidth:160,maxWidth:195,flexShrink:0,cursor:'grab',transition:'all 0.2s',userSelect:'none',opacity:draggedTask?.id===tk.id?0.3:1,transform:draggedTask?.id===tk.id?'scale(0.95)':'scale(1)'}}>
+                                style={{touchAction:'none',background:t.bg,border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`,borderRadius:10,padding:'12px 14px',position:'relative',minWidth:160,maxWidth:195,flexShrink:0,cursor:'grab',transition:'all 0.2s',userSelect:'none',opacity:draggedTask?.id===tk.id?0.3:1,transform:draggedTask?.id===tk.id?'scale(0.95)':'scale(1)'}}>
                                 <button onClick={()=>{copiedTask?.id===tk.id?setCopiedTask(null):setCopiedTask(tk);}} style={{position:'absolute',top:-8,right:-8,background:copiedTask?.id===tk.id?t.accent:t.surface,border:'1px solid '+(copiedTask?.id===tk.id?t.accent:t.border),borderRadius:12,padding:'4px 10px',fontSize:10,fontWeight:600,cursor:'pointer',color:copiedTask?.id===tk.id?'#fff':t.muted,transition:'all 0.2s',boxShadow:t.shadow,zIndex:10}}>{copiedTask?.id===tk.id?'Cancel copy':'Copy task'}</button>
                                 <div style={{fontSize:10,color:sc.text,fontWeight:600,marginBottom:3}}>{SL[tk.status]}</div>
                                 <div style={{fontSize:13,fontWeight:600,color:t.text,marginBottom:3}}>{tk.title}</div>
@@ -1177,7 +1215,7 @@ Be concise and professional.`;
                             </Fragment>
                           );
                         })}
-                        {!copiedTask&&<div style={{width:(dropTarget.verticalId===vt.id&&dropTarget.taskId===null)?195:0,opacity:(dropTarget.verticalId===vt.id&&dropTarget.taskId===null)?1:0,transition:'all 0.25s',overflow:'hidden',display:'flex',alignItems:'center'}}><div style={{color:t.muted,fontSize:18,padding:'0 8px'}}>──▶</div><div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow,flexShrink:0,margin:'0 8px'}}/></div>}
+                        {!copiedTask&&<div data-verticalid={vt.id} style={{width:showEndPlaceholder?195:0,opacity:showEndPlaceholder?1:0,transition:'all 0.25s',overflow:'hidden',display:'flex',alignItems:'center'}}><div style={{color:t.muted,fontSize:18,padding:'0 8px'}}>──▶</div><div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow,flexShrink:0,margin:'0 8px'}}/></div>}
                       </div>
                     )}
                   </div>
