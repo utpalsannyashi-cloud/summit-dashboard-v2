@@ -579,33 +579,40 @@ export default function App() {
     draggingRef.current = false;
     pointerStartRef.current = { x: e.clientX, y: e.clientY };
 
-    // Ghost element
     const ghost = document.createElement('div');
-    ghost.style.cssText = `position:fixed;pointer-events:none;z-index:99999;background:#1e2235;border:2px solid #3B82F6;border-radius:10px;padding:12px 14px;min-width:160px;color:#e8eaf6;font-family:system-ui,sans-serif;font-size:13px;font-weight:600;box-shadow:0 8px 25px rgba(0,0,0,0.5);top:${e.clientY - 20}px;left:${e.clientX - 80}px;`;
+    ghost.style.cssText = `position:fixed;pointer-events:none;z-index:99999;background:#1e2235;border:2px solid #3B82F6;border-radius:10px;padding:12px 14px;min-width:160px;color:#e8eaf6;font-family:system-ui,sans-serif;font-size:13px;font-weight:600;box-shadow:0 8px 25px rgba(0,0,0,0.5);top:${e.clientY-20}px;left:${e.clientX-80}px;will-change:transform;`;
     ghost.textContent = tk.title;
     document.body.appendChild(ghost);
     ghostRef.current = ghost;
 
     const card = e.currentTarget;
+    let rafId = null;
+    let lastX = e.clientX, lastY = e.clientY;
 
     const onMove = (ev) => {
-      const dx = Math.abs(ev.clientX - pointerStartRef.current.x);
-      const dy = Math.abs(ev.clientY - pointerStartRef.current.y);
+      lastX = ev.clientX; lastY = ev.clientY;
+      const dx = Math.abs(lastX - pointerStartRef.current.x);
+      const dy = Math.abs(lastY - pointerStartRef.current.y);
       if (dx > 5 || dy > 5) draggingRef.current = true;
 
+      // Move ghost immediately — no RAF needed, just transform
       if (ghostRef.current) {
-        ghostRef.current.style.top = (ev.clientY - 20) + 'px';
-        ghostRef.current.style.left = (ev.clientX - 80) + 'px';
+        ghostRef.current.style.transform = `translate(${lastX - e.clientX}px, ${lastY - e.clientY}px)`;
       }
 
-      // Detect drop target using elementFromPoint
-      if (ghostRef.current) ghostRef.current.style.display = 'none';
-      const el = document.elementFromPoint(ev.clientX, ev.clientY);
-      if (ghostRef.current) ghostRef.current.style.display = '';
+      // Throttle drop target detection with RAF
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (!ghostRef.current) return;
+        ghostRef.current.style.display = 'none';
+        const el = document.elementFromPoint(lastX, lastY);
+        ghostRef.current.style.display = '';
 
-      if (el) {
+        if (!el) return;
         const taskEl = el.closest('[data-taskid]');
         const vertEl = el.closest('[data-verticalid]');
+
         if (taskEl && taskEl.dataset.taskid !== tk.id) {
           const vid = taskEl.dataset.verticalid;
           const tid = taskEl.dataset.taskid;
@@ -619,19 +626,18 @@ export default function App() {
             dropTargetRef.current = { verticalId: vid, taskId: null };
             setDropTarget({ verticalId: vid, taskId: null });
           }
-        } else {
-          if (dropTargetRef.current.verticalId !== null) {
-            dropTargetRef.current = { verticalId: null, taskId: null };
-            setDropTarget({ verticalId: null, taskId: null });
-          }
+        } else if (dropTargetRef.current.verticalId !== null) {
+          dropTargetRef.current = { verticalId: null, taskId: null };
+          setDropTarget({ verticalId: null, taskId: null });
         }
-      }
+      });
     };
 
     const onUp = async (ev) => {
       card.removeEventListener('pointermove', onMove);
       card.removeEventListener('pointerup', onUp);
       card.removeEventListener('pointercancel', onUp);
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
       if (ghostRef.current) { ghostRef.current.remove(); ghostRef.current = null; }
 
       const didDrag = draggingRef.current;
