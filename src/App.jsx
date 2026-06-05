@@ -1397,5 +1397,3 @@ Be concise and professional.`;
     </div>
   );
 }
-
-```
