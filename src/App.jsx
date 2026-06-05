@@ -1,16 +1,3 @@
-To completely eliminate this issue, we need to bring out the "nuclear option" for text selection.
-
-Sometimes, setting `userSelect = 'none'` via JavaScript isn't fast enough, or it misses certain browser-specific prefixes (like `-webkit-user-select` for Safari/Chrome). Additionally, if you click slightly before dragging, the browser might have already started a text highlight before the drag script even runs.
-
-### What changed in this version:
-
-1. **Aggressive CSS Rule:** I added a `.is-dragging * { user-select: none !important; }` rule to the global stylesheet. This forces every single element on the page to become un-highlightable.
-2. **Class Toggle:** The `startPointerDrag` function now adds this `.is-dragging` class to the `document.body` the millisecond you click, and removes it the millisecond you let go.
-3. **Wipe Existing Highlights:** I added `window.getSelection()?.removeAllRanges();` right at the start of the drag. If you accidentally highlighted a letter while clicking down, this instantly wipes it clean so it doesn't get dragged across the screen.
-
-Here is the complete, updated code:
-
-```javascript
 import { createClient } from '@supabase/supabase-js';
 import { useState, useEffect, useMemo, useRef, Fragment } from 'react';
 import { COLORS, STATUS_COLORS, SEED_VERTICALS, SEED_OFFICERS, SEED_TASKS } from './constants';
