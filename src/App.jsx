@@ -884,7 +884,7 @@ Be concise and professional.`;
   const SC=STATUS_COLORS;
   const SL={done:'Done','in-progress':'In Progress',pending:'Pending'};
   const filteredTasks=tArr.filter(x=>taskFilter==='all'||x.status===taskFilter).filter(x=>taskVerticalFilter==='all'||x.vertical_id===taskVerticalFilter);
-  const handleStatClick=label=>{ if(label==='Verticals')setView('verticals'); else if(label==='Personnel & Resources')setView('resources'); else if(label==='Tasks Done'){setView('tasks');setTaskFilter('done');setTaskVerticalFilter('all');} else if(label==='All Tasks'){setView('tasks');setTaskFilter('all');setTaskVerticalFilter('all');} };
+  const handleStatClick=label=>{ if(label==='Verticals')setView('verticals'); else if(label==='Personnel')setView('resources'); else if(label==='Tasks Done'){setView('tasks');setTaskFilter('done');setTaskVerticalFilter('all');} else if(label==='All Tasks'){setView('tasks');setTaskFilter('all');setTaskVerticalFilter('all');} };
   const openVerticalTasks=vid=>{ setView('tasks'); setTaskVerticalFilter(vid); setTaskFilter('all'); };
   const fmtSize=b=>b>1048576?(b/1048576).toFixed(1)+' MB':Math.round(b/1024)+' KB';
   const fmtDate=ts=>{ try{ return new Date(ts?.toDate?ts.toDate():ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){return '';} };
