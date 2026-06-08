@@ -855,7 +855,7 @@ Be concise and professional.`;
       const res=await fetch('https://api.deepseek.com/chat/completions',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer sk-d473ce128ef54edba098b3751e0e6b7f'},
-        body:JSON.stringify({model:'deepseek-chat',max_tokens:1000,messages:[{role:'system',content:sys},...hist.slice(-6).map(m=>({role:m.role,content:m.content})),{role:'user',content:text}]})
+        body:JSON.stringify({model:'deepseek-v4-flash',max_tokens:2000,messages:[{role:'system',content:sys},...hist.slice(-6).map(m=>({role:m.role,content:m.content})),{role:'user',content:text}]})
       });
       const data=await res.json();
       let full=data.choices?.[0]?.message?.content||'Sorry, no response.';
