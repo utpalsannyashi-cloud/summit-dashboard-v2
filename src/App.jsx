@@ -376,22 +376,7 @@ export default function App() {
   const tasksRef                          = useRef({});
 
   useEffect(()=>{ tasksRef.current = tasks; },[tasks]);
-// ── Auto-logout after 2 min inactivity ──
-useEffect(()=>{
-  if (!authed) return;
-  let timer;
-  const reset = () => {
-    clearTimeout(timer);
-    timer = setTimeout(() => handleLogout(), 2 * 60 * 1000);
-  };
-  const events = ['mousemove','mousedown','keydown','touchstart','scroll','click'];
-  events.forEach(e => window.addEventListener(e, reset));
-  reset();
-  return () => {
-    clearTimeout(timer);
-    events.forEach(e => window.removeEventListener(e, reset));
-  };
-}, [authed]);
+
 
   // ── Drag & drop state ──
   const [draggedTask, setDraggedTask]   = useState(null);
@@ -502,6 +487,23 @@ useEffect(()=>{
 
   // ── Auth ──────────────────────────────────────────────────────────────
   const handleLogout = ()=>{ setAuthed(false); setTeam(null); setAdminMode(false); setView('dashboard'); setIsNavOpen(false); localStorage.removeItem('ems_team_session'); };
+// ── Auto-logout after 2 min inactivity ──
+useEffect(()=>{
+  if (!authed) return;
+  let timer;
+  const reset = () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => handleLogout(), 2 * 60 * 1000);
+  };
+  const events = ['mousemove','mousedown','keydown','touchstart','scroll','click'];
+  events.forEach(e => window.addEventListener(e, reset));
+  reset();
+  return () => {
+    clearTimeout(timer);
+    events.forEach(e => window.removeEventListener(e, reset));
+  };
+}, [authed]);
+
   const handleAdminUnlock = ()=>{
     if(adminPwInput===team.admin_password){ setAdminMode(true); setAdminPwErr(false); setAdminPwInput(''); setShowAdminModal(false); setIsNavOpen(false); }
     else setAdminPwErr(true);
