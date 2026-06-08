@@ -1318,8 +1318,9 @@ Be concise and professional.`;
                                 <div style={{fontSize:13,fontWeight:600,color:t.text,marginBottom:3}}>{tk.title}</div>
                                 <div style={{fontSize:11,color:t.muted,marginBottom:8}}>{of?.name||'Unassigned'}</div>
                                 <div style={{display:'flex',gap:3,marginBottom:7,flexWrap:'wrap'}}>
-                                  {['pending','in-progress','done'].map(s=><button key={s} onClick={()=>handleTaskStatus(tk.id,s)} style={{fontSize:9,padding:'2px 5px',background:tk.status===s?sc.text+'33':'transparent',color:tk.status===s?sc.text:t.muted,border:`1px solid ${tk.status===s?sc.text:t.border}`,borderRadius:4,cursor:'pointer'}}>{s==='in-progress'?'In Prog':s.charAt(0).toUpperCase()+s.slice(1)}</button>)}
-                                </div>
+  {['pending','in-progress','done'].map(s=><button key={s} onClick={()=>adminMode&&handleTaskStatus(tk.id,s)} style={{fontSize:9,padding:'2px 5px',background:tk.status===s?sc.text+'33':'transparent',color:tk.status===s?sc.text:t.muted,border:`1px solid ${tk.status===s?sc.text:t.border}`,borderRadius:4,cursor:adminMode?'pointer':'not-allowed',opacity:adminMode?1:0.4}}>{s==='in-progress'?'In Prog':s.charAt(0).toUpperCase()+s.slice(1)}</button>)}
+</div>
+
                                 <div style={{display:'flex',gap:4}}>
                                   <button onClick={()=>{setTForm({title:tk.title,description:tk.description||'',goal:tk.goal||'',task_order:tk.task_order||1,vertical_id:tk.vertical_id,assigned_officer:tk.assigned_officer||'',status:tk.status});setModalData({id:tk.id});setModal('taskForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:4,padding:'2px 8px',fontSize:9,cursor:'pointer',color:t.muted}}>Edit</button>
                                   <button onClick={()=>{setModalData({col:'sd_tasks',id:tk.id});setModal('deleteConfirm');}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:4,padding:'2px 8px',fontSize:9,cursor:'pointer',color:'#ef4444'}}>Del</button>
