@@ -884,7 +884,7 @@ Be concise and professional.`;
   const SC=STATUS_COLORS;
   const SL={done:'Done','in-progress':'In Progress',pending:'Pending'};
   const filteredTasks=tArr.filter(x=>taskFilter==='all'||x.status===taskFilter).filter(x=>taskVerticalFilter==='all'||x.vertical_id===taskVerticalFilter);
-  const handleStatClick=label=>{ if(label==='Verticals')setView('verticals'); else if(label==='Personnel')setView('resources'); else if(label==='Tasks Done'){setView('tasks');setTaskFilter('done');setTaskVerticalFilter('all');} else if(label==='All Tasks'){setView('tasks');setTaskFilter('all');setTaskVerticalFilter('all');} };
+  const handleStatClick=label=>{ if(label==='Verticals')setView('verticals'); else if(label==='Resources')setView('resources'); else if(label==='Tasks Done'){setView('tasks');setTaskFilter('done');setTaskVerticalFilter('all');} else if(label==='All Tasks'){setView('tasks');setTaskFilter('all');setTaskVerticalFilter('all');} };
   const openVerticalTasks=vid=>{ setView('tasks'); setTaskVerticalFilter(vid); setTaskFilter('all'); };
   const fmtSize=b=>b>1048576?(b/1048576).toFixed(1)+' MB':Math.round(b/1024)+' KB';
   const fmtDate=ts=>{ try{ return new Date(ts?.toDate?ts.toDate():ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){return '';} };
@@ -986,7 +986,7 @@ Be concise and professional.`;
 
         {view!=='messages'&&(
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(140px, 1fr))',gap:16,marginBottom:24}}>
-            {[['Verticals',vArr.length,'🗂️','#3B82F6'],['Personnel',oArr.length,'👥','#10b981'],['Tasks Done',doneTasks,'✅','#34D399'],['All Tasks',tArr.length,'📋','#8b5cf6']].map(([l,n,i,c])=>(
+            {[['Verticals',vArr.length,'🗂️','#3B82F6'],['Resources',oArr.length,'👥','#10b981'],['Tasks Done',doneTasks,'✅','#34D399'],['All Tasks',tArr.length,'📋','#8b5cf6']].map(([l,n,i,c])=>(
               <div key={l} className="statCard" onClick={()=>handleStatClick(l)}
                 style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:20,borderTop:`3px solid ${c}`,boxShadow:t.shadow}}>
                 <div style={{fontSize:26,marginBottom:4}}>{i}</div>
