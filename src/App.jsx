@@ -487,19 +487,24 @@ export default function App() {
 
   // ── Auth ──────────────────────────────────────────────────────────────
   const handleLogout = ()=>{ setAuthed(false); setTeam(null); setAdminMode(false); setView('dashboard'); setIsNavOpen(false); localStorage.removeItem('ems_team_session'); };
-// ── Auto-logout after 2 min inactivity ──
+// ── Auto-logout after 10 min inactivity (2 min warning) ──
+const [showInactivityWarning, setShowInactivityWarning] = useState(false);
 useEffect(()=>{
   if (!authed) return;
-  let timer;
+  let warningTimer, logoutTimer;
   const reset = () => {
-    clearTimeout(timer);
-    timer = setTimeout(() => handleLogout(), 2 * 60 * 1000);
+    clearTimeout(warningTimer);
+    clearTimeout(logoutTimer);
+    setShowInactivityWarning(false);
+    warningTimer = setTimeout(() => setShowInactivityWarning(true), 8 * 60 * 1000);
+    logoutTimer  = setTimeout(() => handleLogout(), 10 * 60 * 1000);
   };
   const events = ['mousemove','mousedown','keydown','touchstart','scroll','click'];
   events.forEach(e => window.addEventListener(e, reset));
   reset();
   return () => {
-    clearTimeout(timer);
+    clearTimeout(warningTimer);
+    clearTimeout(logoutTimer);
     events.forEach(e => window.removeEventListener(e, reset));
   };
 }, [authed]);
@@ -1448,6 +1453,7 @@ Be concise and professional.`;
       {modal==='deleteOrder'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="📄" title="Delete Order" subtitle="This will permanently remove the file and its record." danger t={t}/><p style={{textAlign:'center',fontSize:14,color:t.muted,marginBottom:'1.5rem',lineHeight:1.6}}>Delete <strong style={{color:t.text}}>{modalData.order?.title}</strong>?</p><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={()=>handleDeleteOrder(modalData.order)} style={{flex:1,background:'#ef4444',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Delete</button></div></Modal>}
       {modal==='clearTeamChat'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="🗑️" title="Clear Team Chat" subtitle="This will permanently delete all messages and attachments." danger t={t}/><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={handleClearTeamChat} style={{flex:1,background:'#ef4444',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Clear All</button></div></Modal>}
       {modal==='clearData'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="🗑️" title="Clear Dashboard Data" subtitle="Select what to delete. Verticals will be reseeded after clearing." danger t={t}/><div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:'1.5rem'}}>{[['verticals','🗂️ Verticals','Reseeds with default 4 verticals after clearing'],['officers','👥 Personnel','All personnel records will be removed'],['resources','📦 Resources','All equipment/resource items'],['tasks','✅ Task Chains','All tasks across all verticals'],['movements','🔄 Movement Log','Full audit trail will be wiped']].map(([key,label,desc])=><div key={key} onClick={()=>setClearOpts(o=>({...o,[key]:!o[key]}))} style={{display:'flex',alignItems:'flex-start',gap:12,padding:'12px 14px',background:clearOpts[key]?'rgba(239,68,68,0.08)':t.surface,border:`1px solid ${clearOpts[key]?'#ef4444':t.border}`,borderRadius:10,cursor:'pointer',transition:'all 0.15s'}}><div style={{width:20,height:20,border:`2px solid ${clearOpts[key]?'#ef4444':t.border}`,borderRadius:4,background:clearOpts[key]?'#ef4444':'transparent',display:'grid',placeItems:'center',flexShrink:0,marginTop:1}}>{clearOpts[key]&&<span style={{color:'#fff',fontSize:12,fontWeight:700}}>✓</span>}</div><div><div style={{fontSize:14,fontWeight:500,color:t.text}}>{label}</div><div style={{fontSize:12,color:t.muted,marginTop:2}}>{desc}</div></div></div>)}</div><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={handleClearData} disabled={!Object.values(clearOpts).some(Boolean)} style={{flex:1,background:Object.values(clearOpts).some(Boolean)?'#ef4444':'#334155',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:Object.values(clearOpts).some(Boolean)?'pointer':'default',transition:'background 0.2s'}}>Confirm Clear</button></div></Modal>}
+      {showInactivityWarning&&<Modal t={t} onClose={()=>setShowInactivityWarning(false)}><ModalHeader icon="⏱️" title="Session Expiring Soon" subtitle="You will be logged out in 2 minutes due to inactivity." t={t}/><div style={{display:'flex',gap:10}}><button onClick={()=>setShowInactivityWarning(false)} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Stay Logged In</button></div></Modal>}
       {modal==='alert'&&<Modal t={t} onClose={()=>setModal(null)} danger={modalData.danger}><ModalHeader icon={modalData.icon} title={modalData.title} danger={modalData.danger} t={t}/><p style={{textAlign:'center',fontSize:14,color:t.muted,marginBottom:'1.5rem',lineHeight:1.6}}>{modalData.text}</p><div style={{display:'flex',justifyContent:'center'}}><button onClick={()=>setModal(null)} style={{background:modalData.danger?'#ef4444':t.accent,color:'#fff',border:'none',borderRadius:8,padding:'10px 32px',fontSize:14,fontWeight:500,cursor:'pointer',boxShadow:t.shadow}}>OK</button></div></Modal>}
 
       {/* ── AI CHAT BUTTON ── */}
