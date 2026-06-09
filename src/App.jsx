@@ -1169,11 +1169,11 @@ Be concise and professional.`;
         {/* ── RESOURCES (Officers & Equipment) ── */}
         {view==='resources'&&(
           <div style={{animation:'fadeIn 0.3s ease'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,flexWrap:'wrap',gap:10}}>
               <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{width:8,height:28,background:t.accent,borderRadius:4}}/><h2 style={{margin:0,fontSize:19,fontWeight:500,color:t.text}}>Resources & Personnel</h2></div>
-              <div style={{display:'flex', gap: 10, flexWrap:'wrap', justifyContent:'flex-end'}}>
-                <button onClick={()=>{setOForm({name:'',designation:'',contact:'',current_vertical:'',origin_station:'',deployment_start:'',deployment_end:''});setModalData({});setModal('officerForm');}} style={{background:t.surface,color:t.text,border:'1px solid '+t.border,borderRadius:8,padding:'8px 16px',fontSize:13,fontWeight:500,cursor:'pointer'}}>+ Add Personnel</button>
-                <button onClick={()=>{setRForm({name:'',quantity:1,current_vertical:''});setModalData({});setModal('resourceForm');}} style={{background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:'8px 16px',fontSize:13,fontWeight:500,cursor:'pointer'}}>+ Add Resource</button>
+              <div style={{display:'flex', gap: 8, flexWrap:'wrap', justifyContent:'flex-end'}}>
+                <button onClick={()=>{setOForm({name:'',designation:'',contact:'',current_vertical:'',origin_station:'',deployment_start:'',deployment_end:''});setModalData({});setModal('officerForm');}} style={{background:t.surface,color:t.text,border:'1px solid '+t.border,borderRadius:8,padding:'8px 14px',fontSize:13,fontWeight:500,cursor:'pointer'}}>+ Personnel</button>
+                <button onClick={()=>{setRForm({name:'',quantity:1,current_vertical:''});setModalData({});setModal('resourceForm');}} style={{background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:'8px 14px',fontSize:13,fontWeight:500,cursor:'pointer'}}>+ Resource</button>
               </div>
             </div>
 
@@ -1185,92 +1185,168 @@ Be concise and professional.`;
 
               return groups.filter(g=>g.officers.length>0 || g.resources.length>0).map(vt=>(
                 <div key={vt.id} style={{marginBottom:32}}>
-                  <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}><div style={{width:4,height:20,background:vt.color||t.accent,borderRadius:2}}/><h3 style={{margin:0,fontSize:15,fontWeight:600,color:t.text}}>{vt.name}</h3><span style={{fontSize:12,color:t.muted}}>{vt.officers.length} personnel, {vt.resources.length} resource entries</span></div>
+                  <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
+                    <div style={{width:4,height:20,background:vt.color||t.accent,borderRadius:2}}/>
+                    <h3 style={{margin:0,fontSize:15,fontWeight:600,color:t.text}}>{vt.name}</h3>
+                    <span style={{fontSize:12,color:t.muted}}>{vt.officers.length} personnel, {vt.resources.length} resources</span>
+                  </div>
                   
                   <div style={{display:'flex', flexDirection:'column', gap: 16}}>
-                    {/* PERSONNEL SECTION */}
+                    {/* ── PERSONNEL SECTION ── */}
                     {vt.officers.length > 0 && (
                       <div style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,overflow:'hidden',boxShadow:t.shadow}}>
-                        <table style={{width:'100%',borderCollapse:'collapse',tableLayout:'fixed'}}>
-                          <thead>
-                            <tr style={{background:t.bg}}>
-                              {['Personnel Name','Designation','Origin & Duration','Move To','Actions'].map((h, i)=>(
-                                <th key={h} style={{width:i===0?'25%':i===1?'20%':i===2?'25%':i===3?'15%':'15%',padding:'11px 14px',textAlign:'left',fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>{h}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
+                        {/* MOBILE: card stack */}
+                        {isMobile ? (
+                          <div style={{display:'flex',flexDirection:'column'}}>
+                            <div style={{padding:'10px 14px',background:t.bg,borderBottom:'1px solid '+t.border}}>
+                              <span style={{fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>👥 Personnel</span>
+                            </div>
                             {vt.officers.map((o,i)=>(
-                              <tr key={o.id} style={{borderTop:'1px solid '+t.border,background:i%2===0?'transparent':t.surface}}>
-                                <td style={{padding:'11px 14px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-                                  <div style={{display:'flex',alignItems:'center',gap:8}}>
-                                    <div style={{width:30,height:30,borderRadius:'50%',background:t.accentGlow,border:'1px solid '+t.accent,display:'grid',placeItems:'center',fontSize:11,fontWeight:600,color:t.accent,flexShrink:0}}>{o.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
-                                    <span style={{fontSize:13,fontWeight:500,color:t.text}}>{o.name}</span>
+                              <div key={o.id} style={{padding:'14px',borderTop: i>0 ? '1px solid '+t.border : 'none',background:i%2===0?'transparent':t.surface}}>
+                                {/* Row 1: Avatar + Name + Designation */}
+                                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+                                  <div style={{width:36,height:36,borderRadius:'50%',background:t.accentGlow,border:'1px solid '+t.accent,display:'grid',placeItems:'center',fontSize:12,fontWeight:700,color:t.accent,flexShrink:0}}>
+                                    {o.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
                                   </div>
-                                </td>
-                                <td style={{padding:'11px 14px',fontSize:13,color:t.muted,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-                                  <div>{o.designation}</div>
-                                </td>
-                                <td style={{padding:'11px 14px',fontSize:13,color:t.muted,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-                                  {o.origin_station&&<div>📍 {o.origin_station}</div>}
-                                  {o.deployment_duration&&<div style={{marginTop:2}}>⏱ {o.deployment_duration}</div>}
-                                </td>
-                                <td style={{padding:'11px 14px'}}>
-                                  <select onChange={e=>handleQuickMove(o.id,e.target.value)} defaultValue="" style={{...inp,width:'100%',padding:'4px 8px',fontSize:12}}>
+                                  <div style={{flex:1,minWidth:0}}>
+                                    <div style={{fontSize:14,fontWeight:600,color:t.text,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{o.name}</div>
+                                    <div style={{fontSize:12,color:t.muted,marginTop:1}}>{o.designation}</div>
+                                  </div>
+                                </div>
+                                {/* Row 2: Origin & Duration */}
+                                {(o.origin_station||o.deployment_duration)&&(
+                                  <div style={{display:'flex',gap:12,marginBottom:10,flexWrap:'wrap'}}>
+                                    {o.origin_station&&<span style={{fontSize:12,color:t.muted}}>📍 {o.origin_station}</span>}
+                                    {o.deployment_duration&&<span style={{fontSize:12,color:t.muted}}>⏱ {o.deployment_duration}</span>}
+                                  </div>
+                                )}
+                                {/* Row 3: Move + Actions */}
+                                <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+                                  <select onChange={e=>handleQuickMove(o.id,e.target.value)} defaultValue="" style={{...inp,flex:1,minWidth:120,padding:'7px 10px',fontSize:13}}>
                                     <option value="">Move to...</option>
                                     {vArr.filter(v=>v.id!==o.current_vertical).map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
                                   </select>
-                                </td>
-                                <td style={{padding:'11px 14px',whiteSpace:'nowrap'}}>
-                                  <button onClick={()=>{const [ds, de] = (o.deployment_duration||'').split(' to '); setOForm({name:o.name,designation:o.designation,contact:o.contact||'',current_vertical:o.current_vertical,origin_station:o.origin_station||'',deployment_start:ds||'',deployment_end:de||''});setModalData({id:o.id});setModal('officerForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:6,padding:'3px 10px',fontSize:11,cursor:'pointer',color:t.muted,marginRight:6}}>Edit</button>
-                                  <button onClick={()=>{setModalData({col:'sd_officers',id:o.id});setModal('deleteConfirm');}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:6,padding:'3px 10px',fontSize:11,cursor:'pointer',color:'#ef4444'}}>Del</button>
-                                </td>
-                              </tr>
+                                  <button onClick={()=>{const [ds,de]=(o.deployment_duration||'').split(' to ');setOForm({name:o.name,designation:o.designation,contact:o.contact||'',current_vertical:o.current_vertical,origin_station:o.origin_station||'',deployment_start:ds||'',deployment_end:de||''});setModalData({id:o.id});setModal('officerForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:6,padding:'7px 14px',fontSize:12,cursor:'pointer',color:t.muted}}>Edit</button>
+                                  <button onClick={()=>{setModalData({col:'sd_officers',id:o.id});setModal('deleteConfirm');}} style={{background:'rgba(239,68,68,0.08)',border:'1px solid #ef4444',borderRadius:6,padding:'7px 14px',fontSize:12,cursor:'pointer',color:'#ef4444'}}>Del</button>
+                                </div>
+                              </div>
                             ))}
-                          </tbody>
-                        </table>
+                          </div>
+                        ) : (
+                          /* DESKTOP: table */
+                          <table style={{width:'100%',borderCollapse:'collapse',tableLayout:'fixed'}}>
+                            <thead>
+                              <tr style={{background:t.bg}}>
+                                {['Personnel Name','Designation','Origin & Duration','Move To','Actions'].map((h,i)=>(
+                                  <th key={h} style={{width:i===0?'25%':i===1?'20%':i===2?'25%':i===3?'17%':'13%',padding:'11px 14px',textAlign:'left',fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>{h}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {vt.officers.map((o,i)=>(
+                                <tr key={o.id} style={{borderTop:'1px solid '+t.border,background:i%2===0?'transparent':t.surface}}>
+                                  <td style={{padding:'11px 14px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                                    <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                      <div style={{width:30,height:30,borderRadius:'50%',background:t.accentGlow,border:'1px solid '+t.accent,display:'grid',placeItems:'center',fontSize:11,fontWeight:600,color:t.accent,flexShrink:0}}>{o.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
+                                      <span style={{fontSize:13,fontWeight:500,color:t.text}}>{o.name}</span>
+                                    </div>
+                                  </td>
+                                  <td style={{padding:'11px 14px',fontSize:13,color:t.muted,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{o.designation}</td>
+                                  <td style={{padding:'11px 14px',fontSize:13,color:t.muted,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                                    {o.origin_station&&<div>📍 {o.origin_station}</div>}
+                                    {o.deployment_duration&&<div style={{marginTop:2}}>⏱ {o.deployment_duration}</div>}
+                                  </td>
+                                  <td style={{padding:'11px 14px'}}>
+                                    <select onChange={e=>handleQuickMove(o.id,e.target.value)} defaultValue="" style={{...inp,width:'100%',padding:'4px 8px',fontSize:12}}>
+                                      <option value="">Move to...</option>
+                                      {vArr.filter(v=>v.id!==o.current_vertical).map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
+                                    </select>
+                                  </td>
+                                  <td style={{padding:'11px 14px',whiteSpace:'nowrap'}}>
+                                    <button onClick={()=>{const [ds,de]=(o.deployment_duration||'').split(' to ');setOForm({name:o.name,designation:o.designation,contact:o.contact||'',current_vertical:o.current_vertical,origin_station:o.origin_station||'',deployment_start:ds||'',deployment_end:de||''});setModalData({id:o.id});setModal('officerForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:6,padding:'3px 10px',fontSize:11,cursor:'pointer',color:t.muted,marginRight:6}}>Edit</button>
+                                    <button onClick={()=>{setModalData({col:'sd_officers',id:o.id});setModal('deleteConfirm');}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:6,padding:'3px 10px',fontSize:11,cursor:'pointer',color:'#ef4444'}}>Del</button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        )}
                       </div>
                     )}
 
-                    {/* RESOURCES SECTION */}
+                    {/* ── RESOURCES SECTION ── */}
                     {vt.resources.length > 0 && (
                       <div style={{background:t.card,border:'1px dashed '+t.border,borderRadius:12,overflow:'hidden',boxShadow:t.shadow}}>
-                        <table style={{width:'100%',borderCollapse:'collapse',tableLayout:'fixed'}}>
-                          <thead>
-                            <tr style={{background:t.bg}}>
-                              {['Resource / Equipment','Quantity','Move To','Actions'].map((h, i)=>(
-                                <th key={h} style={{width:i===0?'30%':i===1?'30%':i===2?'25%':'15%',padding:'11px 14px',textAlign:'left',fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>{h}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
+                        {/* MOBILE: card stack */}
+                        {isMobile ? (
+                          <div style={{display:'flex',flexDirection:'column'}}>
+                            <div style={{padding:'10px 14px',background:t.bg,borderBottom:'1px solid '+t.border}}>
+                              <span style={{fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>📦 Equipment / Resources</span>
+                            </div>
                             {vt.resources.map((r,i)=>(
-                              <tr key={r.id} style={{borderTop:'1px solid '+t.border,background:i%2===0?'transparent':t.surface}}>
-                                <td style={{padding:'11px 14px',fontSize:13,fontWeight:500,color:t.text}}>
-                                  <div style={{display:'flex',alignItems:'center',gap:8}}>
-                                    <div style={{width:30,height:30,borderRadius:'50%',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',display:'grid',placeItems:'center',fontSize:12,flexShrink:0}}>📦</div>
-                                    {r.name}
+                              <div key={r.id} style={{padding:'14px',borderTop: i>0 ? '1px solid '+t.border : 'none',background:i%2===0?'transparent':t.surface}}>
+                                {/* Row 1: Icon + Name */}
+                                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+                                  <div style={{width:36,height:36,borderRadius:'50%',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',display:'grid',placeItems:'center',fontSize:16,flexShrink:0}}>📦</div>
+                                  <div style={{flex:1,minWidth:0}}>
+                                    <div style={{fontSize:14,fontWeight:600,color:t.text}}>{r.name}</div>
+                                    <div style={{fontSize:12,color:t.muted,marginTop:1}}>Quantity: {r.quantity}</div>
                                   </div>
-                                </td>
-                                <td style={{padding:'11px 14px'}}>
-                                  <select value={r.quantity} onChange={e=>handleUpdateQuantity(r.id, e.target.value)} style={{...inp, width: 80, padding: '4px 8px', fontSize:13}}>
-                                    {[...Array(201).keys()].map(n => <option key={n} value={n}>{n}</option>)}
+                                </div>
+                                {/* Row 2: Qty selector + Move + Actions */}
+                                <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+                                  <select value={r.quantity} onChange={e=>handleUpdateQuantity(r.id,e.target.value)} style={{...inp,width:72,padding:'7px 8px',fontSize:13,flexShrink:0}}>
+                                    {[...Array(201).keys()].map(n=><option key={n} value={n}>{n}</option>)}
                                   </select>
-                                </td>
-                                <td style={{padding:'11px 14px'}}>
-                                  <select onChange={e=>handleQuickMoveResource(r.id,e.target.value)} defaultValue="" style={{...inp,width:'100%',padding:'4px 8px',fontSize:12}}>
+                                  <select onChange={e=>handleQuickMoveResource(r.id,e.target.value)} defaultValue="" style={{...inp,flex:1,minWidth:100,padding:'7px 10px',fontSize:13}}>
                                     <option value="">Move to...</option>
                                     {vArr.filter(v=>v.id!==r.current_vertical).map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
                                   </select>
-                                </td>
-                                <td style={{padding:'11px 14px',whiteSpace:'nowrap'}}>
-                                  <button onClick={()=>{setRForm({name:r.name,quantity:r.quantity,current_vertical:r.current_vertical});setModalData({id:r.id});setModal('resourceForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:6,padding:'3px 10px',fontSize:11,cursor:'pointer',color:t.muted,marginRight:6}}>Edit</button>
-                                  <button onClick={()=>{setModalData({col:'sd_resources',id:r.id});setModal('deleteConfirm');}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:6,padding:'3px 10px',fontSize:11,cursor:'pointer',color:'#ef4444'}}>Del</button>
-                                </td>
-                              </tr>
+                                  <button onClick={()=>{setRForm({name:r.name,quantity:r.quantity,current_vertical:r.current_vertical});setModalData({id:r.id});setModal('resourceForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:6,padding:'7px 14px',fontSize:12,cursor:'pointer',color:t.muted}}>Edit</button>
+                                  <button onClick={()=>{setModalData({col:'sd_resources',id:r.id});setModal('deleteConfirm');}} style={{background:'rgba(239,68,68,0.08)',border:'1px solid #ef4444',borderRadius:6,padding:'7px 14px',fontSize:12,cursor:'pointer',color:'#ef4444'}}>Del</button>
+                                </div>
+                              </div>
                             ))}
-                          </tbody>
-                        </table>
+                          </div>
+                        ) : (
+                          /* DESKTOP: table */
+                          <table style={{width:'100%',borderCollapse:'collapse',tableLayout:'fixed'}}>
+                            <thead>
+                              <tr style={{background:t.bg}}>
+                                {['Resource / Equipment','Quantity','Move To','Actions'].map((h,i)=>(
+                                  <th key={h} style={{width:i===0?'30%':i===1?'20%':i===2?'35%':'15%',padding:'11px 14px',textAlign:'left',fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>{h}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {vt.resources.map((r,i)=>(
+                                <tr key={r.id} style={{borderTop:'1px solid '+t.border,background:i%2===0?'transparent':t.surface}}>
+                                  <td style={{padding:'11px 14px',fontSize:13,fontWeight:500,color:t.text}}>
+                                    <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                      <div style={{width:30,height:30,borderRadius:'50%',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',display:'grid',placeItems:'center',fontSize:12,flexShrink:0}}>📦</div>
+                                      {r.name}
+                                    </div>
+                                  </td>
+                                  <td style={{padding:'11px 14px'}}>
+                                    <select value={r.quantity} onChange={e=>handleUpdateQuantity(r.id,e.target.value)} style={{...inp,width:80,padding:'4px 8px',fontSize:13}}>
+                                      {[...Array(201).keys()].map(n=><option key={n} value={n}>{n}</option>)}
+                                    </select>
+                                  </td>
+                                  <td style={{padding:'11px 14px'}}>
+                                    <select onChange={e=>handleQuickMoveResource(r.id,e.target.value)} defaultValue="" style={{...inp,width:'100%',padding:'4px 8px',fontSize:12}}>
+                                      <option value="">Move to...</option>
+                                      {vArr.filter(v=>v.id!==r.current_vertical).map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
+                                    </select>
+                                  </td>
+                                  <td style={{padding:'11px 14px',whiteSpace:'nowrap'}}>
+                                    <button onClick={()=>{setRForm({name:r.name,quantity:r.quantity,current_vertical:r.current_vertical});setModalData({id:r.id});setModal('resourceForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:6,padding:'3px 10px',fontSize:11,cursor:'pointer',color:t.muted,marginRight:6}}>Edit</button>
+                                    <button onClick={()=>{setModalData({col:'sd_resources',id:r.id});setModal('deleteConfirm');}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:6,padding:'3px 10px',fontSize:11,cursor:'pointer',color:'#ef4444'}}>Del</button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        )}
                       </div>
                     )}
                   </div>
