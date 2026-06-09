@@ -1030,15 +1030,33 @@ Be concise and professional.`;
 
         {view!=='messages'&&(
           <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:12,marginBottom:20}}>
-            {[['Verticals',vArr.length,'🗂️','#3B82F6'],['Resources',rArr.length,'📦','#10b981'],['Tasks Done',doneTasks,'✅','#34D399'],['All Tasks',tArr.length,'📋','#8b5cf6']].map(([l,n,i,c])=>(
-              <div key={l} className="statCard" onClick={()=>handleStatClick(l)}
-                style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:'14px 16px',borderTop:`3px solid ${c}`,boxShadow:t.shadow}}>
-                <div style={{fontSize:26,marginBottom:4}}>{i}</div>
-                <div style={{fontSize:28,fontWeight:700,color:t.text}}>{n}</div>
-                <div style={{fontSize:13,color:t.muted}}>{l}</div>
-                <div style={{fontSize:11,color:c,marginTop:4,opacity:.7}}>Click to view →</div>
-              </div>
-            ))}
+            {[['Verticals',vArr.length,'🗂️','#3B82F6'],null,['Tasks Done',doneTasks,'✅','#34D399'],['All Tasks',tArr.length,'📋','#8b5cf6']].map((item,idx)=>{
+              if(idx===1) return (
+                <div key="resources" className="statCard" onClick={()=>handleStatClick('Resources')}
+                  style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:'14px 16px',borderTop:'3px solid #10b981',boxShadow:t.shadow}}>
+                  <div style={{fontSize:26,marginBottom:4}}>📦</div>
+                  <div style={{display:'flex',alignItems:'baseline',gap:6,flexWrap:'wrap'}}>
+                    <span style={{fontSize:28,fontWeight:700,color:t.text}}>{oArr.length}</span>
+                    <span style={{fontSize:12,color:'#10b981',fontWeight:600}}>personnel</span>
+                    <span style={{fontSize:18,color:t.muted,fontWeight:300,margin:'0 2px'}}>·</span>
+                    <span style={{fontSize:28,fontWeight:700,color:t.text}}>{rArr.length}</span>
+                    <span style={{fontSize:12,color:'#10b981',fontWeight:600}}>equipment</span>
+                  </div>
+                  <div style={{fontSize:13,color:t.muted,marginTop:2}}>Resources</div>
+                  <div style={{fontSize:11,color:'#10b981',marginTop:4,opacity:.7}}>Click to view →</div>
+                </div>
+              );
+              const [l,n,i,c] = item;
+              return (
+                <div key={l} className="statCard" onClick={()=>handleStatClick(l)}
+                  style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:'14px 16px',borderTop:`3px solid ${c}`,boxShadow:t.shadow}}>
+                  <div style={{fontSize:26,marginBottom:4}}>{i}</div>
+                  <div style={{fontSize:28,fontWeight:700,color:t.text}}>{n}</div>
+                  <div style={{fontSize:13,color:t.muted}}>{l}</div>
+                  <div style={{fontSize:11,color:c,marginTop:4,opacity:.7}}>Click to view →</div>
+                </div>
+              );
+            })}
           </div>
         )}
 
