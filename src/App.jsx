@@ -486,7 +486,15 @@ export default function App() {
     const channel = supabase.channel(`team-${teamId}`)
       .on('postgres_changes',{event:'*',schema:'public',table:'sd_verticals', filter:`team_id=eq.${teamId}`},()=>loadVerticals(teamId))
       .on('postgres_changes',{event:'*',schema:'public',table:'sd_officers',  filter:`team_id=eq.${teamId}`},()=>loadOfficers(teamId))
-      .on('postgres_changes',{event:'*',schema:'public',table:'sd_resources', filter:`team_id=eq.${teamId}`},()=>loadResources(teamId))
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'sd_resources', filter:`team_id=eq.${teamId}`}, payload=>{
+        if(payload.new) setResources(prev=>({...prev,[payload.new.id]:payload.new}));
+      })
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'sd_resources', filter:`team_id=eq.${teamId}`}, payload=>{
+        if(payload.new) setResources(prev=>({...prev,[payload.new.id]:payload.new}));
+      })
+      .on('postgres_changes',{event:'DELETE',schema:'public',table:'sd_resources', filter:`team_id=eq.${teamId}`}, payload=>{
+        if(payload.old?.id) setResources(prev=>{ const n={...prev}; delete n[payload.old.id]; return n; });
+      })
       .on('postgres_changes',{event:'*',schema:'public',table:'sd_tasks',     filter:`team_id=eq.${teamId}`},()=>loadTasks(teamId))
       .on('postgres_changes',{event:'*',schema:'public',table:'sd_movements', filter:`team_id=eq.${teamId}`},()=>loadMovements(teamId))
       .on('postgres_changes',{event:'*',schema:'public',table:'sd_orders',    filter:`team_id=eq.${teamId}`},()=>loadOrders(teamId))
@@ -580,6 +588,7 @@ export default function App() {
   const handleUpdateQuantity = async (rid, newQty) => {
     const qty = parseInt(newQty, 10) || 0;
     await supabase.from('sd_resources').update({quantity: qty}).eq('id', rid).eq('team_id', teamId);
+    loadResources(teamId);
   };
   const saveTask = async ()=>{
     if(!tForm.title.trim()||!tForm.vertical_id) return;
@@ -614,6 +623,7 @@ export default function App() {
   const handleQuickMoveResource = async (rid, toV)=>{
     if(!toV) return;
     await supabase.from('sd_resources').update({current_vertical:toV}).eq('id',rid).eq('team_id',teamId);
+    loadResources(teamId);
   };
   const handlePartialMoveResource = async ()=>{
     if(!partialMove) return;
@@ -652,6 +662,8 @@ export default function App() {
       await supabase.from('sd_resources').delete().eq('id', resource.id).eq('team_id', teamId);
     }
     setPartialMove(null);
+    // Force a fresh fetch to guarantee UI is in sync
+    loadResources(teamId);
   };
 
   const doMoveOfficer = async (oid,toV,movedBy='User')=>{
