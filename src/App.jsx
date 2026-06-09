@@ -1,8 +1,3 @@
-Here is the complete, updated code with the "Origin Mission / Station" and "Deployment Duration" (with the dropdown) split into their own column in the Resources tab.
-
-You can copy and paste this directly into your file:
-
-```jsx
 import { createClient } from '@supabase/supabase-js';
 import { useState, useEffect, useMemo, useRef, Fragment } from 'react';
 import { COLORS, STATUS_COLORS, SEED_VERTICALS, SEED_OFFICERS, SEED_TASKS } from './constants';
