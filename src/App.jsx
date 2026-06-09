@@ -1029,143 +1029,16 @@ Be concise and professional.`;
         </div>
 
         {view!=='messages'&&(
-          <div style={{marginBottom:20}}>
-            {/* ── Compact stat strip ── */}
-            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,marginBottom:12}}>
-              {[['Verticals',vArr.length,'🗂️','#3B82F6'],['Resources',rArr.length,'📦','#10b981'],['Tasks Done',doneTasks,'✅','#34D399'],['All Tasks',tArr.length,'📋','#8b5cf6']].map(([l,n,i,c])=>(
-                <div key={l} className="statCard" onClick={()=>handleStatClick(l)}
-                  style={{background:t.card,border:'1px solid '+t.border,borderLeft:`3px solid ${c}`,borderRadius:10,padding:'10px 14px',boxShadow:t.shadow,display:'flex',alignItems:'center',gap:10}}>
-                  <span style={{fontSize:20,flexShrink:0}}>{i}</span>
-                  <div style={{minWidth:0}}>
-                    <div style={{fontSize:22,fontWeight:700,color:t.text,lineHeight:1}}>{n}</div>
-                    <div style={{fontSize:11,color:t.muted,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{l}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* ── Live summary panels ── */}
-            {(()=>{
-              const pendingTasks  = tArr.filter(x=>x.status==='pending');
-              const inProgTasks   = tArr.filter(x=>x.status==='in-progress');
-              const donePct       = tArr.length ? Math.round(doneTasks/tArr.length*100) : 0;
-              const unassignedO   = oArr.filter(o=>!o.current_vertical);
-              const totalResQty   = rArr.reduce((s,r)=>s+(r.quantity||0),0);
-              const blockedVerts  = vArr.filter(vt=>{
-                const vtTasks = tArr.filter(x=>x.vertical_id===vt.id);
-                return vtTasks.length>0 && vtTasks.every(x=>x.status!=='done');
-              });
-              // Top officer movers (last 3 unique)
-              const recentMoves = movements.slice(0,3);
-              // Vertical with most pending tasks
-              const busiest = vArr.map(vt=>({...vt,pending:tArr.filter(x=>x.vertical_id===vt.id&&x.status==='pending').length})).sort((a,b)=>b.pending-a.pending)[0];
-
-              return (
-                <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:10}}>
-
-                  {/* Panel 1 — Task pulse */}
-                  <div style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:'14px 16px',boxShadow:t.shadow}}>
-                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-                      <span style={{fontSize:12,fontWeight:600,color:t.muted,textTransform:'uppercase',letterSpacing:'0.05em'}}>📋 Task Pulse</span>
-                      <span style={{fontSize:11,color:t.accent,fontWeight:600}}>{donePct}% complete</span>
-                    </div>
-                    {/* Progress bar */}
-                    <div style={{height:6,background:t.bg,borderRadius:4,overflow:'hidden',marginBottom:10}}>
-                      <div style={{height:'100%',borderRadius:4,background:`linear-gradient(90deg,#34D399,#3B82F6)`,width:donePct+'%',transition:'width 0.4s'}}/>
-                    </div>
-                    <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
-                      {[['In Progress',inProgTasks.length,'#F59E0B'],['Pending',pendingTasks.length,'#94a3b8'],['Done',doneTasks,'#34D399']].map(([label,count,color])=>(
-                        <span key={label} style={{fontSize:11,padding:'3px 8px',borderRadius:20,background:color+'22',color,fontWeight:600,border:'1px solid '+color+'44'}}>{count} {label}</span>
-                      ))}
-                    </div>
-                    {busiest&&busiest.pending>0&&(
-                      <div style={{fontSize:12,color:t.muted,borderTop:'1px solid '+t.border,paddingTop:8}}>
-                        🔴 <span style={{color:t.text,fontWeight:500}}>{busiest.name}</span> has most pending — {busiest.pending} task{busiest.pending!==1?'s':''}
-                      </div>
-                    )}
-                    {inProgTasks.slice(0,2).map(tk=>(
-                      <div key={tk.id} style={{display:'flex',alignItems:'center',gap:6,marginTop:6}}>
-                        <div style={{width:6,height:6,borderRadius:'50%',background:'#F59E0B',flexShrink:0}}/>
-                        <span style={{fontSize:12,color:t.text,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>{tk.title}</span>
-                        <span style={{fontSize:11,color:t.muted,flexShrink:0}}>{verticals[tk.vertical_id]?.name||''}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Panel 2 — Personnel snapshot */}
-                  <div style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:'14px 16px',boxShadow:t.shadow}}>
-                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-                      <span style={{fontSize:12,fontWeight:600,color:t.muted,textTransform:'uppercase',letterSpacing:'0.05em'}}>👥 Personnel</span>
-                      <span style={{fontSize:11,color:oArr.length>0?t.accent:t.muted,fontWeight:600}}>{oArr.length} total</span>
-                    </div>
-                    {/* Vertical distribution bars */}
-                    {vArr.slice(0,4).map(vt=>{
-                      const count = oArr.filter(o=>o.current_vertical===vt.id).length;
-                      const pct   = oArr.length ? Math.round(count/oArr.length*100) : 0;
-                      return count>0 ? (
-                        <div key={vt.id} style={{marginBottom:7}}>
-                          <div style={{display:'flex',justifyContent:'space-between',marginBottom:3}}>
-                            <span style={{fontSize:12,color:t.text}}>{vt.name}</span>
-                            <span style={{fontSize:11,color:t.muted}}>{count}</span>
-                          </div>
-                          <div style={{height:4,background:t.bg,borderRadius:4,overflow:'hidden'}}>
-                            <div style={{height:'100%',borderRadius:4,background:vt.color||t.accent,width:pct+'%'}}/>
-                          </div>
-                        </div>
-                      ) : null;
-                    })}
-                    {unassignedO.length>0&&(
-                      <div style={{fontSize:12,color:'#F59E0B',marginTop:6,borderTop:'1px solid '+t.border,paddingTop:8}}>
-                        ⚠️ {unassignedO.length} unassigned officer{unassignedO.length!==1?'s':''}: {unassignedO.slice(0,2).map(o=>o.name).join(', ')}{unassignedO.length>2?'…':''}
-                      </div>
-                    )}
-                    {recentMoves.length>0&&(
-                      <div style={{marginTop:6,borderTop:'1px solid '+t.border,paddingTop:8}}>
-                        <div style={{fontSize:11,color:t.muted,marginBottom:4}}>Recent moves</div>
-                        {recentMoves.map(m=>(
-                          <div key={m.id} style={{fontSize:11,color:t.muted,marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-                            <span style={{color:t.text,fontWeight:500}}>{m.officer_name}</span> → {verticals[m.to_vertical]?.name||m.to_vertical}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Panel 3 — Resources & verticals */}
-                  <div style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:'14px 16px',boxShadow:t.shadow}}>
-                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-                      <span style={{fontSize:12,fontWeight:600,color:t.muted,textTransform:'uppercase',letterSpacing:'0.05em'}}>📦 Resources</span>
-                      <span style={{fontSize:11,color:'#10b981',fontWeight:600}}>{totalResQty} items total</span>
-                    </div>
-                    {rArr.length===0?(
-                      <div style={{fontSize:12,color:t.muted,fontStyle:'italic'}}>No resources added yet.</div>
-                    ):rArr.slice(0,4).map(r=>(
-                      <div key={r.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:7,gap:8}}>
-                        <span style={{fontSize:12,color:t.text,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>📦 {r.name}</span>
-                        <span style={{fontSize:11,fontWeight:600,color:'#10b981',flexShrink:0,background:'rgba(16,185,129,0.1)',padding:'1px 7px',borderRadius:10}}>{r.quantity}</span>
-                        <span style={{fontSize:11,color:t.muted,flexShrink:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:70}}>{verticals[r.current_vertical]?.name||'—'}</span>
-                      </div>
-                    ))}
-                    {rArr.length>4&&<div style={{fontSize:11,color:t.muted,marginTop:4}}>+{rArr.length-4} more resources</div>}
-                    <div style={{borderTop:'1px solid '+t.border,paddingTop:8,marginTop:8}}>
-                      <div style={{fontSize:11,color:t.muted,marginBottom:6}}>Vertical readiness</div>
-                      {vArr.map(vt=>{
-                        const vtTasks=tArr.filter(x=>x.vertical_id===vt.id);
-                        const pct=vtTasks.length?Math.round(vtTasks.filter(x=>x.status==='done').length/vtTasks.length*100):0;
-                        return(
-                          <div key={vt.id} style={{display:'flex',alignItems:'center',gap:8,marginBottom:5}}>
-                            <div style={{width:6,height:6,borderRadius:'50%',background:vt.color||t.accent,flexShrink:0}}/>
-                            <span style={{fontSize:11,color:t.text,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{vt.name}</span>
-                            <span style={{fontSize:11,fontWeight:600,color:pct===100?'#34D399':pct>50?'#F59E0B':'#94a3b8',flexShrink:0}}>{pct}%</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                </div>
-              );
-            })()}
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:12,marginBottom:20}}>
+            {[['Verticals',vArr.length,'🗂️','#3B82F6'],['Resources',rArr.length,'📦','#10b981'],['Tasks Done',doneTasks,'✅','#34D399'],['All Tasks',tArr.length,'📋','#8b5cf6']].map(([l,n,i,c])=>(
+              <div key={l} className="statCard" onClick={()=>handleStatClick(l)}
+                style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:'14px 16px',borderTop:`3px solid ${c}`,boxShadow:t.shadow}}>
+                <div style={{fontSize:26,marginBottom:4}}>{i}</div>
+                <div style={{fontSize:28,fontWeight:700,color:t.text}}>{n}</div>
+                <div style={{fontSize:13,color:t.muted}}>{l}</div>
+                <div style={{fontSize:11,color:c,marginTop:4,opacity:.7}}>Click to view →</div>
+              </div>
+            ))}
           </div>
         )}
 
