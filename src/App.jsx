@@ -621,22 +621,35 @@ export default function App() {
     const moveQty = parseInt(qty, 10);
     if(!toVertical || !moveQty || moveQty <= 0 || moveQty > resource.quantity) return;
     const remaining = resource.quantity - moveQty;
-    // Check if an entry for this resource already exists in the target vertical
-    const existingInTarget = rArr.find(r => r.name === resource.name && r.current_vertical === toVertical && r.id !== resource.id);
+
+    // Always look for an existing entry with the same name in the destination — merge into it
+    const existingInTarget = Object.values(resources).find(r =>
+      r.name.trim().toLowerCase() === resource.name.trim().toLowerCase() &&
+      r.current_vertical === toVertical &&
+      r.id !== resource.id
+    );
+
     if(existingInTarget) {
-      // Merge into existing entry
-      await supabase.from('sd_resources').update({ quantity: existingInTarget.quantity + moveQty }).eq('id', existingInTarget.id).eq('team_id', teamId);
+      // Merge: add to existing entry's quantity
+      const newQty = existingInTarget.quantity + moveQty;
+      setResources(prev => ({ ...prev, [existingInTarget.id]: { ...prev[existingInTarget.id], quantity: newQty } }));
+      await supabase.from('sd_resources').update({ quantity: newQty }).eq('id', existingInTarget.id).eq('team_id', teamId);
     } else {
       // Create new entry in target vertical
-      await supabase.from('sd_resources').insert({ id: crypto.randomUUID(), name: resource.name, quantity: moveQty, current_vertical: toVertical, team_id: teamId, created_at: new Date().toISOString() });
+      const newId = crypto.randomUUID();
+      const newEntry = { id: newId, name: resource.name, quantity: moveQty, current_vertical: toVertical, team_id: teamId, created_at: new Date().toISOString() };
+      setResources(prev => ({ ...prev, [newId]: newEntry }));
+      await supabase.from('sd_resources').insert(newEntry);
     }
+
     if(remaining > 0) {
-      // Update source quantity
+      // Reduce source quantity
+      setResources(prev => ({ ...prev, [resource.id]: { ...prev[resource.id], quantity: remaining } }));
       await supabase.from('sd_resources').update({ quantity: remaining }).eq('id', resource.id).eq('team_id', teamId);
     } else {
-      // Remove source entry entirely
-      await supabase.from('sd_resources').delete().eq('id', resource.id).eq('team_id', teamId);
+      // Remove source entry entirely — nothing left
       setResources(prev => { const n={...prev}; delete n[resource.id]; return n; });
+      await supabase.from('sd_resources').delete().eq('id', resource.id).eq('team_id', teamId);
     }
     setPartialMove(null);
   };
@@ -1670,14 +1683,20 @@ Be concise and professional.`;
             <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Quantity to Move</label>
             <div style={{display:'flex',alignItems:'center',gap:10}}>
               <input type="number" min={1} max={partialMove.resource.quantity} value={partialMove.qty}
-                onChange={e=>setPartialMove(p=>({...p,qty:Math.min(parseInt(e.target.value)||1, p.resource.quantity)}))}
+                onChange={e=>setPartialMove(p=>({...p,qty:e.target.value}))}
+                onBlur={e=>{
+                  const v=parseInt(e.target.value,10);
+                  if(!v||v<1) setPartialMove(p=>({...p,qty:1}));
+                  else if(v>partialMove.resource.quantity) setPartialMove(p=>({...p,qty:p.resource.quantity}));
+                  else setPartialMove(p=>({...p,qty:v}));
+                }}
                 style={{...inp,width:100,fontSize:16,fontWeight:600,textAlign:'center'}}/>
               <span style={{fontSize:13,color:t.muted}}>of {partialMove.resource.quantity} total</span>
             </div>
             <div style={{display:'flex',gap:6,marginTop:8,flexWrap:'wrap'}}>
               {[1, Math.floor(partialMove.resource.quantity/2), partialMove.resource.quantity].filter((v,i,a)=>v>0&&a.indexOf(v)===i).map(v=>(
-                <button key={v} onClick={()=>setPartialMove(p=>({...p,qty:v}))} style={{background:partialMove.qty===v?t.accentGlow:'transparent',border:'1px solid '+(partialMove.qty===v?t.accent:t.border),borderRadius:16,padding:'4px 12px',fontSize:12,cursor:'pointer',color:partialMove.qty===v?t.accent:t.muted}}>
-                  {v===partialMove.resource.quantity?'All':v===Math.floor(partialMove.resource.quantity/2)?'Half':1} {v===1&&v!==Math.floor(partialMove.resource.quantity/2)?'':v===partialMove.resource.quantity?`(${v})`:`(${v})`}
+                <button key={v} onClick={()=>setPartialMove(p=>({...p,qty:v}))} style={{background:parseInt(partialMove.qty)===v?t.accentGlow:'transparent',border:'1px solid '+(parseInt(partialMove.qty)===v?t.accent:t.border),borderRadius:16,padding:'4px 12px',fontSize:12,cursor:'pointer',color:parseInt(partialMove.qty)===v?t.accent:t.muted}}>
+                  {v===partialMove.resource.quantity?`All (${v})`:v===Math.floor(partialMove.resource.quantity/2)?`Half (${v})`:`1`}
                 </button>
               ))}
             </div>
@@ -1689,15 +1708,15 @@ Be concise and professional.`;
               {vArr.filter(v=>v.id!==partialMove.resource.current_vertical).map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
             </select>
           </div>
-          {partialMove.toVertical&&partialMove.qty>0&&(
+          {partialMove.toVertical&&parseInt(partialMove.qty)>0&&(
             <div style={{background:t.bg,border:'1px solid '+t.border,borderRadius:8,padding:'10px 14px',fontSize:12,color:t.muted,lineHeight:1.6}}>
               <span style={{color:t.text,fontWeight:500}}>{partialMove.qty} {partialMove.resource.name}</span> → <span style={{color:t.accent}}>{vArr.find(v=>v.id===partialMove.toVertical)?.name}</span>
-              {partialMove.resource.quantity - partialMove.qty > 0 && <><br/><span style={{color:t.text,fontWeight:500}}>{partialMove.resource.quantity - partialMove.qty} {partialMove.resource.name}</span> stay in <span style={{color:t.accent}}>{vArr.find(v=>v.id===partialMove.resource.current_vertical)?.name||'current vertical'}</span></>}
+              {partialMove.resource.quantity - parseInt(partialMove.qty) > 0 && <><br/><span style={{color:t.text,fontWeight:500}}>{partialMove.resource.quantity - parseInt(partialMove.qty)} {partialMove.resource.name}</span> stay in <span style={{color:t.accent}}>{vArr.find(v=>v.id===partialMove.resource.current_vertical)?.name||'current vertical'}</span></>}
             </div>
           )}
           <div style={{display:'flex',gap:8,marginTop:4}}>
             <button onClick={()=>setPartialMove(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button>
-            <button onClick={handlePartialMoveResource} disabled={!partialMove.toVertical||!partialMove.qty} style={{flex:1,background:partialMove.toVertical&&partialMove.qty?t.accent:'#334155',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:partialMove.toVertical&&partialMove.qty?'pointer':'default'}}>Confirm Split</button>
+            <button onClick={handlePartialMoveResource} disabled={!partialMove.toVertical||!parseInt(partialMove.qty)} style={{flex:1,background:partialMove.toVertical&&parseInt(partialMove.qty)?t.accent:'#334155',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:partialMove.toVertical&&parseInt(partialMove.qty)?'pointer':'default'}}>Confirm Split</button>
           </div>
         </div>
       </Modal>}
