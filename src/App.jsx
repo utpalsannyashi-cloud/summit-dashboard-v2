@@ -1447,69 +1447,118 @@ Be concise and professional.`;
                   <div
                     className="h-scroll-container"
                     data-verticalid={vt.id}
-                    style={{padding:16,overflowX:'auto',minHeight:100,transition:'background 0.2s',display:'flex',alignItems:isMobile?'flex-start':'center',flexWrap:isMobile?'wrap':'nowrap',gap:isMobile?12:0}}>
+                    style={{padding:16,overflowX:isMobile?'visible':'auto',minHeight:100,transition:'background 0.2s',
+                      display:'flex',
+                      flexDirection:isMobile?'column':'row',
+                      alignItems:isMobile?'stretch':'center',
+                      flexWrap:'nowrap',gap:0}}>
                     {vtasks.length===0?(
-                      <div style={{position:'relative',width:'100%',height:110,display:'flex',alignItems:'center'}}>
-                        {copiedTask?<button onClick={()=>handlePasteTask(vt.id,null)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`2px dashed ${t.accent}`,borderRadius:10,padding:'10px 20px',fontSize:13,fontWeight:600,cursor:'pointer',transition:'all 0.2s'}}>📋 Paste Here</button>:<div style={{color:t.muted,fontSize:13,fontStyle:'italic',position:'absolute',left:0,pointerEvents:'none'}}>No tasks. Drop tasks here or add one.</div>}
-                        <div data-verticalid={vt.id} style={{width:(dropTarget.verticalId===vt.id&&!copiedTask)?170:0,opacity:(dropTarget.verticalId===vt.id&&!copiedTask)?1:0,transition:'all 0.25s',overflow:'hidden',height:100,zIndex:1}}><div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow}}/></div>
+                      <div style={{position:'relative',width:'100%',height:80,display:'flex',alignItems:'center'}}>
+                        {copiedTask
+                          ?<button onClick={()=>handlePasteTask(vt.id,null)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`2px dashed ${t.accent}`,borderRadius:10,padding:'10px 20px',fontSize:13,fontWeight:600,cursor:'pointer',transition:'all 0.2s'}}>📋 Paste Here</button>
+                          :<div style={{color:t.muted,fontSize:13,fontStyle:'italic'}}>No tasks yet. Add one above.</div>}
                       </div>
                     ):(
-                      <div style={{display:'flex',alignItems:'center',minWidth:'max-content',gap:0}}>
-                        {vtasks.map((tk,i)=>{
-                          const of=officers[tk.assigned_officer];
-                          const sc=SC[tk.status]||{bg:'#1e293b',text:'#94a3b8'};
-                          const isDropTarget=dropTarget.verticalId===vt.id&&dropTarget.taskId===tk.id;
-                          const isDragged=draggedTaskIdRef.current===tk.id;
-                          return(
-                            <Fragment key={tk.id}>
-                              {copiedTask&&<div style={{padding:'0 8px',display:'flex',alignItems:'center'}}><button onClick={()=>handlePasteTask(vt.id,tk.id)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`1px dashed ${t.accent}`,borderRadius:16,padding:'4px 10px',fontSize:11,cursor:'pointer',fontWeight:600,whiteSpace:'nowrap',transition:'all 0.2s'}}>+ Paste</button></div>}
-                              
-                              {/* ── PLACEHOLDER BEFORE TASK ── */}
-                              <div data-taskid={tk.id} data-verticalid={vt.id} style={{width:(isDropTarget&&!isDragged&&!copiedTask)?195:0,opacity:(isDropTarget&&!isDragged&&!copiedTask)?1:0,transition:'all 0.25s',overflow:'hidden',display:'flex',alignItems:'center'}}>
-                                <div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow,flexShrink:0,margin:'0 8px'}}/>
+                      isMobile ? (
+                        /* ── MOBILE: clean vertical chain ── */
+                        <div style={{display:'flex',flexDirection:'column',gap:0}}>
+                          {vtasks.map((tk,i)=>{
+                            const of=officers[tk.assigned_officer];
+                            const sc=SC[tk.status]||{bg:'#1e293b',text:'#94a3b8'};
+                            return(
+                              <div key={tk.id} style={{display:'flex',flexDirection:'column',alignItems:'stretch'}}>
+                                {/* paste before */}
+                                {copiedTask&&<div style={{display:'flex',justifyContent:'center',padding:'4px 0'}}><button onClick={()=>handlePasteTask(vt.id,tk.id)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`1px dashed ${t.accent}`,borderRadius:12,padding:'3px 12px',fontSize:11,cursor:'pointer',fontWeight:600}}>+ Paste here</button></div>}
+                                {/* task card */}
+                                <div
+                                  data-taskid={tk.id}
+                                  data-verticalid={vt.id}
+                                  onPointerDown={e=>startPointerDrag(e,tk,vt)}
+                                  style={{background:t.bg,border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`,borderRadius:10,padding:'12px 14px',position:'relative',cursor:'grab',userSelect:'none',touchAction:'none',opacity:draggedTask?.id===tk.id?0.3:1}}>
+                                  {/* step number badge */}
+                                  <div style={{position:'absolute',top:10,right:10,width:20,height:20,borderRadius:'50%',background:sc.text+'33',border:'1px solid '+sc.text,display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:sc.text}}>{i+1}</div>
+                                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+                                    <span style={{fontSize:10,color:sc.text,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.05em'}}>{SL[tk.status]}</span>
+                                  </div>
+                                  <div style={{fontSize:15,fontWeight:700,color:t.text,marginBottom:3,paddingRight:28}}>{tk.title}</div>
+                                  <div style={{fontSize:12,color:t.muted,marginBottom:10}}>👤 {of?.name||'Unassigned'}</div>
+                                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:6}}>
+                                    <div style={{display:'flex',gap:4}}>
+                                      {['pending','in-progress','done'].map(s=>(
+                                        <button key={s} onClick={()=>adminMode&&handleTaskStatus(tk.id,s)}
+                                          style={{fontSize:10,padding:'3px 8px',background:tk.status===s?sc.text+'33':'transparent',color:tk.status===s?sc.text:t.muted,border:`1px solid ${tk.status===s?sc.text:t.border}`,borderRadius:6,cursor:adminMode?'pointer':'not-allowed',opacity:adminMode?1:0.4,fontWeight:tk.status===s?600:400}}>
+                                          {s==='in-progress'?'In Prog':s.charAt(0).toUpperCase()+s.slice(1)}
+                                        </button>
+                                      ))}
+                                    </div>
+                                    <div style={{display:'flex',gap:6}}>
+                                      <button onClick={()=>{copiedTask?.id===tk.id?setCopiedTask(null):setCopiedTask(tk);}} style={{background:copiedTask?.id===tk.id?t.accent:'transparent',border:'1px solid '+(copiedTask?.id===tk.id?t.accent:t.border),borderRadius:6,padding:'3px 8px',fontSize:10,cursor:'pointer',color:copiedTask?.id===tk.id?'#fff':t.muted}}>{copiedTask?.id===tk.id?'✓ Copied':'Copy'}</button>
+                                      <button onClick={()=>{setTForm({title:tk.title,description:tk.description||'',goal:tk.goal||'',task_order:tk.task_order||1,vertical_id:tk.vertical_id,assigned_officer:tk.assigned_officer||'',status:tk.status});setModalData({id:tk.id});setModal('taskForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:6,padding:'3px 8px',fontSize:10,cursor:'pointer',color:t.muted}}>Edit</button>
+                                      <button onClick={()=>{setModalData({col:'sd_tasks',id:tk.id});setModal('deleteConfirm');}} style={{background:'rgba(239,68,68,0.08)',border:'1px solid #ef4444',borderRadius:6,padding:'3px 8px',fontSize:10,cursor:'pointer',color:'#ef4444'}}>Del</button>
+                                    </div>
+                                  </div>
+                                </div>
+                                {/* connector */}
+                                {i<vtasks.length-1&&(
+                                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',padding:'2px 0',gap:0}}>
+                                    <div style={{width:2,height:12,background:t.border}}/>
+                                    <div style={{fontSize:12,color:t.muted,lineHeight:1}}>▼</div>
+                                    <div style={{width:2,height:12,background:t.border}}/>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                          {copiedTask&&<div style={{display:'flex',justifyContent:'center',padding:'4px 0'}}><button onClick={()=>handlePasteTask(vt.id,null)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`1px dashed ${t.accent}`,borderRadius:12,padding:'3px 12px',fontSize:11,cursor:'pointer',fontWeight:600}}>+ Paste at end</button></div>}
+                        </div>
+                      ) : (
+                        /* ── DESKTOP: horizontal scroll chain ── */
+                        <div style={{display:'flex',alignItems:'center',minWidth:'max-content',gap:0}}>
+                          {vtasks.map((tk,i)=>{
+                            const of=officers[tk.assigned_officer];
+                            const sc=SC[tk.status]||{bg:'#1e293b',text:'#94a3b8'};
+                            const isDropTarget=dropTarget.verticalId===vt.id&&dropTarget.taskId===tk.id;
+                            const isDragged=draggedTaskIdRef.current===tk.id;
+                            return(
+                              <Fragment key={tk.id}>
+                                {copiedTask&&<div style={{padding:'0 8px',display:'flex',alignItems:'center'}}><button onClick={()=>handlePasteTask(vt.id,tk.id)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`1px dashed ${t.accent}`,borderRadius:16,padding:'4px 10px',fontSize:11,cursor:'pointer',fontWeight:600,whiteSpace:'nowrap',transition:'all 0.2s'}}>+ Paste</button></div>}
+                                <div data-taskid={tk.id} data-verticalid={vt.id} style={{width:(isDropTarget&&!isDragged&&!copiedTask)?195:0,opacity:(isDropTarget&&!isDragged&&!copiedTask)?1:0,transition:'all 0.25s',overflow:'hidden',display:'flex',alignItems:'center'}}>
+                                  <div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow,flexShrink:0,margin:'0 8px'}}/>
+                                  <div style={{color:t.muted,fontSize:18,padding:'0 8px'}}>──▶</div>
+                                </div>
+                                <div
+                                  data-taskid={tk.id}
+                                  data-verticalid={vt.id}
+                                  onPointerDown={e=>startPointerDrag(e,tk,vt)}
+                                  style={{background:t.bg,border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`,borderRadius:10,padding:'12px 14px',position:'relative',minWidth:'160px',maxWidth:'195px',flexShrink:0,cursor:'grab',transition:'all 0.2s',userSelect:'none',touchAction:'none',opacity:draggedTask?.id===tk.id?0.3:1,transform:draggedTask?.id===tk.id?'scale(0.95)':'scale(1)'}}>
+                                  <button onClick={()=>{copiedTask?.id===tk.id?setCopiedTask(null):setCopiedTask(tk);}} style={{position:'absolute',top:-8,right:-8,background:copiedTask?.id===tk.id?t.accent:t.surface,border:'1px solid '+(copiedTask?.id===tk.id?t.accent:t.border),borderRadius:12,padding:'4px 10px',fontSize:10,fontWeight:600,cursor:'pointer',color:copiedTask?.id===tk.id?'#fff':t.muted,transition:'all 0.2s',boxShadow:t.shadow,zIndex:10}}>{copiedTask?.id===tk.id?'Cancel copy':'Copy task'}</button>
+                                  <div style={{fontSize:10,color:sc.text,fontWeight:600,marginBottom:3}}>{SL[tk.status]}</div>
+                                  <div style={{fontSize:13,fontWeight:600,color:t.text,marginBottom:3}}>{tk.title}</div>
+                                  <div style={{fontSize:11,color:t.muted,marginBottom:8}}>{of?.name||'Unassigned'}</div>
+                                  <div style={{display:'flex',gap:3,marginBottom:7,flexWrap:'wrap'}}>
+                                    {['pending','in-progress','done'].map(s=><button key={s} onClick={()=>adminMode&&handleTaskStatus(tk.id,s)} style={{fontSize:9,padding:'2px 5px',background:tk.status===s?sc.text+'33':'transparent',color:tk.status===s?sc.text:t.muted,border:`1px solid ${tk.status===s?sc.text:t.border}`,borderRadius:4,cursor:adminMode?'pointer':'not-allowed',opacity:adminMode?1:0.4}}>{s==='in-progress'?'In Prog':s.charAt(0).toUpperCase()+s.slice(1)}</button>)}
+                                  </div>
+                                  <div style={{display:'flex',gap:4}}>
+                                    <button onClick={()=>{setTForm({title:tk.title,description:tk.description||'',goal:tk.goal||'',task_order:tk.task_order||1,vertical_id:tk.vertical_id,assigned_officer:tk.assigned_officer||'',status:tk.status});setModalData({id:tk.id});setModal('taskForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:4,padding:'2px 8px',fontSize:9,cursor:'pointer',color:t.muted}}>Edit</button>
+                                    <button onClick={()=>{setModalData({col:'sd_tasks',id:tk.id});setModal('deleteConfirm');}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:4,padding:'2px 8px',fontSize:9,cursor:'pointer',color:'#ef4444'}}>Del</button>
+                                  </div>
+                                </div>
+                                {!copiedTask&&i<vtasks.length-1&&<div style={{color:t.muted,fontSize:18,padding:'0 8px',flexShrink:0}}>──▶</div>}
+                              </Fragment>
+                            );
+                          })}
+                          {(()=>{
+                            const isLastTaskDragged=draggedTaskIdRef.current===vtasks[vtasks.length-1]?.id;
+                            const showEndPlaceholder=dropTarget.verticalId===vt.id&&dropTarget.taskId===null&&!copiedTask&&!isLastTaskDragged;
+                            return(
+                              <div data-verticalid={vt.id} style={{width:showEndPlaceholder?195:0,opacity:showEndPlaceholder?1:0,transition:'all 0.25s',overflow:'hidden',display:'flex',alignItems:'center'}}>
                                 <div style={{color:t.muted,fontSize:18,padding:'0 8px'}}>──▶</div>
+                                <div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow,flexShrink:0,margin:'0 8px'}}/>
                               </div>
-                              
-                              {/* ── TASK CARD (POINTER-BASED DRAG) ── */}
-                              <div
-                                data-taskid={tk.id}
-                                data-verticalid={vt.id}
-                                onPointerDown={e => startPointerDrag(e, tk, vt)}
-                                style={{
-                                  background:t.bg, border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`, borderRadius:10, padding:'12px 14px', position:'relative',
-                                  minWidth:isMobile?'calc(100% - 4px)':'160px', maxWidth:isMobile?'100%':'195px', width:isMobile?'100%':'auto',
-                                  flexShrink:0, cursor:'grab', transition:'all 0.2s', userSelect:'none', touchAction:'none',
-                                  opacity:draggedTask?.id===tk.id?0.3:1, transform:draggedTask?.id===tk.id?'scale(0.95)':'scale(1)'
-                                }}>
-                                <button onClick={()=>{copiedTask?.id===tk.id?setCopiedTask(null):setCopiedTask(tk);}} style={{position:'absolute',top:-8,right:-8,background:copiedTask?.id===tk.id?t.accent:t.surface,border:'1px solid '+(copiedTask?.id===tk.id?t.accent:t.border),borderRadius:12,padding:'4px 10px',fontSize:10,fontWeight:600,cursor:'pointer',color:copiedTask?.id===tk.id?'#fff':t.muted,transition:'all 0.2s',boxShadow:t.shadow,zIndex:10}}>{copiedTask?.id===tk.id?'Cancel copy':'Copy task'}</button>
-                                <div style={{fontSize:10,color:sc.text,fontWeight:600,marginBottom:3}}>{SL[tk.status]}</div>
-                                <div style={{fontSize:13,fontWeight:600,color:t.text,marginBottom:3}}>{tk.title}</div>
-                                <div style={{fontSize:11,color:t.muted,marginBottom:8}}>{of?.name||'Unassigned'}</div>
-                                <div style={{display:'flex',gap:3,marginBottom:7,flexWrap:'wrap'}}>
-                                  {['pending','in-progress','done'].map(s=><button key={s} onClick={()=>adminMode&&handleTaskStatus(tk.id,s)} style={{fontSize:9,padding:'2px 5px',background:tk.status===s?sc.text+'33':'transparent',color:tk.status===s?sc.text:t.muted,border:`1px solid ${tk.status===s?sc.text:t.border}`,borderRadius:4,cursor:adminMode?'pointer':'not-allowed',opacity:adminMode?1:0.4}}>{s==='in-progress'?'In Prog':s.charAt(0).toUpperCase()+s.slice(1)}</button>)}
-                                </div>
-                                <div style={{display:'flex',gap:4}}>
-                                  <button onClick={()=>{setTForm({title:tk.title,description:tk.description||'',goal:tk.goal||'',task_order:tk.task_order||1,vertical_id:tk.vertical_id,assigned_officer:tk.assigned_officer||'',status:tk.status});setModalData({id:tk.id});setModal('taskForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:4,padding:'2px 8px',fontSize:9,cursor:'pointer',color:t.muted}}>Edit</button>
-                                  <button onClick={()=>{setModalData({col:'sd_tasks',id:tk.id});setModal('deleteConfirm');}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:4,padding:'2px 8px',fontSize:9,cursor:'pointer',color:'#ef4444'}}>Del</button>
-                                </div>
-                              </div>
-                              {!copiedTask&&i<vtasks.length-1&&<div style={{color:t.muted,fontSize:isMobile?14:18,padding:isMobile?'4px 0':'0 8px',flexShrink:0,transform:isMobile?'rotate(90deg)':'none',alignSelf:'center',width:isMobile?'100%':'auto',textAlign:'center'}}>──▶</div>}
-                            </Fragment>
-                          );
-                        })}
-                        
-                        {/* ── END OF LIST PLACEHOLDER ── */}
-                        {(()=>{
-                          const isLastTaskDragged = draggedTaskIdRef.current === vtasks[vtasks.length - 1]?.id;
-                          const showEndPlaceholder = dropTarget.verticalId === vt.id && dropTarget.taskId === null && !copiedTask && !isLastTaskDragged;
-                          return (
-                            <div data-verticalid={vt.id} style={{width: showEndPlaceholder ? 195 : 0, opacity: showEndPlaceholder ? 1 : 0, transition:'all 0.25s', overflow:'hidden', display:'flex', alignItems:'center'}}>
-                              <div style={{color:t.muted,fontSize:18,padding:'0 8px'}}>──▶</div>
-                              <div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow,flexShrink:0,margin:'0 8px'}}/>
-                            </div>
-                          );
-                        })()}
-                      </div>
+                            );
+                          })()}
+                        </div>
+                      )
                     )}
                   </div>
                 </div>
