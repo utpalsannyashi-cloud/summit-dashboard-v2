@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { useState, useEffect, useMemo, useRef, Fragment } from 'react';
+import { useState, useEffect, useMemo, useRef, Fragment, useCallback } from 'react';
 import { COLORS, STATUS_COLORS, SEED_VERTICALS, SEED_OFFICERS, SEED_TASKS } from './constants';
 
 const supabase = createClient(
@@ -27,6 +27,17 @@ function makeTheme(isDark) {
     accent:'#2563eb',accentGlow:'rgba(37,99,235,0.1)',inputBg:'#fff',
     shadow:'0 1px 3px rgba(0,0,0,0.08)',
   };
+}
+
+// FIX #5: Hook to reactively track window width
+function useWindowWidth() {
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  return width;
 }
 
 function ThemeToggle({ isDark, onToggle, t }) {
@@ -340,6 +351,10 @@ export default function App() {
   const t   = useMemo(()=>makeTheme(isDark),[isDark]);
   const inp = useMemo(()=>mkInp(t),[t]);
 
+  // FIX #5: Use reactive window width hook instead of raw window.innerWidth in render
+  const windowWidth = useWindowWidth();
+  const isMobile = windowWidth <= 768;
+
   const [customAiRules, setCustomAiRules]             = useState('');
   const [showAiRulesAuthModal, setShowAiRulesAuthModal] = useState(false);
   const [showAiRulesModal, setShowAiRulesModal]         = useState(false);
@@ -348,7 +363,7 @@ export default function App() {
 
   const [verticals, setVerticals]   = useState({});
   const [officers, setOfficers]     = useState({});
-  const [resources, setResources]   = useState({}); // NEW
+  const [resources, setResources]   = useState({});
   const [tasks, setTasks]           = useState({});
   const [movements, setMovements]   = useState([]);
   const [orders, setOrders]         = useState([]);
@@ -377,7 +392,6 @@ export default function App() {
 
   useEffect(()=>{ tasksRef.current = tasks; },[tasks]);
 
-
   // ── Drag & drop state ──
   const [draggedTask, setDraggedTask]   = useState(null);
   const draggedTaskIdRef                = useRef(null);
@@ -389,7 +403,7 @@ export default function App() {
   const [modalData, setModalData] = useState({});
   const [vForm, setVForm]         = useState({ name:'', lead:'', status:'active' });
   const [oForm, setOForm] = useState({ name:'', designation:'', contact:'', current_vertical:'', origin_station:'', deployment_start:'', deployment_end:'' });
-  const [rForm, setRForm]         = useState({ name:'', quantity: 1, current_vertical:'' }); // NEW
+  const [rForm, setRForm]         = useState({ name:'', quantity: 1, current_vertical:'' });
   const [tForm, setTForm]         = useState({ title:'', description:'', goal:'', task_order:1, vertical_id:'', assigned_officer:'', status:'pending' });
   const [clearOpts, setClearOpts] = useState({ verticals:true, officers:true, resources:true, tasks:true, movements:true });
 
@@ -486,28 +500,33 @@ export default function App() {
   useEffect(()=>{ tasksRef.current = tasks; },[tasks]);
 
   // ── Auth ──────────────────────────────────────────────────────────────
-  const handleLogout = ()=>{ setAuthed(false); setTeam(null); setAdminMode(false); setView('dashboard'); setIsNavOpen(false); localStorage.removeItem('ems_team_session'); };
-// ── Auto-logout after 10 min inactivity (2 min warning) ──
-const [showInactivityWarning, setShowInactivityWarning] = useState(false);
-useEffect(()=>{
-  if (!authed) return;
-  let warningTimer, logoutTimer;
-  const reset = () => {
-    clearTimeout(warningTimer);
-    clearTimeout(logoutTimer);
-    setShowInactivityWarning(false);
-    warningTimer = setTimeout(() => setShowInactivityWarning(true), 8 * 60 * 1000);
-    logoutTimer  = setTimeout(() => handleLogout(), 10 * 60 * 1000);
-  };
-  const events = ['mousemove','mousedown','keydown','touchstart','scroll','click'];
-  events.forEach(e => window.addEventListener(e, reset));
-  reset();
-  return () => {
-    clearTimeout(warningTimer);
-    clearTimeout(logoutTimer);
-    events.forEach(e => window.removeEventListener(e, reset));
-  };
-}, [authed]);
+  // FIX #4: Wrap handleLogout in useCallback so the auto-logout effect has a stable reference
+  const handleLogout = useCallback(()=>{
+    setAuthed(false); setTeam(null); setAdminMode(false); setView('dashboard'); setIsNavOpen(false);
+    localStorage.removeItem('ems_team_session');
+  }, []);
+
+  // ── Auto-logout after 10 min inactivity (2 min warning) ──
+  const [showInactivityWarning, setShowInactivityWarning] = useState(false);
+  useEffect(()=>{
+    if (!authed) return;
+    let warningTimer, logoutTimer;
+    const reset = () => {
+      clearTimeout(warningTimer);
+      clearTimeout(logoutTimer);
+      setShowInactivityWarning(false);
+      warningTimer = setTimeout(() => setShowInactivityWarning(true), 8 * 60 * 1000);
+      logoutTimer  = setTimeout(() => handleLogout(), 10 * 60 * 1000);
+    };
+    const events = ['mousemove','mousedown','keydown','touchstart','scroll','click'];
+    events.forEach(e => window.addEventListener(e, reset));
+    reset();
+    return () => {
+      clearTimeout(warningTimer);
+      clearTimeout(logoutTimer);
+      events.forEach(e => window.removeEventListener(e, reset));
+    };
+  }, [authed, handleLogout]); // FIX #4: handleLogout now in dep array (stable via useCallback)
 
   const handleAdminUnlock = ()=>{
     if(adminPwInput===team.admin_password){ setAdminMode(true); setAdminPwErr(false); setAdminPwInput(''); setShowAdminModal(false); setIsNavOpen(false); }
@@ -927,7 +946,7 @@ Be concise and professional.`;
   if(!authed) return <LoginScreen onLogin={teamData=>{ setTeam(teamData); setAuthed(true); localStorage.setItem('ems_team_session', JSON.stringify(teamData)); }}/>;
 
   return (
-    <div style={{display:'flex',minHeight:'100vh',background:t.bg,fontFamily:'system-ui,sans-serif',marginRight:chatOpen&&window.innerWidth>768?'380px':'0',transition:'margin-right 0.3s cubic-bezier(0.4,0,0.2,1)'}}>
+    <div style={{display:'flex',minHeight:'100vh',background:t.bg,fontFamily:'system-ui,sans-serif',marginRight:chatOpen&&!isMobile?'380px':'0',transition:'margin-right 0.3s cubic-bezier(0.4,0,0.2,1)'}}>
       <style>{`
         *{box-sizing:border-box}html,body{margin:0;padding:0;background:${t.bg}}
         input,select,textarea{font-family:inherit} select option{background:${t.card};color:${t.text}}
@@ -1011,7 +1030,8 @@ Be concise and professional.`;
 
         {view!=='messages'&&(
           <div style={{display:'grid',gridTemplateColumns:'repeat(2, 1fr)',gap:12,marginBottom:20}}>
-            {[['Verticals',vArr.length,'🗂️','#3B82F6'],['Resources',oArr.length,'👥','#10b981'],['Tasks Done',doneTasks,'✅','#34D399'],['All Tasks',tArr.length,'📋','#8b5cf6']].map(([l,n,i,c])=>(
+            {/* FIX #3: Resources card now shows rArr.length (resources), not oArr.length (officers) */}
+            {[['Verticals',vArr.length,'🗂️','#3B82F6'],['Resources',rArr.length,'📦','#10b981'],['Tasks Done',doneTasks,'✅','#34D399'],['All Tasks',tArr.length,'📋','#8b5cf6']].map(([l,n,i,c])=>(
               <div key={l} className="statCard" onClick={()=>handleStatClick(l)}
                 style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:'14px 16px',borderTop:`3px solid ${c}`,boxShadow:t.shadow}}>
                 <div style={{fontSize:26,marginBottom:4}}>{i}</div>
@@ -1078,7 +1098,7 @@ Be concise and professional.`;
                     <input type="file" ref={teamChatCameraRef} onChange={e=>setTeamChatFile(e.target.files[0]||null)} style={{display:'none'}} id="teamChatCameraInput" accept="image/*" capture="environment"/>
                     <label htmlFor="teamChatCameraInput" style={{background:t.bg,border:'1px solid '+t.border,color:t.muted,borderRadius:'50%',width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:18}} title="Take photo">📷</label>
                   </div>
-                  <textarea value={teamChatInput} onChange={e=>setTeamChatInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSendTeamMessage();}}} placeholder="Type a message or share a document..." style={{flex:1,padding:'12px 16px',borderRadius:22,border:'1px solid '+t.border,background:t.inputBg,color:t.text,fontSize:14,outline:'none',resize:'none',maxHeight:100,minHeight:44,fontFamily:'inherit'} }/>
+                  <textarea value={teamChatInput} onChange={e=>setTeamChatInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSendTeamMessage();}}} placeholder="Type a message or share a document..." style={{flex:1,padding:'12px 16px',borderRadius:22,border:'1px solid '+t.border,background:t.inputBg,color:t.text,fontSize:14,outline:'none',resize:'none',maxHeight:100,minHeight:44,fontFamily:'inherit'}}/>
                   <button onClick={handleSendTeamMessage} disabled={teamChatUploading||(!teamChatInput.trim()&&!teamChatFile)} style={{background:(teamChatInput.trim()||teamChatFile)?t.accent:'transparent',border:(teamChatInput.trim()||teamChatFile)?'none':'1px solid '+t.border,color:(teamChatInput.trim()||teamChatFile)?'#fff':t.muted,borderRadius:'50%',width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',cursor:(teamChatInput.trim()||teamChatFile)?'pointer':'default',transition:'all 0.2s',flexShrink:0}}>
                     {teamChatUploading?'⏳':'➤'}
                   </button>
@@ -1233,7 +1253,6 @@ Be concise and professional.`;
                                   </div>
                                 </td>
                                 <td style={{padding:'11px 14px'}}>
-                                  {/* Select Input for drag-down up to 200 */}
                                   <select value={r.quantity} onChange={e=>handleUpdateQuantity(r.id, e.target.value)} style={{...inp, width: 80, padding: '4px 8px', fontSize:13}}>
                                     {[...Array(201).keys()].map(n => <option key={n} value={n}>{n}</option>)}
                                   </select>
@@ -1290,11 +1309,13 @@ Be concise and professional.`;
                       <span style={{fontSize:12,color:t.muted}}>{allDone}/{allTotal} complete</span>
                     </div>
                   </div>
-                  <div className="h-scroll-container" style={{padding:16,overflowX:'auto',minHeight:100,transition:'background 0.2s',display:'flex',alignItems:window.innerWidth<=768?'flex-start':'center',flexWrap:window.innerWidth<=768?'wrap':'nowrap',gap:window.innerWidth<=768?12:0}}>
+                  {/* FIX #1 & #2: data-verticalid is now properly on the div as a JSX prop.
+                      Removed dead onDragEnter/onDragOver/onDrop handlers that referenced
+                      the non-existent handleDropAction function. */}
+                  <div
+                    className="h-scroll-container"
                     data-verticalid={vt.id}
-                    onDragEnter={e=>e.preventDefault()}
-                    onDragOver={e=>{e.preventDefault();e.dataTransfer.dropEffect='move';if(dropTargetRef.current.verticalId!==vt.id||dropTargetRef.current.taskId!==null){dropTargetRef.current={verticalId:vt.id,taskId:null};setDropTarget({verticalId:vt.id,taskId:null});}}}
-                    onDrop={e=>{e.preventDefault();handleDropAction(e,vt.id,null);}}>
+                    style={{padding:16,overflowX:'auto',minHeight:100,transition:'background 0.2s',display:'flex',alignItems:isMobile?'flex-start':'center',flexWrap:isMobile?'wrap':'nowrap',gap:isMobile?12:0}}>
                     {vtasks.length===0?(
                       <div style={{position:'relative',width:'100%',height:110,display:'flex',alignItems:'center'}}>
                         {copiedTask?<button onClick={()=>handlePasteTask(vt.id,null)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`2px dashed ${t.accent}`,borderRadius:10,padding:'10px 20px',fontSize:13,fontWeight:600,cursor:'pointer',transition:'all 0.2s'}}>📋 Paste Here</button>:<div style={{color:t.muted,fontSize:13,fontStyle:'italic',position:'absolute',left:0,pointerEvents:'none'}}>No tasks. Drop tasks here or add one.</div>}
@@ -1323,23 +1344,24 @@ Be concise and professional.`;
                                 data-verticalid={vt.id}
                                 onPointerDown={e => startPointerDrag(e, tk, vt)}
                                 style={{
-  background:t.bg, border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`, borderRadius:10, padding:'12px 14px', position:'relative', minWidth:window.innerWidth<=768?'calc(100% - 4px)':'160px', maxWidth:window.innerWidth<=768?'100%':'195px', width:window.innerWidth<=768?'100%':'auto', flexShrink:0, cursor:'grab', transition:'all 0.2s', userSelect:'none', touchAction:'none',
-  opacity:draggedTask?.id===tk.id?0.3:1, transform:draggedTask?.id===tk.id?'scale(0.95)':'scale(1)'
-}}>
+                                  background:t.bg, border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`, borderRadius:10, padding:'12px 14px', position:'relative',
+                                  minWidth:isMobile?'calc(100% - 4px)':'160px', maxWidth:isMobile?'100%':'195px', width:isMobile?'100%':'auto',
+                                  flexShrink:0, cursor:'grab', transition:'all 0.2s', userSelect:'none', touchAction:'none',
+                                  opacity:draggedTask?.id===tk.id?0.3:1, transform:draggedTask?.id===tk.id?'scale(0.95)':'scale(1)'
+                                }}>
                                 <button onClick={()=>{copiedTask?.id===tk.id?setCopiedTask(null):setCopiedTask(tk);}} style={{position:'absolute',top:-8,right:-8,background:copiedTask?.id===tk.id?t.accent:t.surface,border:'1px solid '+(copiedTask?.id===tk.id?t.accent:t.border),borderRadius:12,padding:'4px 10px',fontSize:10,fontWeight:600,cursor:'pointer',color:copiedTask?.id===tk.id?'#fff':t.muted,transition:'all 0.2s',boxShadow:t.shadow,zIndex:10}}>{copiedTask?.id===tk.id?'Cancel copy':'Copy task'}</button>
                                 <div style={{fontSize:10,color:sc.text,fontWeight:600,marginBottom:3}}>{SL[tk.status]}</div>
                                 <div style={{fontSize:13,fontWeight:600,color:t.text,marginBottom:3}}>{tk.title}</div>
                                 <div style={{fontSize:11,color:t.muted,marginBottom:8}}>{of?.name||'Unassigned'}</div>
                                 <div style={{display:'flex',gap:3,marginBottom:7,flexWrap:'wrap'}}>
-  {['pending','in-progress','done'].map(s=><button key={s} onClick={()=>adminMode&&handleTaskStatus(tk.id,s)} style={{fontSize:9,padding:'2px 5px',background:tk.status===s?sc.text+'33':'transparent',color:tk.status===s?sc.text:t.muted,border:`1px solid ${tk.status===s?sc.text:t.border}`,borderRadius:4,cursor:adminMode?'pointer':'not-allowed',opacity:adminMode?1:0.4}}>{s==='in-progress'?'In Prog':s.charAt(0).toUpperCase()+s.slice(1)}</button>)}
-</div>
-
+                                  {['pending','in-progress','done'].map(s=><button key={s} onClick={()=>adminMode&&handleTaskStatus(tk.id,s)} style={{fontSize:9,padding:'2px 5px',background:tk.status===s?sc.text+'33':'transparent',color:tk.status===s?sc.text:t.muted,border:`1px solid ${tk.status===s?sc.text:t.border}`,borderRadius:4,cursor:adminMode?'pointer':'not-allowed',opacity:adminMode?1:0.4}}>{s==='in-progress'?'In Prog':s.charAt(0).toUpperCase()+s.slice(1)}</button>)}
+                                </div>
                                 <div style={{display:'flex',gap:4}}>
                                   <button onClick={()=>{setTForm({title:tk.title,description:tk.description||'',goal:tk.goal||'',task_order:tk.task_order||1,vertical_id:tk.vertical_id,assigned_officer:tk.assigned_officer||'',status:tk.status});setModalData({id:tk.id});setModal('taskForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:4,padding:'2px 8px',fontSize:9,cursor:'pointer',color:t.muted}}>Edit</button>
                                   <button onClick={()=>{setModalData({col:'sd_tasks',id:tk.id});setModal('deleteConfirm');}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:4,padding:'2px 8px',fontSize:9,cursor:'pointer',color:'#ef4444'}}>Del</button>
                                 </div>
                               </div>
-                              {!copiedTask&&i<vtasks.length-1&&<div style={{color:t.muted,fontSize:window.innerWidth<=768?14:18,padding:window.innerWidth<=768?'4px 0':'0 8px',flexShrink:0,transform:window.innerWidth<=768?'rotate(90deg)':'none',alignSelf:'center',width:window.innerWidth<=768?'100%':'auto',textAlign:'center'}}>──▶</div>}
+                              {!copiedTask&&i<vtasks.length-1&&<div style={{color:t.muted,fontSize:isMobile?14:18,padding:isMobile?'4px 0':'0 8px',flexShrink:0,transform:isMobile?'rotate(90deg)':'none',alignSelf:'center',width:isMobile?'100%':'auto',textAlign:'center'}}>──▶</div>}
                             </Fragment>
                           );
                         })}
@@ -1453,7 +1475,7 @@ Be concise and professional.`;
       {/* Officer Modal */}
       {modal==='officerForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="👤" title={(modalData.id?'Edit':'Add')+' Personnel'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Full Name</label><input value={oForm.name} onChange={e=>setOForm(f=>({...f,name:e.target.value}))} placeholder="Officer name" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Designation</label><input value={oForm.designation} onChange={e=>setOForm(f=>({...f,designation:e.target.value}))} placeholder="e.g. IFS (2015)" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Contact</label><input value={oForm.contact} onChange={e=>setOForm(f=>({...f,contact:e.target.value}))} placeholder="email@gov.in" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Vertical</label><select value={oForm.current_vertical} onChange={e=>setOForm(f=>({...f,current_vertical:e.target.value}))} style={inp}><option value="">Select vertical...</option>{vArr.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Origin Mission / Station</label><input value={oForm.origin_station||''} onChange={e=>setOForm(f=>({...f,origin_station:e.target.value}))} placeholder="e.g. MEA HQ, Geneva Mission" style={inp}/></div><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Start Date</label><input type="date" value={oForm.deployment_start||''} onChange={e=>setOForm(f=>({...f,deployment_start:e.target.value}))} style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>End Date</label><input type="date" value={oForm.deployment_end||''} onChange={e=>setOForm(f=>({...f,deployment_end:e.target.value}))} style={inp}/></div></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveOfficer} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
       
-      {/* Resource Modal (NEW) */}
+      {/* Resource Modal */}
       {modal==='resourceForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="📦" title={(modalData.id?'Edit':'Add')+' Equipment'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Item Name</label><input value={rForm.name} onChange={e=>setRForm(f=>({...f,name:e.target.value}))} placeholder="e.g. Laptops, Vehicles, Chairs" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Quantity</label><input type="number" min="0" value={rForm.quantity} onChange={e=>setRForm(f=>({...f,quantity:parseInt(e.target.value, 10)||0}))} style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Assign to Division</label><select value={rForm.current_vertical} onChange={e=>setRForm(f=>({...f,current_vertical:e.target.value}))} style={inp}><option value="">Select vertical...</option>{vArr.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveResource} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
 
       {modal==='taskForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="✅" title={(modalData.id?'Edit':'Add')+' Task'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Title</label><input value={tForm.title} onChange={e=>setTForm(f=>({...f,title:e.target.value}))} placeholder="Task title" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Description</label><textarea value={tForm.description} onChange={e=>setTForm(f=>({...f,description:e.target.value}))} placeholder="Description" style={{...inp,height:65,resize:'vertical'}}/></div><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Goal</label><input value={tForm.goal} onChange={e=>setTForm(f=>({...f,goal:e.target.value}))} placeholder="e.g. Protocol Readiness" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Order</label><input type="number" value={tForm.task_order} onChange={e=>setTForm(f=>({...f,task_order:parseInt(e.target.value)||1}))} style={inp}/></div></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Vertical</label><select value={tForm.vertical_id} onChange={e=>setTForm(f=>({...f,vertical_id:e.target.value}))} style={inp}><option value="">Select vertical...</option>{vArr.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Assigned Officer</label><select value={tForm.assigned_officer} onChange={e=>setTForm(f=>({...f,assigned_officer:e.target.value}))} style={inp}><option value="">Unassigned</option>{oArr.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Status</label><select value={tForm.status} onChange={e=>setTForm(f=>({...f,status:e.target.value}))} style={inp}>{['pending','in-progress','done'].map(s=><option key={s} value={s}>{s}</option>)}</select></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveTask} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
