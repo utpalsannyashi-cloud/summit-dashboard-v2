@@ -1286,7 +1286,7 @@ Be concise and professional.`;
                       <span style={{fontSize:12,color:t.muted}}>{allDone}/{allTotal} complete</span>
                     </div>
                   </div>
-                  <div className="h-scroll-container" style={{padding:20,overflowX:'auto',minHeight:130,transition:'background 0.2s',display:'flex',alignItems:'center'}}
+                  <div className="h-scroll-container" style={{padding:16,overflowX:'auto',minHeight:100,transition:'background 0.2s',display:'flex',alignItems:window.innerWidth<=768?'flex-start':'center',flexWrap:window.innerWidth<=768?'wrap':'nowrap',gap:window.innerWidth<=768?12:0}}>
                     data-verticalid={vt.id}
                     onDragEnter={e=>e.preventDefault()}
                     onDragOver={e=>{e.preventDefault();e.dataTransfer.dropEffect='move';if(dropTargetRef.current.verticalId!==vt.id||dropTargetRef.current.taskId!==null){dropTargetRef.current={verticalId:vt.id,taskId:null};setDropTarget({verticalId:vt.id,taskId:null});}}}
@@ -1319,9 +1319,9 @@ Be concise and professional.`;
                                 data-verticalid={vt.id}
                                 onPointerDown={e => startPointerDrag(e, tk, vt)}
                                 style={{
-                                  background:t.bg, border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`, borderRadius:10, padding:'12px 14px', position:'relative', minWidth:160, maxWidth:195, flexShrink:0, cursor:'grab', transition:'all 0.2s', userSelect:'none', touchAction:'none',
-                                  opacity:draggedTask?.id===tk.id?0.3:1, transform:draggedTask?.id===tk.id?'scale(0.95)':'scale(1)'
-                                }}>
+  background:t.bg, border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`, borderRadius:10, padding:'12px 14px', position:'relative', minWidth:window.innerWidth<=768?'calc(100% - 4px)':'160px', maxWidth:window.innerWidth<=768?'100%':'195px', width:window.innerWidth<=768?'100%':'auto', flexShrink:0, cursor:'grab', transition:'all 0.2s', userSelect:'none', touchAction:'none',
+  opacity:draggedTask?.id===tk.id?0.3:1, transform:draggedTask?.id===tk.id?'scale(0.95)':'scale(1)'
+}}>
                                 <button onClick={()=>{copiedTask?.id===tk.id?setCopiedTask(null):setCopiedTask(tk);}} style={{position:'absolute',top:-8,right:-8,background:copiedTask?.id===tk.id?t.accent:t.surface,border:'1px solid '+(copiedTask?.id===tk.id?t.accent:t.border),borderRadius:12,padding:'4px 10px',fontSize:10,fontWeight:600,cursor:'pointer',color:copiedTask?.id===tk.id?'#fff':t.muted,transition:'all 0.2s',boxShadow:t.shadow,zIndex:10}}>{copiedTask?.id===tk.id?'Cancel copy':'Copy task'}</button>
                                 <div style={{fontSize:10,color:sc.text,fontWeight:600,marginBottom:3}}>{SL[tk.status]}</div>
                                 <div style={{fontSize:13,fontWeight:600,color:t.text,marginBottom:3}}>{tk.title}</div>
@@ -1335,7 +1335,7 @@ Be concise and professional.`;
                                   <button onClick={()=>{setModalData({col:'sd_tasks',id:tk.id});setModal('deleteConfirm');}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:4,padding:'2px 8px',fontSize:9,cursor:'pointer',color:'#ef4444'}}>Del</button>
                                 </div>
                               </div>
-                              {!copiedTask&&i<vtasks.length-1&&<div style={{color:t.muted,fontSize:18,padding:'0 8px',flexShrink:0}}>──▶</div>}
+                              {!copiedTask&&i<vtasks.length-1&&<div style={{color:t.muted,fontSize:window.innerWidth<=768?14:18,padding:window.innerWidth<=768?'4px 0':'0 8px',flexShrink:0,transform:window.innerWidth<=768?'rotate(90deg)':'none',alignSelf:'center',width:window.innerWidth<=768?'100%':'auto',textAlign:'center'}}>──▶</div>}
                             </Fragment>
                           );
                         })}
