@@ -404,6 +404,7 @@ export default function App() {
   const [vForm, setVForm]         = useState({ name:'', lead:'', status:'active' });
   const [oForm, setOForm] = useState({ name:'', designation:'', contact:'', current_vertical:'', origin_station:'', deployment_start:'', deployment_end:'' });
   const [rForm, setRForm]         = useState({ name:'', quantity: 1, current_vertical:'' });
+  const [partialMove, setPartialMove] = useState(null); // { resource, toVertical, qty }
   const [tForm, setTForm]         = useState({ title:'', description:'', goal:'', task_order:1, vertical_id:'', assigned_officer:'', status:'pending' });
   const [clearOpts, setClearOpts] = useState({ verticals:true, officers:true, resources:true, tasks:true, movements:true });
 
@@ -613,6 +614,31 @@ export default function App() {
   const handleQuickMoveResource = async (rid, toV)=>{
     if(!toV) return;
     await supabase.from('sd_resources').update({current_vertical:toV}).eq('id',rid).eq('team_id',teamId);
+  };
+  const handlePartialMoveResource = async ()=>{
+    if(!partialMove) return;
+    const { resource, toVertical, qty } = partialMove;
+    const moveQty = parseInt(qty, 10);
+    if(!toVertical || !moveQty || moveQty <= 0 || moveQty > resource.quantity) return;
+    const remaining = resource.quantity - moveQty;
+    // Check if an entry for this resource already exists in the target vertical
+    const existingInTarget = rArr.find(r => r.name === resource.name && r.current_vertical === toVertical && r.id !== resource.id);
+    if(existingInTarget) {
+      // Merge into existing entry
+      await supabase.from('sd_resources').update({ quantity: existingInTarget.quantity + moveQty }).eq('id', existingInTarget.id).eq('team_id', teamId);
+    } else {
+      // Create new entry in target vertical
+      await supabase.from('sd_resources').insert({ id: crypto.randomUUID(), name: resource.name, quantity: moveQty, current_vertical: toVertical, team_id: teamId, created_at: new Date().toISOString() });
+    }
+    if(remaining > 0) {
+      // Update source quantity
+      await supabase.from('sd_resources').update({ quantity: remaining }).eq('id', resource.id).eq('team_id', teamId);
+    } else {
+      // Remove source entry entirely
+      await supabase.from('sd_resources').delete().eq('id', resource.id).eq('team_id', teamId);
+      setResources(prev => { const n={...prev}; delete n[resource.id]; return n; });
+    }
+    setPartialMove(null);
   };
 
   const doMoveOfficer = async (oid,toV,movedBy='User')=>{
@@ -1040,7 +1066,7 @@ Be concise and professional.`;
               if(idx===1) return (
                 <div key="resources" className="statCard" onClick={()=>handleStatClick('Resources')}
                   style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:'14px 16px',borderTop:'3px solid #F59E0B',boxShadow:t.shadow}}>
-                  <div style={{fontSize:26,marginBottom:4}}>📦</div>
+                  <div style={{fontSize:26,marginBottom:4}}>👥</div>
                   <div style={{display:'flex',alignItems:'baseline',gap:6,flexWrap:'wrap'}}>
                     <span style={{fontSize:28,fontWeight:700,color:t.text}}>{oArr.length}</span>
                     <span style={{fontSize:12,color:'#F59E0B',fontWeight:600}}>personnel</span>
@@ -1325,6 +1351,7 @@ Be concise and professional.`;
                                     <option value="">Move to...</option>
                                     {vArr.filter(v=>v.id!==r.current_vertical).map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
                                   </select>
+                                  <button onClick={()=>setPartialMove({resource:r,toVertical:'',qty:1})} style={{background:'rgba(245,158,11,0.08)',border:'1px solid #F59E0B',borderRadius:6,padding:'7px 12px',fontSize:12,cursor:'pointer',color:'#F59E0B'}}>Split</button>
                                   <button onClick={()=>{setRForm({name:r.name,quantity:r.quantity,current_vertical:r.current_vertical});setModalData({id:r.id});setModal('resourceForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:6,padding:'7px 14px',fontSize:12,cursor:'pointer',color:t.muted}}>Edit</button>
                                   <button onClick={()=>{setModalData({col:'sd_resources',id:r.id});setModal('deleteConfirm');}} style={{background:'rgba(239,68,68,0.08)',border:'1px solid #ef4444',borderRadius:6,padding:'7px 14px',fontSize:12,cursor:'pointer',color:'#ef4444'}}>Del</button>
                                 </div>
@@ -1362,6 +1389,7 @@ Be concise and professional.`;
                                     </select>
                                   </td>
                                   <td style={{padding:'11px 14px',whiteSpace:'nowrap'}}>
+                                    <button onClick={()=>setPartialMove({resource:r,toVertical:'',qty:1})} style={{background:'transparent',border:'1px solid #F59E0B',borderRadius:6,padding:'3px 10px',fontSize:11,cursor:'pointer',color:'#F59E0B',marginRight:6}}>Split</button>
                                     <button onClick={()=>{setRForm({name:r.name,quantity:r.quantity,current_vertical:r.current_vertical});setModalData({id:r.id});setModal('resourceForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:6,padding:'3px 10px',fontSize:11,cursor:'pointer',color:t.muted,marginRight:6}}>Edit</button>
                                     <button onClick={()=>{setModalData({col:'sd_resources',id:r.id});setModal('deleteConfirm');}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:6,padding:'3px 10px',fontSize:11,cursor:'pointer',color:'#ef4444'}}>Del</button>
                                   </td>
@@ -1582,6 +1610,43 @@ Be concise and professional.`;
       {modal==='deleteOrder'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="📄" title="Delete Order" subtitle="This will permanently remove the file and its record." danger t={t}/><p style={{textAlign:'center',fontSize:14,color:t.muted,marginBottom:'1.5rem',lineHeight:1.6}}>Delete <strong style={{color:t.text}}>{modalData.order?.title}</strong>?</p><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={()=>handleDeleteOrder(modalData.order)} style={{flex:1,background:'#ef4444',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Delete</button></div></Modal>}
       {modal==='clearTeamChat'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="🗑️" title="Clear Team Chat" subtitle="This will permanently delete all messages and attachments." danger t={t}/><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={handleClearTeamChat} style={{flex:1,background:'#ef4444',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Clear All</button></div></Modal>}
       {modal==='clearData'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="🗑️" title="Clear Dashboard Data" subtitle="Select what to delete. Verticals will be reseeded after clearing." danger t={t}/><div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:'1.5rem'}}>{[['verticals','🗂️ Verticals','Reseeds with default 4 verticals after clearing'],['officers','👥 Personnel','All personnel records will be removed'],['resources','📦 Resources','All equipment/resource items'],['tasks','✅ Task Chains','All tasks across all verticals'],['movements','🔄 Movement Log','Full audit trail will be wiped']].map(([key,label,desc])=><div key={key} onClick={()=>setClearOpts(o=>({...o,[key]:!o[key]}))} style={{display:'flex',alignItems:'flex-start',gap:12,padding:'12px 14px',background:clearOpts[key]?'rgba(239,68,68,0.08)':t.surface,border:`1px solid ${clearOpts[key]?'#ef4444':t.border}`,borderRadius:10,cursor:'pointer',transition:'all 0.15s'}}><div style={{width:20,height:20,border:`2px solid ${clearOpts[key]?'#ef4444':t.border}`,borderRadius:4,background:clearOpts[key]?'#ef4444':'transparent',display:'grid',placeItems:'center',flexShrink:0,marginTop:1}}>{clearOpts[key]&&<span style={{color:'#fff',fontSize:12,fontWeight:700}}>✓</span>}</div><div><div style={{fontSize:14,fontWeight:500,color:t.text}}>{label}</div><div style={{fontSize:12,color:t.muted,marginTop:2}}>{desc}</div></div></div>)}</div><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={handleClearData} disabled={!Object.values(clearOpts).some(Boolean)} style={{flex:1,background:Object.values(clearOpts).some(Boolean)?'#ef4444':'#334155',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:Object.values(clearOpts).some(Boolean)?'pointer':'default',transition:'background 0.2s'}}>Confirm Clear</button></div></Modal>}
+      {partialMove&&<Modal t={t} onClose={()=>setPartialMove(null)}><ModalHeader icon="✂️" title="Split Resource" subtitle={`Move part of "${partialMove.resource.name}" (${partialMove.resource.quantity} available) to another vertical.`} t={t}/>
+        <div style={{display:'flex',flexDirection:'column',gap:12}}>
+          <div>
+            <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Quantity to Move</label>
+            <div style={{display:'flex',alignItems:'center',gap:10}}>
+              <input type="number" min={1} max={partialMove.resource.quantity} value={partialMove.qty}
+                onChange={e=>setPartialMove(p=>({...p,qty:Math.min(parseInt(e.target.value)||1, p.resource.quantity)}))}
+                style={{...inp,width:100,fontSize:16,fontWeight:600,textAlign:'center'}}/>
+              <span style={{fontSize:13,color:t.muted}}>of {partialMove.resource.quantity} total</span>
+            </div>
+            <div style={{display:'flex',gap:6,marginTop:8,flexWrap:'wrap'}}>
+              {[1, Math.floor(partialMove.resource.quantity/2), partialMove.resource.quantity].filter((v,i,a)=>v>0&&a.indexOf(v)===i).map(v=>(
+                <button key={v} onClick={()=>setPartialMove(p=>({...p,qty:v}))} style={{background:partialMove.qty===v?t.accentGlow:'transparent',border:'1px solid '+(partialMove.qty===v?t.accent:t.border),borderRadius:16,padding:'4px 12px',fontSize:12,cursor:'pointer',color:partialMove.qty===v?t.accent:t.muted}}>
+                  {v===partialMove.resource.quantity?'All':v===Math.floor(partialMove.resource.quantity/2)?'Half':1} {v===1&&v!==Math.floor(partialMove.resource.quantity/2)?'':v===partialMove.resource.quantity?`(${v})`:`(${v})`}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Move To Vertical</label>
+            <select value={partialMove.toVertical} onChange={e=>setPartialMove(p=>({...p,toVertical:e.target.value}))} style={inp}>
+              <option value="">Select destination...</option>
+              {vArr.filter(v=>v.id!==partialMove.resource.current_vertical).map(v=><option key={v.id} value={v.id}>{v.name}</option>)}
+            </select>
+          </div>
+          {partialMove.toVertical&&partialMove.qty>0&&(
+            <div style={{background:t.bg,border:'1px solid '+t.border,borderRadius:8,padding:'10px 14px',fontSize:12,color:t.muted,lineHeight:1.6}}>
+              <span style={{color:t.text,fontWeight:500}}>{partialMove.qty} {partialMove.resource.name}</span> → <span style={{color:t.accent}}>{vArr.find(v=>v.id===partialMove.toVertical)?.name}</span>
+              {partialMove.resource.quantity - partialMove.qty > 0 && <><br/><span style={{color:t.text,fontWeight:500}}>{partialMove.resource.quantity - partialMove.qty} {partialMove.resource.name}</span> stay in <span style={{color:t.accent}}>{vArr.find(v=>v.id===partialMove.resource.current_vertical)?.name||'current vertical'}</span></>}
+            </div>
+          )}
+          <div style={{display:'flex',gap:8,marginTop:4}}>
+            <button onClick={()=>setPartialMove(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button>
+            <button onClick={handlePartialMoveResource} disabled={!partialMove.toVertical||!partialMove.qty} style={{flex:1,background:partialMove.toVertical&&partialMove.qty?t.accent:'#334155',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:partialMove.toVertical&&partialMove.qty?'pointer':'default'}}>Confirm Split</button>
+          </div>
+        </div>
+      </Modal>}
       {showInactivityWarning&&<Modal t={t} onClose={()=>setShowInactivityWarning(false)}><ModalHeader icon="⏱️" title="Session Expiring Soon" subtitle="You will be logged out in 2 minutes due to inactivity." t={t}/><div style={{display:'flex',gap:10}}><button onClick={()=>setShowInactivityWarning(false)} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Stay Logged In</button></div></Modal>}
       {modal==='alert'&&<Modal t={t} onClose={()=>setModal(null)} danger={modalData.danger}><ModalHeader icon={modalData.icon} title={modalData.title} danger={modalData.danger} t={t}/><p style={{textAlign:'center',fontSize:14,color:t.muted,marginBottom:'1.5rem',lineHeight:1.6}}>{modalData.text}</p><div style={{display:'flex',justifyContent:'center'}}><button onClick={()=>setModal(null)} style={{background:modalData.danger?'#ef4444':t.accent,color:'#fff',border:'none',borderRadius:8,padding:'10px 32px',fontSize:14,fontWeight:500,cursor:'pointer',boxShadow:t.shadow}}>OK</button></div></Modal>}
 
