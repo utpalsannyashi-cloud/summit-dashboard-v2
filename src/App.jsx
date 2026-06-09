@@ -1150,7 +1150,7 @@ Be concise and professional.`;
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
               <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{width:8,height:28,background:t.accent,borderRadius:4}}/><h2 style={{margin:0,fontSize:19,fontWeight:500,color:t.text}}>Resources & Personnel</h2></div>
               <div style={{display:'flex', gap: 10, flexWrap:'wrap', justifyContent:'flex-end'}}>
-                <button onClick={()=>{setOForm({name:'',designation:'',contact:'',current_vertical:''});setModalData({});setModal('officerForm');}} style={{background:t.surface,color:t.text,border:'1px solid '+t.border,borderRadius:8,padding:'8px 16px',fontSize:13,fontWeight:500,cursor:'pointer'}}>+ Add Personnel</button>
+                <button onClick={()=>{setOForm({name:'',designation:'',contact:'',current_vertical:'',origin_station:'',deployment_duration:''});setModalData({});setModal('officerForm');}} style={{background:t.surface,color:t.text,border:'1px solid '+t.border,borderRadius:8,padding:'8px 16px',fontSize:13,fontWeight:500,cursor:'pointer'}}>+ Add Personnel</button>
                 <button onClick={()=>{setRForm({name:'',quantity:1,current_vertical:''});setModalData({});setModal('resourceForm');}} style={{background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:'8px 16px',fontSize:13,fontWeight:500,cursor:'pointer'}}>+ Add Resource</button>
               </div>
             </div>
