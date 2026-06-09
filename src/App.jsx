@@ -593,8 +593,14 @@ export default function App() {
     } catch (error) { console.error("Failed to save task:", error); }
   };
   const handleDeleteConfirm = async ()=>{
-    await supabase.from(modalData.col).delete().eq('id',modalData.id).eq('team_id',teamId);
+    const { col, id } = modalData;
+    // Optimistically remove from local state immediately
+    if (col === 'sd_verticals')  setVerticals(prev  => { const n={...prev};  delete n[id]; return n; });
+    if (col === 'sd_officers')   setOfficers(prev   => { const n={...prev};  delete n[id]; return n; });
+    if (col === 'sd_resources')  setResources(prev  => { const n={...prev};  delete n[id]; return n; });
+    if (col === 'sd_tasks')      setTasks(prev      => { const n={...prev};  delete n[id]; return n; });
     setModal(null);
+    await supabase.from(col).delete().eq('id', id).eq('team_id', teamId);
   };
   const handleTaskStatus = async (tid,status)=>{ await supabase.from('sd_tasks').update({status}).eq('id',tid).eq('team_id',teamId); };
   
