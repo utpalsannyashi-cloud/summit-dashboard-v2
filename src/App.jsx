@@ -1066,15 +1066,18 @@ Be concise and professional.`;
               if(idx===1) return (
                 <div key="resources" className="statCard" onClick={()=>handleStatClick('Resources')}
                   style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:'14px 16px',borderTop:'3px solid #F59E0B',boxShadow:t.shadow}}>
-                  <div style={{fontSize:26,marginBottom:4}}>👥</div>
-                  <div style={{display:'flex',alignItems:'baseline',gap:6,flexWrap:'wrap'}}>
-                    <span style={{fontSize:28,fontWeight:700,color:t.text}}>{oArr.length}</span>
-                    <span style={{fontSize:12,color:'#F59E0B',fontWeight:600}}>personnel</span>
-                    <span style={{fontSize:18,color:t.muted,fontWeight:300,margin:'0 2px'}}>·</span>
-                    <span style={{fontSize:28,fontWeight:700,color:t.text}}>{rArr.reduce((s,r)=>s+(r.quantity||0),0)}</span>
-                    <span style={{fontSize:12,color:'#F59E0B',fontWeight:600}}>equipment</span>
+                  <div style={{fontSize:26,marginBottom:6}}>👥</div>
+                  <div style={{display:'flex',flexDirection:'column',gap:2,marginBottom:2}}>
+                    <div style={{display:'flex',alignItems:'baseline',gap:5}}>
+                      <span style={{fontSize:24,fontWeight:700,color:t.text,lineHeight:1}}>{oArr.length}</span>
+                      <span style={{fontSize:11,color:'#F59E0B',fontWeight:600}}>personnel</span>
+                    </div>
+                    <div style={{display:'flex',alignItems:'baseline',gap:5}}>
+                      <span style={{fontSize:24,fontWeight:700,color:t.text,lineHeight:1}}>{rArr.reduce((s,r)=>s+(r.quantity||0),0)}</span>
+                      <span style={{fontSize:11,color:'#F59E0B',fontWeight:600}}>equipment</span>
+                    </div>
                   </div>
-                  <div style={{fontSize:13,color:t.muted,marginTop:2}}>Resources</div>
+                  <div style={{fontSize:13,color:t.muted,marginTop:4}}>Resources</div>
                   <div style={{fontSize:11,color:'#F59E0B',marginTop:4,opacity:.7}}>Click to view →</div>
                 </div>
               );
@@ -1410,13 +1413,15 @@ Be concise and professional.`;
         {/* ── TASKS ── */}
         {view==='tasks'&&(
           <div style={{animation:'fadeIn 0.3s ease'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16,flexWrap:'wrap',gap:10}}>
-              <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{width:8,height:28,background:t.accent,borderRadius:4}}/><h2 style={{margin:0,fontSize:19,fontWeight:500,color:t.text}}>Task Chains</h2></div>
-              <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+            <div style={{marginBottom:16}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,gap:10}}>
+                <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{width:8,height:28,background:t.accent,borderRadius:4}}/><h2 style={{margin:0,fontSize:19,fontWeight:500,color:t.text}}>Task Chains</h2></div>
+                <button onClick={()=>{setTForm({title:'',description:'',goal:'',task_order:1,vertical_id:taskVerticalFilter!=='all'?taskVerticalFilter:'',assigned_officer:'',status:'pending'});setModalData({});setModal('taskForm');}} style={{background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:'8px 16px',fontSize:13,fontWeight:500,cursor:'pointer',flexShrink:0}}>+ Add Task</button>
+              </div>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
                 {[['all','All'],['in-progress','In Progress'],['done','Done'],['pending','Pending']].map(([k,l])=>(
                   <button key={k} onClick={()=>setTaskFilter(k)} style={{background:taskFilter===k?t.accentGlow:'transparent',border:'1px solid '+(taskFilter===k?t.accent:t.border),borderRadius:20,padding:'5px 14px',fontSize:12,cursor:'pointer',color:taskFilter===k?t.accent:t.muted,fontWeight:taskFilter===k?500:400}}>{l}</button>
                 ))}
-                <button onClick={()=>{setTForm({title:'',description:'',goal:'',task_order:1,vertical_id:taskVerticalFilter!=='all'?taskVerticalFilter:'',assigned_officer:'',status:'pending'});setModalData({});setModal('taskForm');}} style={{background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:'8px 16px',fontSize:13,fontWeight:500,cursor:'pointer',marginLeft:4}}>+ Add Task</button>
               </div>
             </div>
             <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
