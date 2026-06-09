@@ -1008,10 +1008,10 @@ Be concise and professional.`;
         </div>
 
         {view!=='messages'&&(
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(140px, 1fr))',gap:16,marginBottom:24}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(2, 1fr)',gap:12,marginBottom:20}}>
             {[['Verticals',vArr.length,'🗂️','#3B82F6'],['Resources',oArr.length,'👥','#10b981'],['Tasks Done',doneTasks,'✅','#34D399'],['All Tasks',tArr.length,'📋','#8b5cf6']].map(([l,n,i,c])=>(
               <div key={l} className="statCard" onClick={()=>handleStatClick(l)}
-                style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:20,borderTop:`3px solid ${c}`,boxShadow:t.shadow}}>
+                style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:'14px 16px',borderTop:`3px solid ${c}`,boxShadow:t.shadow}}>
                 <div style={{fontSize:26,marginBottom:4}}>{i}</div>
                 <div style={{fontSize:28,fontWeight:700,color:t.text}}>{n}</div>
                 <div style={{fontSize:13,color:t.muted}}>{l}</div>
@@ -1089,7 +1089,7 @@ Be concise and professional.`;
         {/* ── DASHBOARD ── */}
         {view==='dashboard'&&(
           <div style={{animation:'fadeIn 0.3s ease'}}>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(280px, 1fr))',gap:16}}>
               <div style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:20,boxShadow:t.shadow}}>
                 <h3 style={{margin:'0 0 16px',fontSize:14,color:t.muted,fontWeight:500}}>Vertical Progress</h3>
                 {vArr.map(vt=>{ const vts=tArr.filter(x=>x.vertical_id===vt.id); const pct=vts.length?Math.round(vts.filter(x=>x.status==='done').length/vts.length*100):0; const oc=oArr.filter(x=>x.current_vertical===vt.id).length; return(
