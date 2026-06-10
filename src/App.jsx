@@ -29,7 +29,6 @@ function makeTheme(isDark) {
   };
 }
 
-// FIX #5: Hook to reactively track window width
 function useWindowWidth() {
   const [width, setWidth] = useState(window.innerWidth);
   useEffect(() => {
@@ -351,7 +350,6 @@ export default function App() {
   const t   = useMemo(()=>makeTheme(isDark),[isDark]);
   const inp = useMemo(()=>mkInp(t),[t]);
 
-  // FIX #5: Use reactive window width hook instead of raw window.innerWidth in render
   const windowWidth = useWindowWidth();
   const isMobile = windowWidth <= 768;
 
@@ -389,8 +387,10 @@ export default function App() {
   const [isNavOpen, setIsNavOpen]         = useState(false);
   const isUpdatingTasksRef                = useRef(false);
   const tasksRef                          = useRef({});
+  const resourcesRef                      = useRef({});
 
   useEffect(()=>{ tasksRef.current = tasks; },[tasks]);
+  useEffect(()=>{ resourcesRef.current = resources; },[resources]);
 
   // ── Drag & drop state ──
   const [draggedTask, setDraggedTask]   = useState(null);
@@ -404,7 +404,7 @@ export default function App() {
   const [vForm, setVForm]         = useState({ name:'', lead:'', status:'active' });
   const [oForm, setOForm] = useState({ name:'', designation:'', contact:'', current_vertical:'', origin_station:'', deployment_start:'', deployment_end:'' });
   const [rForm, setRForm]         = useState({ name:'', quantity: 1, current_vertical:'' });
-  const [partialMove, setPartialMove] = useState(null); // { resource, toVertical, qty }
+  const [partialMove, setPartialMove] = useState(null);
   const [tForm, setTForm]         = useState({ title:'', description:'', goal:'', task_order:1, vertical_id:'', assigned_officer:'', status:'pending' });
   const [clearOpts, setClearOpts] = useState({ verticals:true, officers:true, resources:true, tasks:true, movements:true });
 
@@ -509,7 +509,6 @@ export default function App() {
   useEffect(()=>{ tasksRef.current = tasks; },[tasks]);
 
   // ── Auth ──────────────────────────────────────────────────────────────
-  // FIX #4: Wrap handleLogout in useCallback so the auto-logout effect has a stable reference
   const handleLogout = useCallback(()=>{
     setAuthed(false); setTeam(null); setAdminMode(false); setView('dashboard'); setIsNavOpen(false);
     localStorage.removeItem('ems_team_session');
@@ -535,7 +534,7 @@ export default function App() {
       clearTimeout(logoutTimer);
       events.forEach(e => window.removeEventListener(e, reset));
     };
-  }, [authed, handleLogout]); // FIX #4: handleLogout now in dep array (stable via useCallback)
+  }, [authed, handleLogout]);
 
   const handleAdminUnlock = ()=>{
     if(adminPwInput===team.admin_password){ setAdminMode(true); setAdminPwErr(false); setAdminPwInput(''); setShowAdminModal(false); setIsNavOpen(false); }
@@ -604,7 +603,6 @@ export default function App() {
   };
   const handleDeleteConfirm = async ()=>{
     const { col, id } = modalData;
-    // Optimistically remove from local state immediately
     if (col === 'sd_verticals')  setVerticals(prev  => { const n={...prev};  delete n[id]; return n; });
     if (col === 'sd_officers')   setOfficers(prev   => { const n={...prev};  delete n[id]; return n; });
     if (col === 'sd_resources')  setResources(prev  => { const n={...prev};  delete n[id]; return n; });
@@ -620,11 +618,66 @@ export default function App() {
     await supabase.from('sd_officers').update({current_vertical:toV}).eq('id',oid).eq('team_id',teamId);
     await supabase.from('sd_movements').insert({ team_id:teamId, officer_id:oid, officer_name:o.name, from_vertical:o.current_vertical, to_vertical:toV, moved_by:'User', ts:new Date().toISOString() });
   };
+
+  // ── FIX: handleQuickMoveResource — merge same-named resources + optimistic update + movement log ──
   const handleQuickMoveResource = async (rid, toV)=>{
     if(!toV) return;
-    await supabase.from('sd_resources').update({current_vertical:toV}).eq('id',rid).eq('team_id',teamId);
+
+    // Work from current local state (resourcesRef is always current)
+    const currentResources = Object.values(resourcesRef.current);
+    const resource = resourcesRef.current[rid];
+    if(!resource) return;
+
+    const fromV = resource.current_vertical;
+    const existingInTarget = currentResources.find(r =>
+      r.name.trim().toLowerCase() === resource.name.trim().toLowerCase() &&
+      r.current_vertical === toV &&
+      r.id !== rid
+    );
+
+    if(existingInTarget) {
+      // Merge: increase target qty, delete source row
+      const newQty = existingInTarget.quantity + resource.quantity;
+
+      // Optimistic local update: update target, remove source
+      setResources(prev => {
+        const next = { ...prev };
+        next[existingInTarget.id] = { ...next[existingInTarget.id], quantity: newQty };
+        delete next[rid];
+        return next;
+      });
+
+      // DB ops
+      await supabase.from('sd_resources').update({ quantity: newQty }).eq('id', existingInTarget.id).eq('team_id', teamId);
+      await supabase.from('sd_resources').delete().eq('id', rid).eq('team_id', teamId);
+    } else {
+      // Simple move: update current_vertical
+      setResources(prev => ({
+        ...prev,
+        [rid]: { ...prev[rid], current_vertical: toV }
+      }));
+
+      await supabase.from('sd_resources').update({ current_vertical: toV }).eq('id', rid).eq('team_id', teamId);
+    }
+
+    // Log resource movement
+    await supabase.from('sd_movements').insert({
+      team_id: teamId,
+      officer_id: rid,
+      officer_name: resource.name,
+      from_vertical: fromV,
+      to_vertical: toV,
+      moved_by: 'User',
+      type: 'resource',
+      ts: new Date().toISOString()
+    });
+
+    // Refresh from DB to ensure consistency
     loadResources(teamId);
+    loadMovements(teamId);
   };
+
+  // ── FIX: handlePartialMoveResource — merge on split target + optimistic update + movement log ──
   const handlePartialMoveResource = async ()=>{
     if(!partialMove) return;
     const { resource, toVertical, qty } = partialMove;
@@ -632,38 +685,78 @@ export default function App() {
     if(!toVertical || !moveQty || moveQty <= 0 || moveQty > resource.quantity) return;
     const remaining = resource.quantity - moveQty;
 
-    // Always look for an existing entry with the same name in the destination — merge into it
-    const existingInTarget = Object.values(resources).find(r =>
+    const currentResources = Object.values(resourcesRef.current);
+    const fromV = resource.current_vertical;
+
+    const existingInTarget = currentResources.find(r =>
       r.name.trim().toLowerCase() === resource.name.trim().toLowerCase() &&
       r.current_vertical === toVertical &&
       r.id !== resource.id
     );
 
     if(existingInTarget) {
-      // Merge: add to existing entry's quantity
+      // Merge into existing target row
       const newQty = existingInTarget.quantity + moveQty;
-      setResources(prev => ({ ...prev, [existingInTarget.id]: { ...prev[existingInTarget.id], quantity: newQty } }));
-      await supabase.from('sd_resources').update({ quantity: newQty }).eq('id', existingInTarget.id).eq('team_id', teamId);
+
+      if(remaining > 0) {
+        // Optimistic: update target qty, reduce source qty
+        setResources(prev => ({
+          ...prev,
+          [existingInTarget.id]: { ...prev[existingInTarget.id], quantity: newQty },
+          [resource.id]: { ...prev[resource.id], quantity: remaining }
+        }));
+        await supabase.from('sd_resources').update({ quantity: newQty }).eq('id', existingInTarget.id).eq('team_id', teamId);
+        await supabase.from('sd_resources').update({ quantity: remaining }).eq('id', resource.id).eq('team_id', teamId);
+      } else {
+        // Moving all — update target qty, delete source
+        setResources(prev => {
+          const next = { ...prev };
+          next[existingInTarget.id] = { ...next[existingInTarget.id], quantity: newQty };
+          delete next[resource.id];
+          return next;
+        });
+        await supabase.from('sd_resources').update({ quantity: newQty }).eq('id', existingInTarget.id).eq('team_id', teamId);
+        await supabase.from('sd_resources').delete().eq('id', resource.id).eq('team_id', teamId);
+      }
     } else {
-      // Create new entry in target vertical
+      // No existing row in target — create new split row
       const newId = crypto.randomUUID();
-      const newEntry = { id: newId, name: resource.name, quantity: moveQty, current_vertical: toVertical, team_id: teamId, created_at: new Date().toISOString() };
-      setResources(prev => ({ ...prev, [newId]: newEntry }));
-      await supabase.from('sd_resources').insert(newEntry);
+      const newRow = { id: newId, name: resource.name, quantity: moveQty, current_vertical: toVertical, team_id: teamId, created_at: new Date().toISOString() };
+
+      if(remaining > 0) {
+        setResources(prev => ({
+          ...prev,
+          [newId]: newRow,
+          [resource.id]: { ...prev[resource.id], quantity: remaining }
+        }));
+        await supabase.from('sd_resources').insert(newRow);
+        await supabase.from('sd_resources').update({ quantity: remaining }).eq('id', resource.id).eq('team_id', teamId);
+      } else {
+        // Moving full qty — just relocate
+        setResources(prev => ({
+          ...prev,
+          [resource.id]: { ...prev[resource.id], current_vertical: toVertical }
+        }));
+        await supabase.from('sd_resources').update({ current_vertical: toVertical }).eq('id', resource.id).eq('team_id', teamId);
+      }
     }
 
-    if(remaining > 0) {
-      // Reduce source quantity
-      setResources(prev => ({ ...prev, [resource.id]: { ...prev[resource.id], quantity: remaining } }));
-      await supabase.from('sd_resources').update({ quantity: remaining }).eq('id', resource.id).eq('team_id', teamId);
-    } else {
-      // Remove source entry entirely — nothing left
-      setResources(prev => { const n={...prev}; delete n[resource.id]; return n; });
-      await supabase.from('sd_resources').delete().eq('id', resource.id).eq('team_id', teamId);
-    }
+    // Log resource movement
+    await supabase.from('sd_movements').insert({
+      team_id: teamId,
+      officer_id: resource.id,
+      officer_name: resource.name,
+      from_vertical: fromV,
+      to_vertical: toVertical,
+      moved_by: 'User',
+      type: 'resource',
+      quantity: moveQty,
+      ts: new Date().toISOString()
+    });
+
     setPartialMove(null);
-    // Force a fresh fetch to guarantee UI is in sync
     loadResources(teamId);
+    loadMovements(teamId);
   };
 
   const doMoveOfficer = async (oid,toV,movedBy='User')=>{
@@ -696,7 +789,7 @@ export default function App() {
     setCopiedTask(null);
   };
 
-  // ── DRAG & DROP — pointer-based (reliable cross-browser) ──────────────
+  // ── DRAG & DROP — pointer-based ──────────────────────────────────────
   const draggingRef = useRef(false);
   const pointerStartRef = useRef({ x: 0, y: 0 });
   const ghostRef = useRef(null);
@@ -1021,7 +1114,6 @@ Be concise and professional.`;
         .main-content.nav-open{margin-left:220px;width:calc(100% - 220px)}
         .chat-panel{position:fixed;background:${t.card};display:flex;flex-direction:column;z-index:5500;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);overflow:hidden}
         
-        /* NUCLEAR OPTION TO PREVENT TEXT HIGHLIGHTING WHILE DRAGGING */
         .is-dragging, .is-dragging * {
           user-select: none !important;
           -webkit-user-select: none !important;
@@ -1199,11 +1291,11 @@ Be concise and professional.`;
                 ); })}
               </div>
               <div style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:20,boxShadow:t.shadow}}>
-                <h3 style={{margin:'0 0 16px',fontSize:14,color:t.muted,fontWeight:500}}>Recent Personnel Movements</h3>
+                <h3 style={{margin:'0 0 16px',fontSize:14,color:t.muted,fontWeight:500}}>Recent Movements</h3>
                 {movements.length===0?<p style={{color:t.muted,fontSize:13}}>No movements yet.</p>:movements.slice(0,6).map(m=>(
                   <div key={m.id} style={{display:'flex',gap:10,alignItems:'center',marginBottom:10}}>
-                    <div style={{width:30,height:30,borderRadius:'50%',background:t.accentGlow,border:'1px solid '+t.accent,display:'grid',placeItems:'center',fontSize:14,flexShrink:0}}>👤</div>
-                    <div><div style={{fontSize:13,color:t.text,fontWeight:500}}>{m.officer_name}</div><div style={{fontSize:11,color:t.muted}}>{verticals[m.from_vertical]?.name||m.from_vertical} → {verticals[m.to_vertical]?.name||m.to_vertical} · {m.moved_by||'User'}</div></div>
+                    <div style={{width:30,height:30,borderRadius:'50%',background:m.type==='resource'?'rgba(245,158,11,0.1)':t.accentGlow,border:'1px solid '+(m.type==='resource'?'rgba(245,158,11,0.4)':t.accent),display:'grid',placeItems:'center',fontSize:14,flexShrink:0}}>{m.type==='resource'?'📦':'👤'}</div>
+                    <div><div style={{fontSize:13,color:t.text,fontWeight:500}}>{m.officer_name}{m.quantity?` (×${m.quantity})`:''}</div><div style={{fontSize:11,color:t.muted}}>{verticals[m.from_vertical]?.name||m.from_vertical} → {verticals[m.to_vertical]?.name||m.to_vertical} · {m.moved_by||'User'}</div></div>
                   </div>
                 ))}
               </div>
@@ -1243,7 +1335,7 @@ Be concise and professional.`;
           </div>
         )}
 
-        {/* ── RESOURCES (Officers & Equipment) ── */}
+        {/* ── RESOURCES ── */}
         {view==='resources'&&(
           <div style={{animation:'fadeIn 0.3s ease'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,flexWrap:'wrap',gap:10}}>
@@ -1272,7 +1364,6 @@ Be concise and professional.`;
                     {/* ── PERSONNEL SECTION ── */}
                     {vt.officers.length > 0 && (
                       <div style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,overflow:'hidden',boxShadow:t.shadow}}>
-                        {/* MOBILE: card stack */}
                         {isMobile ? (
                           <div style={{display:'flex',flexDirection:'column'}}>
                             <div style={{padding:'10px 14px',background:t.bg,borderBottom:'1px solid '+t.border}}>
@@ -1280,7 +1371,6 @@ Be concise and professional.`;
                             </div>
                             {vt.officers.map((o,i)=>(
                               <div key={o.id} style={{padding:'14px',borderTop: i>0 ? '1px solid '+t.border : 'none',background:i%2===0?'transparent':t.surface}}>
-                                {/* Row 1: Avatar + Name + Designation */}
                                 <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
                                   <div style={{width:36,height:36,borderRadius:'50%',background:t.accentGlow,border:'1px solid '+t.accent,display:'grid',placeItems:'center',fontSize:12,fontWeight:700,color:t.accent,flexShrink:0}}>
                                     {o.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
@@ -1290,14 +1380,12 @@ Be concise and professional.`;
                                     <div style={{fontSize:12,color:t.muted,marginTop:1}}>{o.designation}</div>
                                   </div>
                                 </div>
-                                {/* Row 2: Origin & Duration */}
                                 {(o.origin_station||o.deployment_duration)&&(
                                   <div style={{display:'flex',gap:12,marginBottom:10,flexWrap:'wrap'}}>
                                     {o.origin_station&&<span style={{fontSize:12,color:t.muted}}>📍 {o.origin_station}</span>}
                                     {o.deployment_duration&&<span style={{fontSize:12,color:t.muted}}>⏱ {o.deployment_duration}</span>}
                                   </div>
                                 )}
-                                {/* Row 3: Move + Actions */}
                                 <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
                                   <select onChange={e=>handleQuickMove(o.id,e.target.value)} defaultValue="" style={{...inp,flex:1,minWidth:120,padding:'7px 10px',fontSize:13}}>
                                     <option value="">Move to...</option>
@@ -1310,7 +1398,6 @@ Be concise and professional.`;
                             ))}
                           </div>
                         ) : (
-                          /* DESKTOP: table */
                           <table style={{width:'100%',borderCollapse:'collapse',tableLayout:'fixed'}}>
                             <thead>
                               <tr style={{background:t.bg}}>
@@ -1354,7 +1441,6 @@ Be concise and professional.`;
                     {/* ── RESOURCES SECTION ── */}
                     {vt.resources.length > 0 && (
                       <div style={{background:t.card,border:'1px dashed '+t.border,borderRadius:12,overflow:'hidden',boxShadow:t.shadow}}>
-                        {/* MOBILE: card stack */}
                         {isMobile ? (
                           <div style={{display:'flex',flexDirection:'column'}}>
                             <div style={{padding:'10px 14px',background:t.bg,borderBottom:'1px solid '+t.border}}>
@@ -1362,7 +1448,6 @@ Be concise and professional.`;
                             </div>
                             {vt.resources.map((r,i)=>(
                               <div key={r.id} style={{padding:'14px',borderTop: i>0 ? '1px solid '+t.border : 'none',background:i%2===0?'transparent':t.surface}}>
-                                {/* Row 1: Icon + Name */}
                                 <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
                                   <div style={{width:36,height:36,borderRadius:'50%',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',display:'grid',placeItems:'center',fontSize:16,flexShrink:0}}>📦</div>
                                   <div style={{flex:1,minWidth:0}}>
@@ -1370,7 +1455,6 @@ Be concise and professional.`;
                                     <div style={{fontSize:12,color:t.muted,marginTop:1}}>Quantity: {r.quantity}</div>
                                   </div>
                                 </div>
-                                {/* Row 2: Qty selector + Move + Actions */}
                                 <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
                                   <select value={r.quantity} onChange={e=>handleUpdateQuantity(r.id,e.target.value)} style={{...inp,width:72,padding:'7px 8px',fontSize:13,flexShrink:0}}>
                                     {[...Array(201).keys()].map(n=><option key={n} value={n}>{n}</option>)}
@@ -1387,7 +1471,6 @@ Be concise and professional.`;
                             ))}
                           </div>
                         ) : (
-                          /* DESKTOP: table */
                           <table style={{width:'100%',borderCollapse:'collapse',tableLayout:'fixed'}}>
                             <thead>
                               <tr style={{background:t.bg}}>
@@ -1466,9 +1549,6 @@ Be concise and professional.`;
                       <span style={{fontSize:12,color:t.muted}}>{allDone}/{allTotal} complete</span>
                     </div>
                   </div>
-                  {/* FIX #1 & #2: data-verticalid is now properly on the div as a JSX prop.
-                      Removed dead onDragEnter/onDragOver/onDrop handlers that referenced
-                      the non-existent handleDropAction function. */}
                   <div
                     className="h-scroll-container"
                     data-verticalid={vt.id}
@@ -1485,22 +1565,18 @@ Be concise and professional.`;
                       </div>
                     ):(
                       isMobile ? (
-                        /* ── MOBILE: clean vertical chain ── */
                         <div style={{display:'flex',flexDirection:'column',gap:0}}>
                           {vtasks.map((tk,i)=>{
                             const of=officers[tk.assigned_officer];
                             const sc=SC[tk.status]||{bg:'#1e293b',text:'#94a3b8'};
                             return(
                               <div key={tk.id} style={{display:'flex',flexDirection:'column',alignItems:'stretch'}}>
-                                {/* paste before */}
                                 {copiedTask&&<div style={{display:'flex',justifyContent:'center',padding:'4px 0'}}><button onClick={()=>handlePasteTask(vt.id,tk.id)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`1px dashed ${t.accent}`,borderRadius:12,padding:'3px 12px',fontSize:11,cursor:'pointer',fontWeight:600}}>+ Paste here</button></div>}
-                                {/* task card */}
                                 <div
                                   data-taskid={tk.id}
                                   data-verticalid={vt.id}
                                   onPointerDown={e=>startPointerDrag(e,tk,vt)}
                                   style={{background:t.bg,border:`2px solid ${copiedTask?.id===tk.id?t.accent:sc.text}`,borderRadius:10,padding:'12px 14px',position:'relative',cursor:'grab',userSelect:'none',touchAction:'none',opacity:draggedTask?.id===tk.id?0.3:1}}>
-                                  {/* step number badge */}
                                   <div style={{position:'absolute',top:10,right:10,width:20,height:20,borderRadius:'50%',background:sc.text+'33',border:'1px solid '+sc.text,display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:sc.text}}>{i+1}</div>
                                   <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
                                     <span style={{fontSize:10,color:sc.text,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.05em'}}>{SL[tk.status]}</span>
@@ -1523,7 +1599,6 @@ Be concise and professional.`;
                                     </div>
                                   </div>
                                 </div>
-                                {/* connector */}
                                 {i<vtasks.length-1&&(
                                   <div style={{display:'flex',flexDirection:'column',alignItems:'center',padding:'2px 0',gap:0}}>
                                     <div style={{width:2,height:12,background:t.border}}/>
@@ -1537,7 +1612,6 @@ Be concise and professional.`;
                           {copiedTask&&<div style={{display:'flex',justifyContent:'center',padding:'4px 0'}}><button onClick={()=>handlePasteTask(vt.id,null)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`1px dashed ${t.accent}`,borderRadius:12,padding:'3px 12px',fontSize:11,cursor:'pointer',fontWeight:600}}>+ Paste at end</button></div>}
                         </div>
                       ) : (
-                        /* ── DESKTOP: horizontal scroll chain ── */
                         <div style={{display:'flex',alignItems:'center',minWidth:'max-content',gap:0}}>
                           {vtasks.map((tk,i)=>{
                             const of=officers[tk.assigned_officer];
@@ -1599,16 +1673,28 @@ Be concise and professional.`;
             <div style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,overflow:'hidden',boxShadow:t.shadow}}>
               {movements.length===0?<div style={{padding:40,textAlign:'center',color:t.muted,fontSize:14}}>No movements recorded yet.</div>:(
                 <table style={{width:'100%',borderCollapse:'collapse'}}>
-                  <thead><tr style={{background:t.bg}}>{['Personnel','From','To','Moved By','Time'].map(h=><th key={h} style={{padding:'11px 14px',textAlign:'left',fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>{h}</th>)}</tr></thead>
-                  <tbody>{movements.map((m,i)=>(
-                    <tr key={m.id} style={{borderTop:'1px solid '+t.border,background:i%2===0?'transparent':t.surface}}>
-                      <td style={{padding:'11px 14px',fontSize:13,fontWeight:500,color:t.text}}>{m.officer_name}</td>
-                      <td style={{padding:'11px 14px',fontSize:13,color:'#ef4444'}}>{verticals[m.from_vertical]?.name||m.from_vertical}</td>
-                      <td style={{padding:'11px 14px',fontSize:13,color:'#34D399'}}>{verticals[m.to_vertical]?.name||m.to_vertical}</td>
-                      <td style={{padding:'11px 14px',fontSize:13,color:t.muted}}>{m.moved_by||'User'}</td>
-                      <td style={{padding:'11px 14px',fontSize:12,color:t.muted}}>{fmtDate(m.ts)}</td>
+                  <thead>
+                    <tr style={{background:t.bg}}>
+                      {['Type','Name','From','To','Qty','Moved By','Time'].map(h=>(
+                        <th key={h} style={{padding:'11px 14px',textAlign:'left',fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>{h}</th>
+                      ))}
                     </tr>
-                  ))}</tbody>
+                  </thead>
+                  <tbody>
+                    {movements.map((m,i)=>(
+                      <tr key={m.id} style={{borderTop:'1px solid '+t.border,background:i%2===0?'transparent':t.surface}}>
+                        <td style={{padding:'11px 14px'}}>
+                          <span style={{fontSize:16}}>{m.type==='resource'?'📦':'👤'}</span>
+                        </td>
+                        <td style={{padding:'11px 14px',fontSize:13,fontWeight:500,color:t.text}}>{m.officer_name}</td>
+                        <td style={{padding:'11px 14px',fontSize:13,color:'#ef4444'}}>{verticals[m.from_vertical]?.name||m.from_vertical||'—'}</td>
+                        <td style={{padding:'11px 14px',fontSize:13,color:'#34D399'}}>{verticals[m.to_vertical]?.name||m.to_vertical}</td>
+                        <td style={{padding:'11px 14px',fontSize:13,color:t.muted}}>{m.quantity||'—'}</td>
+                        <td style={{padding:'11px 14px',fontSize:13,color:t.muted}}>{m.moved_by||'User'}</td>
+                        <td style={{padding:'11px 14px',fontSize:12,color:t.muted}}>{fmtDate(m.ts)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
                 </table>
               )}
             </div>
@@ -1678,10 +1764,8 @@ Be concise and professional.`;
       {showAiRulesModal&&<Modal t={t} onClose={()=>setShowAiRulesModal(false)}><ModalHeader icon="🧠" title="Custom AI Rules" subtitle="Inject hidden system instructions for the AI agent." t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><textarea value={customAiRules} onChange={e=>setCustomAiRules(e.target.value)} placeholder="e.g., Always reply using bullet points. Prioritize Protocol tasks." style={{...inp,height:120,resize:'vertical',fontFamily:'monospace',fontSize:12}}/><button onClick={()=>setShowAiRulesModal(false)} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save & Close</button></div></Modal>}
       {modal==='verticalForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="🗂️" title={(modalData.id?'Edit':'Add')+' Vertical'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Name</label><input value={vForm.name} onChange={e=>setVForm(f=>({...f,name:e.target.value}))} placeholder="Vertical name" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Lead Officer</label><input value={vForm.lead} onChange={e=>setVForm(f=>({...f,lead:e.target.value}))} placeholder="Lead officer name" style={inp}/></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveVertical} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
       
-      {/* Officer Modal */}
       {modal==='officerForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="👤" title={(modalData.id?'Edit':'Add')+' Personnel'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Full Name</label><input value={oForm.name} onChange={e=>setOForm(f=>({...f,name:e.target.value}))} placeholder="Officer name" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Designation</label><input value={oForm.designation} onChange={e=>setOForm(f=>({...f,designation:e.target.value}))} placeholder="e.g. IFS (2015)" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Contact</label><input value={oForm.contact} onChange={e=>setOForm(f=>({...f,contact:e.target.value}))} placeholder="email@gov.in" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Vertical</label><select value={oForm.current_vertical} onChange={e=>setOForm(f=>({...f,current_vertical:e.target.value}))} style={inp}><option value="">Select vertical...</option>{vArr.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Origin Mission / Station</label><input value={oForm.origin_station||''} onChange={e=>setOForm(f=>({...f,origin_station:e.target.value}))} placeholder="e.g. MEA HQ, Geneva Mission" style={inp}/></div><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:36}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Start Date</label><input type="date" value={oForm.deployment_start||''} onChange={e=>setOForm(f=>({...f,deployment_start:e.target.value}))} style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>End Date</label><input type="date" value={oForm.deployment_end||''} onChange={e=>setOForm(f=>({...f,deployment_end:e.target.value}))} style={inp}/></div></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveOfficer} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
       
-      {/* Resource Modal */}
       {modal==='resourceForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="📦" title={(modalData.id?'Edit':'Add')+' Equipment'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Item Name</label><input value={rForm.name} onChange={e=>setRForm(f=>({...f,name:e.target.value}))} placeholder="e.g. Laptops, Vehicles, Chairs" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Quantity</label><input type="number" min="0" value={rForm.quantity} onChange={e=>setRForm(f=>({...f,quantity:parseInt(e.target.value, 10)||0}))} style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Assign to Division</label><select value={rForm.current_vertical} onChange={e=>setRForm(f=>({...f,current_vertical:e.target.value}))} style={inp}><option value="">Select vertical...</option>{vArr.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveResource} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
 
       {modal==='taskForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="✅" title={(modalData.id?'Edit':'Add')+' Task'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Title</label><input value={tForm.title} onChange={e=>setTForm(f=>({...f,title:e.target.value}))} placeholder="Task title" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Description</label><textarea value={tForm.description} onChange={e=>setTForm(f=>({...f,description:e.target.value}))} placeholder="Description" style={{...inp,height:65,resize:'vertical'}}/></div><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Goal</label><input value={tForm.goal} onChange={e=>setTForm(f=>({...f,goal:e.target.value}))} placeholder="e.g. Protocol Readiness" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Order</label><input type="number" value={tForm.task_order} onChange={e=>setTForm(f=>({...f,task_order:parseInt(e.target.value)||1}))} style={inp}/></div></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Vertical</label><select value={tForm.vertical_id} onChange={e=>setTForm(f=>({...f,vertical_id:e.target.value}))} style={inp}><option value="">Select vertical...</option>{vArr.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Assigned Officer</label><select value={tForm.assigned_officer} onChange={e=>setTForm(f=>({...f,assigned_officer:e.target.value}))} style={inp}><option value="">Unassigned</option>{oArr.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Status</label><select value={tForm.status} onChange={e=>setTForm(f=>({...f,status:e.target.value}))} style={inp}>{['pending','in-progress','done'].map(s=><option key={s} value={s}>{s}</option>)}</select></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveTask} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
