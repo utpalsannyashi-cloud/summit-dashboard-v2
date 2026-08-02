@@ -83,7 +83,7 @@ const mkInp = t => ({
   color:t.text,outline:'none',width:'100%',boxSizing:'border-box',
 });
 
-// ââ Login Screen ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ Login Screen Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function LoginScreen({ onLogin }) {
   const [isDark] = useState(true);
   const t = makeTheme(isDark);
@@ -179,10 +179,10 @@ function LoginScreen({ onLogin }) {
       <style>{`*{box-sizing:border-box}html,body{margin:0;padding:0;background:${t.bg}}`}</style>
       <div style={{background:t.card,border:`1px solid ${t.accent}`,borderRadius:16,padding:'2.5rem 2rem',width:'100%',maxWidth:420,boxShadow:`0 0 30px ${t.accentGlow}`,position:'relative'}}>
         <div style={{textAlign:'center',marginBottom:'1.5rem'}}>
-          <div style={{width:56,height:56,borderRadius:'50%',background:t.accentGlow,border:'1px solid '+t.accent,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',fontSize:26}}>ðï¸</div>
+          <div style={{width:56,height:56,borderRadius:'50%',background:t.accentGlow,border:'1px solid '+t.accent,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 14px',fontSize:26}}>Ã°ÂÂÂÃ¯Â¸Â</div>
           <div style={{fontSize:11,color:t.muted,letterSpacing:'3px',textTransform:'uppercase',marginBottom:8}}>Event Management System</div>
           <h2 style={{margin:'0 0 4px',fontSize:20,fontWeight:600,color:t.text}}>Summit Dashboard v2</h2>
-          <p style={{margin:0,fontSize:13,color:t.muted}}>Multi-Team Â· Event Management</p>
+          <p style={{margin:0,fontSize:13,color:t.muted}}>Multi-Team ÃÂ· Event Management</p>
         </div>
 
         {mode !== 'superadmin' && (
@@ -297,7 +297,7 @@ function LoginScreen({ onLogin }) {
               {allTeams.length === 0 && <p style={{fontSize:13,color:t.muted,textAlign:'center',padding:'20px 0'}}>No teams found.</p>}
             </div>
             <button onClick={handleSuperLogout} style={{marginTop:8,width:'100%',background:'transparent',border:'1px solid #ef4444',color:'#ef4444',borderRadius:8,padding:10,fontSize:13,fontWeight:600,cursor:'pointer'}}>
-              ð Lock & Exit Admin Panel
+              Ã°ÂÂÂ Lock & Exit Admin Panel
             </button>
           </div>
         )}
@@ -322,7 +322,7 @@ function LoginScreen({ onLogin }) {
           <div style={{marginTop:20,textAlign:'center'}}>
             <button onClick={()=>{setMode('superadmin');setSuperPwInput('');setSuperErr('');}}
               style={{background:'transparent',border:'none',color:t.muted,fontSize:11,cursor:'pointer',opacity:0.6}}>
-              âï¸ Manage Teams
+              Ã¢ÂÂÃ¯Â¸Â Manage Teams
             </button>
           </div>
         )}
@@ -331,7 +331,7 @@ function LoginScreen({ onLogin }) {
   );
 }
 
-// ââ App Component ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ App Component Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 export default function App() {
   const [team, setTeam] = useState(() => {
     const saved = localStorage.getItem('ems_team_session');
@@ -392,7 +392,7 @@ export default function App() {
   useEffect(()=>{ tasksRef.current = tasks; },[tasks]);
   useEffect(()=>{ resourcesRef.current = resources; },[resources]);
 
-  // ââ Drag & drop state ââ
+  // Ã¢ÂÂÃ¢ÂÂ Drag & drop state Ã¢ÂÂÃ¢ÂÂ
   const [draggedTask, setDraggedTask]   = useState(null);
   const draggedTaskIdRef                = useRef(null);
   const [dropTarget, setDropTarget]     = useState({ verticalId:null, taskId:null });
@@ -405,7 +405,7 @@ export default function App() {
   const [oForm, setOForm] = useState({ name:'', designation:'', contact:'', current_vertical:'', origin_station:'', deployment_start:'', deployment_end:'' });
   const [rForm, setRForm]         = useState({ name:'', quantity: 1, current_vertical:'' });
   const [partialMove, setPartialMove] = useState(null);
-  const [tForm, setTForm]         = useState({ title:'', description:'', goal:'', task_order:1, vertical_id:'', assigned_officer:'', status:'pending' });
+  const [tForm, setTForm]         = useState({ title:'', description:'', goal:'', task_order:1, vertical_id:'', assigned_officer:'', status:'pending', is_parallel:true, parent_task_id:'' });
   const [clearOpts, setClearOpts] = useState({ verticals:true, officers:true, resources:true, tasks:true, movements:true });
 
   const [orderFile, setOrderFile]           = useState(null);
@@ -435,7 +435,7 @@ export default function App() {
   },[]);
   const startDragChat = e=>{ isDraggingChat.current=true; chatDragMoved.current=false; chatDragStart.current={x:e.clientX-chatPos.x,y:e.clientY-chatPos.y}; };
 
-  // ââ Data loaders ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ Data loaders Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   const loadVerticals = async (tid) => {
     const { data } = await supabase.from('sd_verticals').select('*').eq('team_id', tid);
     if (data) { const m={}; data.forEach(d=>m[d.id]=d); setVerticals(m); setSyncStatus('live'); }
@@ -508,13 +508,13 @@ export default function App() {
   useEffect(()=>{ if(view==='messages'&&!username){ setUsernameInput(''); setShowUsernameModal(true); } },[view,username]);
   useEffect(()=>{ tasksRef.current = tasks; },[tasks]);
 
-  // ââ Auth ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ Auth Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   const handleLogout = useCallback(()=>{
     setAuthed(false); setTeam(null); setAdminMode(false); setView('dashboard'); setIsNavOpen(false);
     localStorage.removeItem('ems_team_session');
   }, []);
 
-  // ââ Auto-logout after 10 min inactivity (2 min warning) ââ
+  // Ã¢ÂÂÃ¢ÂÂ Auto-logout after 10 min inactivity (2 min warning) Ã¢ÂÂÃ¢ÂÂ
   const [showInactivityWarning, setShowInactivityWarning] = useState(false);
   useEffect(()=>{
     if (!authed) return;
@@ -546,7 +546,7 @@ export default function App() {
   };
   const handlePasswordChangeSubmit = async () => {
     if(pwChangeForm.auth !== team.admin_password){
-      setModalData({icon:'â ï¸',title:'Authorization Failed',text:'Incorrect Current Admin Password.',danger:true}); setModal('alert'); return;
+      setModalData({icon:'Ã¢ÂÂ Ã¯Â¸Â',title:'Authorization Failed',text:'Incorrect Current Admin Password.',danger:true}); setModal('alert'); return;
     }
     const updates = {};
     if(pwChangeForm.newSite)     updates.site_password     = pwChangeForm.newSite;
@@ -559,10 +559,10 @@ export default function App() {
       localStorage.setItem('ems_team_session', JSON.stringify(newTeam));
     }
     setShowPasswordChangeModal(false); setPwChangeForm({auth:'',newSite:'',newAdmin:'',newAiRules:''});
-    setModalData({icon:'â',title:'Success',text:'Passwords updated and saved for your team.',danger:false}); setModal('alert');
+    setModalData({icon:'Ã¢ÂÂ',title:'Success',text:'Passwords updated and saved for your team.',danger:false}); setModal('alert');
   };
 
-  // ââ CRUD ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ CRUD Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   const saveVertical = async ()=>{
     if(!vForm.name.trim()) return;
     const color = COLORS[Object.keys(verticals).length % COLORS.length];
@@ -619,7 +619,7 @@ export default function App() {
     await supabase.from('sd_movements').insert({ team_id:teamId, officer_id:oid, officer_name:o.name, from_vertical:o.current_vertical, to_vertical:toV, moved_by:'User', ts:new Date().toISOString() });
   };
 
-  // ââ FIX: handleQuickMoveResource â merge same-named resources + optimistic update + movement log ââ
+  // Ã¢ÂÂÃ¢ÂÂ FIX: handleQuickMoveResource Ã¢ÂÂ merge same-named resources + optimistic update + movement log Ã¢ÂÂÃ¢ÂÂ
   const handleQuickMoveResource = async (rid, toV)=>{
     if(!toV) return;
 
@@ -677,7 +677,7 @@ export default function App() {
     loadMovements(teamId);
   };
 
-  // ââ FIX: handlePartialMoveResource â merge on split target + optimistic update + movement log ââ
+  // Ã¢ÂÂÃ¢ÂÂ FIX: handlePartialMoveResource Ã¢ÂÂ merge on split target + optimistic update + movement log Ã¢ÂÂÃ¢ÂÂ
   const handlePartialMoveResource = async ()=>{
     if(!partialMove) return;
     const { resource, toVertical, qty } = partialMove;
@@ -708,7 +708,7 @@ export default function App() {
         await supabase.from('sd_resources').update({ quantity: newQty }).eq('id', existingInTarget.id).eq('team_id', teamId);
         await supabase.from('sd_resources').update({ quantity: remaining }).eq('id', resource.id).eq('team_id', teamId);
       } else {
-        // Moving all â update target qty, delete source
+        // Moving all Ã¢ÂÂ update target qty, delete source
         setResources(prev => {
           const next = { ...prev };
           next[existingInTarget.id] = { ...next[existingInTarget.id], quantity: newQty };
@@ -719,7 +719,7 @@ export default function App() {
         await supabase.from('sd_resources').delete().eq('id', resource.id).eq('team_id', teamId);
       }
     } else {
-      // No existing row in target â create new split row
+      // No existing row in target Ã¢ÂÂ create new split row
       const newId = crypto.randomUUID();
       const newRow = { id: newId, name: resource.name, quantity: moveQty, current_vertical: toVertical, team_id: teamId, created_at: new Date().toISOString() };
 
@@ -732,7 +732,7 @@ export default function App() {
         await supabase.from('sd_resources').insert(newRow);
         await supabase.from('sd_resources').update({ quantity: remaining }).eq('id', resource.id).eq('team_id', teamId);
       } else {
-        // Moving full qty â just relocate
+        // Moving full qty Ã¢ÂÂ just relocate
         setResources(prev => ({
           ...prev,
           [resource.id]: { ...prev[resource.id], current_vertical: toVertical }
@@ -776,7 +776,7 @@ export default function App() {
     setModal(null);
   };
 
-  // ââ Paste task ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ Paste task Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   const handlePasteTask = async (targetVerticalId, insertBeforeTaskId=null)=>{
     if(!copiedTask) return;
     const newId = 'task_' + Date.now().toString(36);
@@ -789,7 +789,7 @@ export default function App() {
     setCopiedTask(null);
   };
 
-  // ââ DRAG & DROP â pointer-based ââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ DRAG & DROP Ã¢ÂÂ pointer-based Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   const draggingRef = useRef(false);
   const pointerStartRef = useRef({ x: 0, y: 0 });
   const ghostRef = useRef(null);
@@ -952,7 +952,7 @@ export default function App() {
     card.addEventListener('pointercancel', onUp);
   };
 
-  // ââ Orders / Chat / Username ââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ Orders / Chat / Username Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   const handleUploadOrder = async ()=>{
     if(!orderFile||!orderTitle.trim()||!orderDivision) return;
     setOrderUploading(true); setOrderProgress(50);
@@ -964,7 +964,7 @@ export default function App() {
       await supabase.from('sd_orders').insert({ team_id:teamId, title:orderTitle.trim(), division:orderDivision, file_name:orderFile.name, file_size:orderFile.size, file_url:publicUrl, storage_path:filename, uploaded_at:new Date().toISOString(), uploaded_by:'Admin' });
       setOrderProgress(100);
       setTimeout(()=>{ setOrderFile(null); setOrderTitle(''); setOrderDivision(''); setOrderProgress(0); if(fileInputRef.current) fileInputRef.current.value=''; },500);
-    } catch(e){ setOrderProgress(0); setModalData({icon:'â ï¸',title:'Upload Failed',text:e.message,danger:true}); setModal('alert'); }
+    } catch(e){ setOrderProgress(0); setModalData({icon:'Ã¢ÂÂ Ã¯Â¸Â',title:'Upload Failed',text:e.message,danger:true}); setModal('alert'); }
     setOrderUploading(false);
   };
   const handleDeleteOrder = async (order)=>{
@@ -972,7 +972,7 @@ export default function App() {
       if(order.storage_path) await supabase.storage.from('Orders').remove([order.storage_path]);
       await supabase.from('sd_orders').delete().eq('id',order.id).eq('team_id',teamId);
       setModal(null);
-    } catch(e){ setModalData({icon:'â ï¸',title:'Delete Failed',text:e.message,danger:true}); setModal('alert'); }
+    } catch(e){ setModalData({icon:'Ã¢ÂÂ Ã¯Â¸Â',title:'Delete Failed',text:e.message,danger:true}); setModal('alert'); }
   };
   const handleSendTeamMessage = async ()=>{
     if(!teamChatInput.trim()&&!teamChatFile) return;
@@ -990,14 +990,14 @@ export default function App() {
       setTeamChatInput(''); setTeamChatFile(null);
       if(teamChatFileRef.current) teamChatFileRef.current.value='';
       if(teamChatCameraRef.current) teamChatCameraRef.current.value='';
-    } catch(e){ setModalData({icon:'â ï¸',title:'Message Failed',text:e.message,danger:true}); setModal('alert'); }
+    } catch(e){ setModalData({icon:'Ã¢ÂÂ Ã¯Â¸Â',title:'Message Failed',text:e.message,danger:true}); setModal('alert'); }
     setTeamChatUploading(false);
   };
   const handleDeleteTeamMessage = async (msg)=>{
     try {
       if(msg.file?.path) await supabase.storage.from('Orders').remove([msg.file.path]);
       await supabase.from('sd_messages').delete().eq('id',msg.id).eq('team_id',teamId);
-    } catch(e){ setModalData({icon:'â ï¸',title:'Delete Failed',text:e.message,danger:true}); setModal('alert'); }
+    } catch(e){ setModalData({icon:'Ã¢ÂÂ Ã¯Â¸Â',title:'Delete Failed',text:e.message,danger:true}); setModal('alert'); }
   };
   const handleClearTeamChat = async ()=>{
     try {
@@ -1006,7 +1006,7 @@ export default function App() {
       if(paths.length>0) await supabase.storage.from('Orders').remove(paths);
       await supabase.from('sd_messages').delete().eq('team_id',teamId);
       setModal(null);
-    } catch(e){ setModalData({icon:'â ï¸',title:'Clear Failed',text:e.message,danger:true}); setModal('alert'); }
+    } catch(e){ setModalData({icon:'Ã¢ÂÂ Ã¯Â¸Â',title:'Clear Failed',text:e.message,danger:true}); setModal('alert'); }
   };
   const handleSaveUsername = ()=>{
     const trimmed=usernameInput.trim();
@@ -1018,7 +1018,7 @@ export default function App() {
     setShowUsernameModal(false); setUsernameError('');
   };
 
-  // ââ AI Chat âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ AI Chat Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   const sendChat = async (msg)=>{
     const text=msg||chatInput.trim(); if(!text) return;
     setChatInput('');
@@ -1026,10 +1026,10 @@ export default function App() {
     setChatHistory(hist); setChatLoading(true);
     const vArr=Object.values(verticals); const oArr=Object.values(officers); const rArr=Object.values(resources); const tArr=Object.values(tasks);
     const vList=vArr.map(v=>v.name+'(lead:'+v.lead+')').join('; ');
-    const oList=oArr.map(o=>o.name+'['+o.designation+']â'+(verticals[o.current_vertical]?.name||o.current_vertical)).join('; ');
-    const rList=rArr.map(r=>r.name+'(Qty:'+r.quantity+')â'+(verticals[r.current_vertical]?.name||r.current_vertical)).join('; ');
+    const oList=oArr.map(o=>o.name+'['+o.designation+']Ã¢ÂÂ'+(verticals[o.current_vertical]?.name||o.current_vertical)).join('; ');
+    const rList=rArr.map(r=>r.name+'(Qty:'+r.quantity+')Ã¢ÂÂ'+(verticals[r.current_vertical]?.name||r.current_vertical)).join('; ');
     const tList=tArr.map(tk=>'"'+tk.title+'"['+tk.status+'] in '+(verticals[tk.vertical_id]?.name||tk.vertical_id)+', by '+(officers[tk.assigned_officer]?.name||'?')).join('; ');
-    const mLog=movements.slice(0,8).map(m=>m.officer_name+':'+m.from_vertical+'â'+m.to_vertical).join('; ');
+    const mLog=movements.slice(0,8).map(m=>m.officer_name+':'+m.from_vertical+'Ã¢ÂÂ'+m.to_vertical).join('; ');
     const sys=`You are an AI assistant for the Event Management System (Team: ${team?.team_name}). You are known as EMS AI Agent.
 VERTICALS: ${vList}
 OFFICERS: ${oList}
@@ -1058,18 +1058,18 @@ Be concise and professional.`;
       if(match&&adminMode){
         try {
           const act=JSON.parse(match[1]);
-          if(act.type==='MOVE_OFFICER'){ await doMoveOfficer(act.officerId,act.toVertical,'AI'); display+='\n\nâ Officer moved.'; }
-          else if(act.type==='UPDATE_TASK'){ await supabase.from('sd_tasks').update({status:act.status}).eq('id',act.taskId).eq('team_id',teamId); display+='\n\nâ Task updated.'; }
-          else if(act.type==='ADD_OFFICER'){ await supabase.from('sd_officers').insert({name:act.name,designation:act.designation,current_vertical:act.current_vertical,contact:act.contact||'',team_id:teamId,created_at:new Date().toISOString()}); display+='\n\nâ Officer added.'; }
-          else if(act.type==='ADD_VERTICAL'){ await supabase.from('sd_verticals').insert({name:act.name,lead:act.lead,status:'active',color:COLORS[Math.floor(Math.random()*COLORS.length)],team_id:teamId,created_at:new Date().toISOString()}); display+='\n\nâ Vertical added.'; }
-        } catch(e){ display+='\n\nâ ï¸ Action failed: '+e.message; }
+          if(act.type==='MOVE_OFFICER'){ await doMoveOfficer(act.officerId,act.toVertical,'AI'); display+='\n\nÃ¢ÂÂ Officer moved.'; }
+          else if(act.type==='UPDATE_TASK'){ await supabase.from('sd_tasks').update({status:act.status}).eq('id',act.taskId).eq('team_id',teamId); display+='\n\nÃ¢ÂÂ Task updated.'; }
+          else if(act.type==='ADD_OFFICER'){ await supabase.from('sd_officers').insert({name:act.name,designation:act.designation,current_vertical:act.current_vertical,contact:act.contact||'',team_id:teamId,created_at:new Date().toISOString()}); display+='\n\nÃ¢ÂÂ Officer added.'; }
+          else if(act.type==='ADD_VERTICAL'){ await supabase.from('sd_verticals').insert({name:act.name,lead:act.lead,status:'active',color:COLORS[Math.floor(Math.random()*COLORS.length)],team_id:teamId,created_at:new Date().toISOString()}); display+='\n\nÃ¢ÂÂ Vertical added.'; }
+        } catch(e){ display+='\n\nÃ¢ÂÂ Ã¯Â¸Â Action failed: '+e.message; }
       }
       setChatHistory(h=>[...h,{role:'assistant',content:display}]);
     } catch(e){ setChatHistory(h=>[...h,{role:'assistant',content:'Error: '+e.message}]); }
     setChatLoading(false);
   };
 
-  // ââ Derived âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ Derived Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   const vArr=Object.values(verticals);
   const oArr=Object.values(officers);
   const rArr=Object.values(resources);
@@ -1084,13 +1084,13 @@ Be concise and professional.`;
   const fmtDate=ts=>{ try{ return new Date(ts?.toDate?ts.toDate():ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){return '';} };
 
   const VIEWS=[
-    {id:'dashboard',label:'ð Dashboard'},
-    {id:'messages', label:'ð¬ Team Chat'},
-    {id:'verticals',label:'ðï¸ Verticals'},
-    {id:'resources',label:'ð¦ Resources'},
-    {id:'tasks',    label:'â Task Chains'},
-    {id:'movements',label:'ð Movement Log'},
-    {id:'orders',   label:'ð Issued Orders'},
+    {id:'dashboard',label:'Ã°ÂÂÂ Dashboard'},
+    {id:'messages', label:'Ã°ÂÂÂ¬ Team Chat'},
+    {id:'verticals',label:'Ã°ÂÂÂÃ¯Â¸Â Verticals'},
+    {id:'resources',label:'Ã°ÂÂÂ¦ Resources'},
+    {id:'tasks',    label:'Ã¢ÂÂ Task Chains'},
+    {id:'movements',label:'Ã°ÂÂÂ Movement Log'},
+    {id:'orders',   label:'Ã°ÂÂÂ Issued Orders'},
   ];
 
   if(!authed) return <LoginScreen onLogin={teamData=>{ setTeam(teamData); setAuthed(true); localStorage.setItem('ems_team_session', JSON.stringify(teamData)); }}/>;
@@ -1125,12 +1125,12 @@ Be concise and professional.`;
         @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
       `}</style>
 
-      {/* ââ Sidebar ââ */}
+      {/* Ã¢ÂÂÃ¢ÂÂ Sidebar Ã¢ÂÂÃ¢ÂÂ */}
       <div className={`sidebar ${isNavOpen?'open':''}`} style={{width:220,background:t.surface,borderRight:'1px solid '+t.border,display:'flex',flexDirection:'column',position:'fixed',top:0,bottom:0,left:0,overflowY:'auto'}}>
         <div style={{padding:'18px 16px',borderBottom:'1px solid '+t.border}}>
           <div style={{fontSize:10,color:t.muted,letterSpacing:'2px',textTransform:'uppercase'}}>{team?.team_name||'EMS'}</div>
           <div style={{fontSize:14,fontWeight:700,color:t.text,marginTop:4,lineHeight:1.3}}>Event Management System</div>
-          {adminMode&&<span style={{background:'#7c3aed',color:'white',fontSize:10,padding:'2px 8px',borderRadius:20,display:'inline-block',marginTop:6}}>â¡ Admin Mode</span>}
+          {adminMode&&<span style={{background:'#7c3aed',color:'white',fontSize:10,padding:'2px 8px',borderRadius:20,display:'inline-block',marginTop:6}}>Ã¢ÂÂ¡ Admin Mode</span>}
         </div>
         <nav style={{padding:'10px 0'}}>
           {VIEWS.map(v=>(
@@ -1142,10 +1142,10 @@ Be concise and professional.`;
         </nav>
         <div style={{padding:14,borderTop:'1px solid '+t.border,display:'flex',flexDirection:'column',gap:8,marginTop:'auto'}}>
           {!adminMode
-            ?<button onClick={()=>{setShowAdminModal(true);setAdminPwInput('');setAdminPwErr(false);setIsNavOpen(false);}} style={{background:'#312e81',color:'#a5b4fc',border:'1px solid #4338ca',borderRadius:8,padding:8,fontSize:12,cursor:'pointer'}}>ð Admin Mode</button>
-            :<button onClick={()=>{setAdminMode(false);setIsNavOpen(false);}} style={{background:'#1e1b4b',color:'#a5b4fc',border:'1px solid #4338ca',borderRadius:8,padding:8,fontSize:12,cursor:'pointer'}}>ð Lock Admin Mode</button>}
-          <button onClick={()=>{setPwChangeForm({auth:'',newSite:'',newAdmin:'',newAiRules:''});setShowPasswordChangeModal(true);setIsNavOpen(false);}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:8,fontSize:12,cursor:'pointer',color:t.text}}>ð Change Passwords</button>
-          <button onClick={()=>{setModal('clearData');setIsNavOpen(false);}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:8,padding:8,fontSize:12,cursor:'pointer',color:'#ef4444'}}>ð Clear Data</button>
+            ?<button onClick={()=>{setShowAdminModal(true);setAdminPwInput('');setAdminPwErr(false);setIsNavOpen(false);}} style={{background:'#312e81',color:'#a5b4fc',border:'1px solid #4338ca',borderRadius:8,padding:8,fontSize:12,cursor:'pointer'}}>Ã°ÂÂÂ Admin Mode</button>
+            :<button onClick={()=>{setAdminMode(false);setIsNavOpen(false);}} style={{background:'#1e1b4b',color:'#a5b4fc',border:'1px solid #4338ca',borderRadius:8,padding:8,fontSize:12,cursor:'pointer'}}>Ã°ÂÂÂ Lock Admin Mode</button>}
+          <button onClick={()=>{setPwChangeForm({auth:'',newSite:'',newAdmin:'',newAiRules:''});setShowPasswordChangeModal(true);setIsNavOpen(false);}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:8,fontSize:12,cursor:'pointer',color:t.text}}>Ã°ÂÂÂ Change Passwords</button>
+          <button onClick={()=>{setModal('clearData');setIsNavOpen(false);}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:8,padding:8,fontSize:12,cursor:'pointer',color:'#ef4444'}}>Ã°ÂÂÂ Clear Data</button>
           <button onClick={handleLogout} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:8,fontSize:12,cursor:'pointer',color:t.muted}}
             onMouseOver={e=>{e.target.style.background='#ef4444';e.target.style.color='#fff';e.target.style.borderColor='#ef4444';}}
             onMouseOut={e=>{e.target.style.background='transparent';e.target.style.color=t.muted;e.target.style.borderColor=t.border;}}>
@@ -1154,11 +1154,11 @@ Be concise and professional.`;
         </div>
       </div>
 
-      {/* ââ Main content ââ */}
+      {/* Ã¢ÂÂÃ¢ÂÂ Main content Ã¢ÂÂÃ¢ÂÂ */}
       <div className={`main-content ${isNavOpen?'nav-open':''}`} style={{flex:1,padding:24,overflowY:'auto',overflowX:'hidden'}}>
         <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:'1.5rem',flexWrap:'wrap',gap:12}}>
           <div style={{display:'flex',gap:14}}>
-            <button className="menu-btn" onClick={()=>setIsNavOpen(p=>!p)}>{isNavOpen?'â':'â°'}</button>
+            <button className="menu-btn" onClick={()=>setIsNavOpen(p=>!p)}>{isNavOpen?'Ã¢ÂÂ':'Ã¢ÂÂ°'}</button>
             <div>
               <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
                 <div style={{width:8,height:28,background:t.accent,borderRadius:4}}/>
@@ -1179,11 +1179,11 @@ Be concise and professional.`;
 
         {view!=='messages'&&(
           <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:12,marginBottom:20}}>
-            {[['Verticals',vArr.length,'ðï¸','#3B82F6'],null,['Tasks Done',doneTasks,'â','#34D399'],['All Tasks',tArr.length,'ð','#8b5cf6']].map((item,idx)=>{
+            {[['Verticals',vArr.length,'Ã°ÂÂÂÃ¯Â¸Â','#3B82F6'],null,['Tasks Done',doneTasks,'Ã¢ÂÂ','#34D399'],['All Tasks',tArr.length,'Ã°ÂÂÂ','#8b5cf6']].map((item,idx)=>{
               if(idx===1) return (
                 <div key="resources" className="statCard" onClick={()=>handleStatClick('Resources')}
                   style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:'14px 16px',borderTop:'3px solid #F59E0B',boxShadow:t.shadow}}>
-                  <div style={{fontSize:26,marginBottom:6}}>ð¥</div>
+                  <div style={{fontSize:26,marginBottom:6}}>Ã°ÂÂÂ¥</div>
                   <div style={{display:'flex',flexDirection:'column',gap:2,marginBottom:2}}>
                     <div style={{display:'flex',alignItems:'baseline',gap:5}}>
                       <span style={{fontSize:24,fontWeight:700,color:t.text,lineHeight:1}}>{oArr.length}</span>
@@ -1195,7 +1195,7 @@ Be concise and professional.`;
                     </div>
                   </div>
                   <div style={{fontSize:13,color:t.muted,marginTop:4}}>Resources</div>
-                  <div style={{fontSize:11,color:'#F59E0B',marginTop:4,opacity:.7}}>Click to view â</div>
+                  <div style={{fontSize:11,color:'#F59E0B',marginTop:4,opacity:.7}}>Click to view Ã¢ÂÂ</div>
                 </div>
               );
               const [l,n,i,c] = item;
@@ -1205,14 +1205,14 @@ Be concise and professional.`;
                   <div style={{fontSize:26,marginBottom:4}}>{i}</div>
                   <div style={{fontSize:28,fontWeight:700,color:t.text}}>{n}</div>
                   <div style={{fontSize:13,color:t.muted}}>{l}</div>
-                  <div style={{fontSize:11,color:c,marginTop:4,opacity:.7}}>Click to view â</div>
+                  <div style={{fontSize:11,color:c,marginTop:4,opacity:.7}}>Click to view Ã¢ÂÂ</div>
                 </div>
               );
             })}
           </div>
         )}
 
-        {/* ââ TEAM CHAT ââ */}
+        {/* Ã¢ÂÂÃ¢ÂÂ TEAM CHAT Ã¢ÂÂÃ¢ÂÂ */}
         {view==='messages'&&(
           <div style={{animation:'fadeIn 0.3s ease',display:'flex',flexDirection:'column',height:'calc(100vh - 120px)'}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20,flexShrink:0,flexWrap:'wrap',gap:10}}>
@@ -1221,14 +1221,14 @@ Be concise and professional.`;
                 <h2 style={{margin:0,fontSize:19,fontWeight:500,color:t.text}}>Team Chat & File Sharing</h2>
               </div>
               <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-                {adminMode&&teamMessages.length>0&&<button onClick={()=>setModal('clearTeamChat')} style={{background:'transparent',border:'1px solid #ef4444',color:'#ef4444',padding:'6px 12px',borderRadius:8,fontSize:12,cursor:'pointer'}}>ðï¸ Clear Chat</button>}
-                {username&&<button onClick={()=>{setUsernameInput(username);setUsernameError('');setShowUsernameModal(true);}} style={{background:t.surface,border:'1px solid '+t.border,color:t.text,padding:'6px 12px',borderRadius:8,fontSize:12,cursor:'pointer',boxShadow:t.shadow}}>ð¤ {username}</button>}
+                {adminMode&&teamMessages.length>0&&<button onClick={()=>setModal('clearTeamChat')} style={{background:'transparent',border:'1px solid #ef4444',color:'#ef4444',padding:'6px 12px',borderRadius:8,fontSize:12,cursor:'pointer'}}>Ã°ÂÂÂÃ¯Â¸Â Clear Chat</button>}
+                {username&&<button onClick={()=>{setUsernameInput(username);setUsernameError('');setShowUsernameModal(true);}} style={{background:t.surface,border:'1px solid '+t.border,color:t.text,padding:'6px 12px',borderRadius:8,fontSize:12,cursor:'pointer',boxShadow:t.shadow}}>Ã°ÂÂÂ¤ {username}</button>}
               </div>
             </div>
             <div style={{flex:1,background:t.card,border:'1px solid '+t.border,borderRadius:12,display:'flex',flexDirection:'column',overflow:'hidden',boxShadow:t.shadow}}>
               <div style={{flex:1,overflowY:'auto',padding:20,display:'flex',flexDirection:'column',gap:16}}>
                 {teamMessages.length===0?(
-                  <div style={{textAlign:'center',padding:'40px 20px',color:t.muted}}><div style={{fontSize:40,marginBottom:12}}>ð¬</div><div style={{fontSize:15,color:t.text,marginBottom:8}}>No messages yet</div><div style={{fontSize:13}}>Start the conversation or share a file.</div></div>
+                  <div style={{textAlign:'center',padding:'40px 20px',color:t.muted}}><div style={{fontSize:40,marginBottom:12}}>Ã°ÂÂÂ¬</div><div style={{fontSize:15,color:t.text,marginBottom:8}}>No messages yet</div><div style={{fontSize:13}}>Start the conversation or share a file.</div></div>
                 ):(
                   teamMessages.map(msg=>{
                     const displaySender=msg.sender_name||msg.sender;
@@ -1236,12 +1236,12 @@ Be concise and professional.`;
                     const bubbleColor=getColorForName(displaySender);
                     return(
                       <div key={msg.id} style={{alignSelf:isMe?'flex-end':'flex-start',maxWidth:'75%'}}>
-                        <div style={{fontSize:11,color:t.muted,marginBottom:4,textAlign:isMe?'right':'left'}}>{displaySender} {msg.sender==='Admin'&&'ð¡ï¸'} â¢ {fmtDate(msg.ts)}</div>
+                        <div style={{fontSize:11,color:t.muted,marginBottom:4,textAlign:isMe?'right':'left'}}>{displaySender} {msg.sender==='Admin'&&'Ã°ÂÂÂ¡Ã¯Â¸Â'} Ã¢ÂÂ¢ {fmtDate(msg.ts)}</div>
                         <div style={{padding:'12px 16px',borderRadius:isMe?'18px 18px 2px 18px':'18px 18px 18px 2px',background:bubbleColor,color:'#fff',fontSize:14,lineHeight:1.5,boxShadow:t.shadow}}>
                           {msg.text&&<div style={{whiteSpace:'pre-wrap',marginBottom:msg.file?10:0}}>{msg.text}</div>}
                           {msg.file&&(
                             <div style={{background:'rgba(255,255,255,0.15)',padding:10,borderRadius:8,display:'flex',alignItems:'center',gap:10}}>
-                              <div style={{fontSize:24}}>{msg.file.type?.includes('image')?'ð¼ï¸':msg.file.type?.includes('pdf')?'ð':'ð'}</div>
+                              <div style={{fontSize:24}}>{msg.file.type?.includes('image')?'Ã°ÂÂÂ¼Ã¯Â¸Â':msg.file.type?.includes('pdf')?'Ã°ÂÂÂ':'Ã°ÂÂÂ'}</div>
                               <div style={{overflow:'hidden'}}><div style={{fontSize:13,fontWeight:600,whiteSpace:'nowrap',textOverflow:'ellipsis',overflow:'hidden'}}>{msg.file.name}</div><a href={msg.file.url} target="_blank" rel="noopener noreferrer" style={{fontSize:11,color:'#fff',textDecoration:'underline'}}>Download / View</a></div>
                             </div>
                           )}
@@ -1256,20 +1256,20 @@ Be concise and professional.`;
               <div style={{padding:'16px 90px 16px 16px',background:t.surface,borderTop:'1px solid '+t.border,display:'flex',flexDirection:'column',gap:10}}>
                 {teamChatFile&&(
                   <div style={{display:'flex',alignItems:'center',gap:10,background:t.bg,padding:'8px 12px',borderRadius:8,width:'fit-content',border:'1px solid '+t.border}}>
-                    <span style={{fontSize:12,color:t.text,fontWeight:500}}>{teamChatFile.type?.includes('image')?'ð·':'ð'} {teamChatFile.name}</span>
-                    <button onClick={()=>{setTeamChatFile(null);if(teamChatFileRef.current)teamChatFileRef.current.value='';if(teamChatCameraRef.current)teamChatCameraRef.current.value='';}} style={{background:'transparent',border:'none',color:'#ef4444',cursor:'pointer',fontSize:12,fontWeight:700}}>â</button>
+                    <span style={{fontSize:12,color:t.text,fontWeight:500}}>{teamChatFile.type?.includes('image')?'Ã°ÂÂÂ·':'Ã°ÂÂÂ'} {teamChatFile.name}</span>
+                    <button onClick={()=>{setTeamChatFile(null);if(teamChatFileRef.current)teamChatFileRef.current.value='';if(teamChatCameraRef.current)teamChatCameraRef.current.value='';}} style={{background:'transparent',border:'none',color:'#ef4444',cursor:'pointer',fontSize:12,fontWeight:700}}>Ã¢ÂÂ</button>
                   </div>
                 )}
                 <div style={{display:'flex',gap:10,alignItems:'flex-end'}}>
                   <div style={{display:'flex',alignItems:'center',gap:6}}>
                     <input type="file" ref={teamChatFileRef} onChange={e=>setTeamChatFile(e.target.files[0]||null)} style={{display:'none'}} id="teamChatFileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"/>
-                    <label htmlFor="teamChatFileInput" style={{background:t.bg,border:'1px solid '+t.border,color:t.muted,borderRadius:'50%',width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:18}} title="Attach file">ð</label>
+                    <label htmlFor="teamChatFileInput" style={{background:t.bg,border:'1px solid '+t.border,color:t.muted,borderRadius:'50%',width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:18}} title="Attach file">Ã°ÂÂÂ</label>
                     <input type="file" ref={teamChatCameraRef} onChange={e=>setTeamChatFile(e.target.files[0]||null)} style={{display:'none'}} id="teamChatCameraInput" accept="image/*" capture="environment"/>
-                    <label htmlFor="teamChatCameraInput" style={{background:t.bg,border:'1px solid '+t.border,color:t.muted,borderRadius:'50%',width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:18}} title="Take photo">ð·</label>
+                    <label htmlFor="teamChatCameraInput" style={{background:t.bg,border:'1px solid '+t.border,color:t.muted,borderRadius:'50%',width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:18}} title="Take photo">Ã°ÂÂÂ·</label>
                   </div>
                   <textarea value={teamChatInput} onChange={e=>setTeamChatInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSendTeamMessage();}}} placeholder="Type a message or share a document..." style={{flex:1,padding:'12px 16px',borderRadius:22,border:'1px solid '+t.border,background:t.inputBg,color:t.text,fontSize:14,outline:'none',resize:'none',maxHeight:100,minHeight:44,fontFamily:'inherit'}}/>
                   <button onClick={handleSendTeamMessage} disabled={teamChatUploading||(!teamChatInput.trim()&&!teamChatFile)} style={{background:(teamChatInput.trim()||teamChatFile)?t.accent:'transparent',border:(teamChatInput.trim()||teamChatFile)?'none':'1px solid '+t.border,color:(teamChatInput.trim()||teamChatFile)?'#fff':t.muted,borderRadius:'50%',width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',cursor:(teamChatInput.trim()||teamChatFile)?'pointer':'default',transition:'all 0.2s',flexShrink:0}}>
-                    {teamChatUploading?'â³':'â¤'}
+                    {teamChatUploading?'Ã¢ÂÂ³':'Ã¢ÂÂ¤'}
                   </button>
                 </div>
               </div>
@@ -1277,7 +1277,7 @@ Be concise and professional.`;
           </div>
         )}
 
-        {/* ââ DASHBOARD ââ */}
+        {/* Ã¢ÂÂÃ¢ÂÂ DASHBOARD Ã¢ÂÂÃ¢ÂÂ */}
         {view==='dashboard'&&(
           <div style={{animation:'fadeIn 0.3s ease'}}>
             <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(280px, 1fr))',gap:16}}>
@@ -1285,7 +1285,7 @@ Be concise and professional.`;
                 <h3 style={{margin:'0 0 16px',fontSize:14,color:t.muted,fontWeight:500}}>Vertical Progress</h3>
                 {vArr.map(vt=>{ const vts=tArr.filter(x=>x.vertical_id===vt.id); const pct=vts.length?Math.round(vts.filter(x=>x.status==='done').length/vts.length*100):0; const oc=oArr.filter(x=>x.current_vertical===vt.id).length; return(
                   <div key={vt.id} style={{marginBottom:14}}>
-                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:5}}><span style={{fontSize:14,color:t.text,fontWeight:500}}>{vt.name}</span><span style={{fontSize:12,color:t.muted}}>{oc} personnel Â· {pct}%</span></div>
+                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:5}}><span style={{fontSize:14,color:t.text,fontWeight:500}}>{vt.name}</span><span style={{fontSize:12,color:t.muted}}>{oc} personnel ÃÂ· {pct}%</span></div>
                     <div style={{height:6,background:t.bg,borderRadius:4,overflow:'hidden'}}><div style={{height:'100%',borderRadius:4,background:vt.color||t.accent,width:pct+'%',transition:'width 0.4s'}}/></div>
                   </div>
                 ); })}
@@ -1294,8 +1294,8 @@ Be concise and professional.`;
                 <h3 style={{margin:'0 0 16px',fontSize:14,color:t.muted,fontWeight:500}}>Recent Movements</h3>
                 {movements.length===0?<p style={{color:t.muted,fontSize:13}}>No movements yet.</p>:movements.slice(0,6).map(m=>(
                   <div key={m.id} style={{display:'flex',gap:10,alignItems:'center',marginBottom:10}}>
-                    <div style={{width:30,height:30,borderRadius:'50%',background:m.type==='resource'?'rgba(245,158,11,0.1)':t.accentGlow,border:'1px solid '+(m.type==='resource'?'rgba(245,158,11,0.4)':t.accent),display:'grid',placeItems:'center',fontSize:14,flexShrink:0}}>{m.type==='resource'?'ð¦':'ð¤'}</div>
-                    <div><div style={{fontSize:13,color:t.text,fontWeight:500}}>{m.officer_name}{m.quantity?` (Ã${m.quantity})`:''}</div><div style={{fontSize:11,color:t.muted}}>{verticals[m.from_vertical]?.name||m.from_vertical} â {verticals[m.to_vertical]?.name||m.to_vertical} Â· {m.moved_by||'User'}</div></div>
+                    <div style={{width:30,height:30,borderRadius:'50%',background:m.type==='resource'?'rgba(245,158,11,0.1)':t.accentGlow,border:'1px solid '+(m.type==='resource'?'rgba(245,158,11,0.4)':t.accent),display:'grid',placeItems:'center',fontSize:14,flexShrink:0}}>{m.type==='resource'?'Ã°ÂÂÂ¦':'Ã°ÂÂÂ¤'}</div>
+                    <div><div style={{fontSize:13,color:t.text,fontWeight:500}}>{m.officer_name}{m.quantity?` (ÃÂ${m.quantity})`:''}</div><div style={{fontSize:11,color:t.muted}}>{verticals[m.from_vertical]?.name||m.from_vertical} Ã¢ÂÂ {verticals[m.to_vertical]?.name||m.to_vertical} ÃÂ· {m.moved_by||'User'}</div></div>
                   </div>
                 ))}
               </div>
@@ -1303,7 +1303,7 @@ Be concise and professional.`;
           </div>
         )}
 
-        {/* ââ VERTICALS ââ */}
+        {/* Ã¢ÂÂÃ¢ÂÂ VERTICALS Ã¢ÂÂÃ¢ÂÂ */}
         {view==='verticals'&&(
           <div style={{animation:'fadeIn 0.3s ease'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
@@ -1322,11 +1322,11 @@ Be concise and professional.`;
                         <button onClick={()=>{setModalData({col:'sd_verticals',id:vt.id});setModal('deleteConfirm');}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:6,padding:'3px 10px',fontSize:11,cursor:'pointer',color:'#ef4444'}}>Del</button>
                       </div>
                     </div>
-                    <div style={{fontSize:13,color:t.muted,marginBottom:10}}>ð¥ {vo.length} personnel &nbsp;ð¦ {vr.length} resources &nbsp;â {done}/{vts.length} tasks</div>
+                    <div style={{fontSize:13,color:t.muted,marginBottom:10}}>Ã°ÂÂÂ¥ {vo.length} personnel &nbsp;Ã°ÂÂÂ¦ {vr.length} resources &nbsp;Ã¢ÂÂ {done}/{vts.length} tasks</div>
                     <div style={{height:4,background:t.bg,borderRadius:4,overflow:'hidden',marginBottom:10}}><div style={{height:'100%',borderRadius:4,background:vt.color||t.accent,width:pct+'%',transition:'width 0.4s'}}/></div>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                       <div>{vo.slice(0,4).map(o=><span key={o.id} style={{background:t.bg,color:t.muted,fontSize:11,padding:'2px 8px',borderRadius:12,display:'inline-block',margin:2}}>{o.name}</span>)}{vo.length>4&&<span style={{fontSize:11,color:t.muted}}> +{vo.length-4}</span>}</div>
-                      <span style={{fontSize:11,color:vt.color||t.accent,fontWeight:500}}>View tasks â</span>
+                      <span style={{fontSize:11,color:vt.color||t.accent,fontWeight:500}}>View tasks Ã¢ÂÂ</span>
                     </div>
                   </div>
                 </div>
@@ -1335,7 +1335,7 @@ Be concise and professional.`;
           </div>
         )}
 
-        {/* ââ RESOURCES ââ */}
+        {/* Ã¢ÂÂÃ¢ÂÂ RESOURCES Ã¢ÂÂÃ¢ÂÂ */}
         {view==='resources'&&(
           <div style={{animation:'fadeIn 0.3s ease'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,flexWrap:'wrap',gap:10}}>
@@ -1361,13 +1361,13 @@ Be concise and professional.`;
                   </div>
                   
                   <div style={{display:'flex', flexDirection:'column', gap: 16}}>
-                    {/* ââ PERSONNEL SECTION ââ */}
+                    {/* Ã¢ÂÂÃ¢ÂÂ PERSONNEL SECTION Ã¢ÂÂÃ¢ÂÂ */}
                     {vt.officers.length > 0 && (
                       <div style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,overflow:'hidden',boxShadow:t.shadow}}>
                         {isMobile ? (
                           <div style={{display:'flex',flexDirection:'column'}}>
                             <div style={{padding:'10px 14px',background:t.bg,borderBottom:'1px solid '+t.border}}>
-                              <span style={{fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>ð¥ Personnel</span>
+                              <span style={{fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>Ã°ÂÂÂ¥ Personnel</span>
                             </div>
                             {vt.officers.map((o,i)=>(
                               <div key={o.id} style={{padding:'14px',borderTop: i>0 ? '1px solid '+t.border : 'none',background:i%2===0?'transparent':t.surface}}>
@@ -1382,8 +1382,8 @@ Be concise and professional.`;
                                 </div>
                                 {(o.origin_station||o.deployment_duration)&&(
                                   <div style={{display:'flex',gap:12,marginBottom:10,flexWrap:'wrap'}}>
-                                    {o.origin_station&&<span style={{fontSize:12,color:t.muted}}>ð {o.origin_station}</span>}
-                                    {o.deployment_duration&&<span style={{fontSize:12,color:t.muted}}>â± {o.deployment_duration}</span>}
+                                    {o.origin_station&&<span style={{fontSize:12,color:t.muted}}>Ã°ÂÂÂ {o.origin_station}</span>}
+                                    {o.deployment_duration&&<span style={{fontSize:12,color:t.muted}}>Ã¢ÂÂ± {o.deployment_duration}</span>}
                                   </div>
                                 )}
                                 <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
@@ -1417,8 +1417,8 @@ Be concise and professional.`;
                                   </td>
                                   <td style={{padding:'11px 14px',fontSize:13,color:t.muted,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{o.designation}</td>
                                   <td style={{padding:'11px 14px',fontSize:13,color:t.muted,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-                                    {o.origin_station&&<div>ð {o.origin_station}</div>}
-                                    {o.deployment_duration&&<div style={{marginTop:2}}>â± {o.deployment_duration}</div>}
+                                    {o.origin_station&&<div>Ã°ÂÂÂ {o.origin_station}</div>}
+                                    {o.deployment_duration&&<div style={{marginTop:2}}>Ã¢ÂÂ± {o.deployment_duration}</div>}
                                   </td>
                                   <td style={{padding:'11px 14px'}}>
                                     <select onChange={e=>handleQuickMove(o.id,e.target.value)} defaultValue="" style={{...inp,width:'100%',padding:'4px 8px',fontSize:12}}>
@@ -1438,18 +1438,18 @@ Be concise and professional.`;
                       </div>
                     )}
 
-                    {/* ââ RESOURCES SECTION ââ */}
+                    {/* Ã¢ÂÂÃ¢ÂÂ RESOURCES SECTION Ã¢ÂÂÃ¢ÂÂ */}
                     {vt.resources.length > 0 && (
                       <div style={{background:t.card,border:'1px dashed '+t.border,borderRadius:12,overflow:'hidden',boxShadow:t.shadow}}>
                         {isMobile ? (
                           <div style={{display:'flex',flexDirection:'column'}}>
                             <div style={{padding:'10px 14px',background:t.bg,borderBottom:'1px solid '+t.border}}>
-                              <span style={{fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>ð¦ Equipment / Resources</span>
+                              <span style={{fontSize:11,color:t.muted,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em'}}>Ã°ÂÂÂ¦ Equipment / Resources</span>
                             </div>
                             {vt.resources.map((r,i)=>(
                               <div key={r.id} style={{padding:'14px',borderTop: i>0 ? '1px solid '+t.border : 'none',background:i%2===0?'transparent':t.surface}}>
                                 <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
-                                  <div style={{width:36,height:36,borderRadius:'50%',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',display:'grid',placeItems:'center',fontSize:16,flexShrink:0}}>ð¦</div>
+                                  <div style={{width:36,height:36,borderRadius:'50%',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',display:'grid',placeItems:'center',fontSize:16,flexShrink:0}}>Ã°ÂÂÂ¦</div>
                                   <div style={{flex:1,minWidth:0}}>
                                     <div style={{fontSize:14,fontWeight:600,color:t.text}}>{r.name}</div>
                                     <div style={{fontSize:12,color:t.muted,marginTop:1}}>Quantity: {r.quantity}</div>
@@ -1484,7 +1484,7 @@ Be concise and professional.`;
                                 <tr key={r.id} style={{borderTop:'1px solid '+t.border,background:i%2===0?'transparent':t.surface}}>
                                   <td style={{padding:'11px 14px',fontSize:13,fontWeight:500,color:t.text}}>
                                     <div style={{display:'flex',alignItems:'center',gap:8}}>
-                                      <div style={{width:30,height:30,borderRadius:'50%',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',display:'grid',placeItems:'center',fontSize:12,flexShrink:0}}>ð¦</div>
+                                      <div style={{width:30,height:30,borderRadius:'50%',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',display:'grid',placeItems:'center',fontSize:12,flexShrink:0}}>Ã°ÂÂÂ¦</div>
                                       {r.name}
                                     </div>
                                   </td>
@@ -1518,7 +1518,7 @@ Be concise and professional.`;
           </div>
         )}
 
-        {/* ââ TASKS ââ */}
+        {/* Ã¢ÂÂÃ¢ÂÂ TASKS Ã¢ÂÂÃ¢ÂÂ */}
         {view==='tasks'&&(
           <div style={{animation:'fadeIn 0.3s ease'}}>
             <div style={{marginBottom:16}}>
@@ -1545,7 +1545,7 @@ Be concise and professional.`;
                   <div style={{padding:'14px 20px',borderBottom:'1px solid '+t.border,borderLeft:`4px solid ${vt.color||t.accent}`,display:'flex',justifyContent:'space-between',alignItems:'center',background:t.surface}}>
                     <div><span style={{fontSize:15,fontWeight:600,color:t.text}}>{vt.name}</span><span style={{fontSize:12,color:t.muted,marginLeft:12}}>Goal: {vtasks[0]?.goal||''}</span></div>
                     <div style={{display:'flex',alignItems:'center',gap:12}}>
-                      {copiedTask&&<button onClick={()=>handlePasteTask(vt.id,null)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:'1px dashed '+t.accent,borderRadius:16,padding:'4px 12px',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all 0.15s'}}>ð Paste at End</button>}
+                      {copiedTask&&<button onClick={()=>handlePasteTask(vt.id,null)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:'1px dashed '+t.accent,borderRadius:16,padding:'4px 12px',fontSize:11,fontWeight:600,cursor:'pointer',transition:'all 0.15s'}}>Ã°ÂÂÂ Paste at End</button>}
                       <span style={{fontSize:12,color:t.muted}}>{allDone}/{allTotal} complete</span>
                     </div>
                   </div>
@@ -1560,7 +1560,7 @@ Be concise and professional.`;
                     {vtasks.length===0?(
                       <div style={{position:'relative',width:'100%',height:80,display:'flex',alignItems:'center'}}>
                         {copiedTask
-                          ?<button onClick={()=>handlePasteTask(vt.id,null)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`2px dashed ${t.accent}`,borderRadius:10,padding:'10px 20px',fontSize:13,fontWeight:600,cursor:'pointer',transition:'all 0.2s'}}>ð Paste Here</button>
+                          ?<button onClick={()=>handlePasteTask(vt.id,null)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`2px dashed ${t.accent}`,borderRadius:10,padding:'10px 20px',fontSize:13,fontWeight:600,cursor:'pointer',transition:'all 0.2s'}}>Ã°ÂÂÂ Paste Here</button>
                           :<div style={{color:t.muted,fontSize:13,fontStyle:'italic'}}>No tasks yet. Add one above.</div>}
                       </div>
                     ):(
@@ -1582,7 +1582,7 @@ Be concise and professional.`;
                                     <span style={{fontSize:10,color:sc.text,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.05em'}}>{SL[tk.status]}</span>
                                   </div>
                                   <div style={{fontSize:15,fontWeight:700,color:t.text,marginBottom:3,paddingRight:28}}>{tk.title}</div>
-                                  <div style={{fontSize:12,color:t.muted,marginBottom:10}}>ð¤ {of?.name||'Unassigned'}</div>
+                                  <div style={{fontSize:12,color:t.muted,marginBottom:10}}>Ã°ÂÂÂ¤ {of?.name||'Unassigned'}</div>
                                   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:6}}>
                                     <div style={{display:'flex',gap:4}}>
                                       {['pending','in-progress','done'].map(s=>(
@@ -1593,7 +1593,7 @@ Be concise and professional.`;
                                       ))}
                                     </div>
                                     <div style={{display:'flex',gap:6}}>
-                                      <button onClick={()=>{copiedTask?.id===tk.id?setCopiedTask(null):setCopiedTask(tk);}} style={{background:copiedTask?.id===tk.id?t.accent:'transparent',border:'1px solid '+(copiedTask?.id===tk.id?t.accent:t.border),borderRadius:6,padding:'3px 8px',fontSize:10,cursor:'pointer',color:copiedTask?.id===tk.id?'#fff':t.muted}}>{copiedTask?.id===tk.id?'â Copied':'Copy'}</button>
+                                      <button onClick={()=>{copiedTask?.id===tk.id?setCopiedTask(null):setCopiedTask(tk);}} style={{background:copiedTask?.id===tk.id?t.accent:'transparent',border:'1px solid '+(copiedTask?.id===tk.id?t.accent:t.border),borderRadius:6,padding:'3px 8px',fontSize:10,cursor:'pointer',color:copiedTask?.id===tk.id?'#fff':t.muted}}>{copiedTask?.id===tk.id?'Ã¢ÂÂ Copied':'Copy'}</button>
                                       <button onClick={()=>{setTForm({title:tk.title,description:tk.description||'',goal:tk.goal||'',task_order:tk.task_order||1,vertical_id:tk.vertical_id,assigned_officer:tk.assigned_officer||'',status:tk.status});setModalData({id:tk.id});setModal('taskForm');}} style={{background:'transparent',border:'1px solid '+t.border,borderRadius:6,padding:'3px 8px',fontSize:10,cursor:'pointer',color:t.muted}}>Edit</button>
                                       <button onClick={()=>{setModalData({col:'sd_tasks',id:tk.id});setModal('deleteConfirm');}} style={{background:'rgba(239,68,68,0.08)',border:'1px solid #ef4444',borderRadius:6,padding:'3px 8px',fontSize:10,cursor:'pointer',color:'#ef4444'}}>Del</button>
                                     </div>
@@ -1602,7 +1602,7 @@ Be concise and professional.`;
                                 {i<vtasks.length-1&&(
                                   <div style={{display:'flex',flexDirection:'column',alignItems:'center',padding:'2px 0',gap:0}}>
                                     <div style={{width:2,height:12,background:t.border}}/>
-                                    <div style={{fontSize:12,color:t.muted,lineHeight:1}}>â¼</div>
+                                    <div style={{fontSize:12,color:t.muted,lineHeight:1}}>Ã¢ÂÂ¼</div>
                                     <div style={{width:2,height:12,background:t.border}}/>
                                   </div>
                                 )}
@@ -1623,7 +1623,7 @@ Be concise and professional.`;
                                 {copiedTask&&<div style={{padding:'0 8px',display:'flex',alignItems:'center'}}><button onClick={()=>handlePasteTask(vt.id,tk.id)} className="paste-btn" style={{background:t.accentGlow,color:t.accent,border:`1px dashed ${t.accent}`,borderRadius:16,padding:'4px 10px',fontSize:11,cursor:'pointer',fontWeight:600,whiteSpace:'nowrap',transition:'all 0.2s'}}>+ Paste</button></div>}
                                 <div data-taskid={tk.id} data-verticalid={vt.id} style={{width:(isDropTarget&&!isDragged&&!copiedTask)?195:0,opacity:(isDropTarget&&!isDragged&&!copiedTask)?1:0,transition:'all 0.25s',overflow:'hidden',display:'flex',alignItems:'center'}}>
                                   <div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow,flexShrink:0,margin:'0 8px'}}/>
-                                  <div style={{color:t.muted,fontSize:18,padding:'0 8px'}}>âââ¶</div>
+                                  <div style={{color:t.muted,fontSize:18,padding:'0 8px'}}>Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ¶</div>
                                 </div>
                                 <div
                                   data-taskid={tk.id}
@@ -1642,7 +1642,7 @@ Be concise and professional.`;
                                     <button onClick={()=>{setModalData({col:'sd_tasks',id:tk.id});setModal('deleteConfirm');}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:4,padding:'2px 8px',fontSize:9,cursor:'pointer',color:'#ef4444'}}>Del</button>
                                   </div>
                                 </div>
-                                {!copiedTask&&i<vtasks.length-1&&<div style={{color:t.muted,fontSize:18,padding:'0 8px',flexShrink:0}}>âââ¶</div>}
+                                {!copiedTask&&i<vtasks.length-1&&<div style={{color:t.muted,fontSize:18,padding:'0 8px',flexShrink:0}}>Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ¶</div>}
                               </Fragment>
                             );
                           })}
@@ -1651,7 +1651,7 @@ Be concise and professional.`;
                             const showEndPlaceholder=dropTarget.verticalId===vt.id&&dropTarget.taskId===null&&!copiedTask&&!isLastTaskDragged;
                             return(
                               <div data-verticalid={vt.id} style={{width:showEndPlaceholder?195:0,opacity:showEndPlaceholder?1:0,transition:'all 0.25s',overflow:'hidden',display:'flex',alignItems:'center'}}>
-                                <div style={{color:t.muted,fontSize:18,padding:'0 8px'}}>âââ¶</div>
+                                <div style={{color:t.muted,fontSize:18,padding:'0 8px'}}>Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ¶</div>
                                 <div style={{width:160,height:100,border:`2px dashed ${t.accent}`,borderRadius:10,background:t.accentGlow,flexShrink:0,margin:'0 8px'}}/>
                               </div>
                             );
@@ -1666,7 +1666,7 @@ Be concise and professional.`;
           </div>
         )}
 
-        {/* ââ MOVEMENTS ââ */}
+        {/* Ã¢ÂÂÃ¢ÂÂ MOVEMENTS Ã¢ÂÂÃ¢ÂÂ */}
         {view==='movements'&&(
           <div style={{animation:'fadeIn 0.3s ease'}}>
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}><div style={{width:8,height:28,background:t.accent,borderRadius:4}}/><h2 style={{margin:0,fontSize:19,fontWeight:500,color:t.text}}>Movement Log</h2></div>
@@ -1684,12 +1684,12 @@ Be concise and professional.`;
                     {movements.map((m,i)=>(
                       <tr key={m.id} style={{borderTop:'1px solid '+t.border,background:i%2===0?'transparent':t.surface}}>
                         <td style={{padding:'11px 14px'}}>
-                          <span style={{fontSize:16}}>{m.type==='resource'?'ð¦':'ð¤'}</span>
+                          <span style={{fontSize:16}}>{m.type==='resource'?'Ã°ÂÂÂ¦':'Ã°ÂÂÂ¤'}</span>
                         </td>
                         <td style={{padding:'11px 14px',fontSize:13,fontWeight:500,color:t.text}}>{m.officer_name}</td>
-                        <td style={{padding:'11px 14px',fontSize:13,color:'#ef4444'}}>{verticals[m.from_vertical]?.name||m.from_vertical||'â'}</td>
+                        <td style={{padding:'11px 14px',fontSize:13,color:'#ef4444'}}>{verticals[m.from_vertical]?.name||m.from_vertical||'Ã¢ÂÂ'}</td>
                         <td style={{padding:'11px 14px',fontSize:13,color:'#34D399'}}>{verticals[m.to_vertical]?.name||m.to_vertical}</td>
-                        <td style={{padding:'11px 14px',fontSize:13,color:t.muted}}>{m.quantity||'â'}</td>
+                        <td style={{padding:'11px 14px',fontSize:13,color:t.muted}}>{m.quantity||'Ã¢ÂÂ'}</td>
                         <td style={{padding:'11px 14px',fontSize:13,color:t.muted}}>{m.moved_by||'User'}</td>
                         <td style={{padding:'11px 14px',fontSize:12,color:t.muted}}>{fmtDate(m.ts)}</td>
                       </tr>
@@ -1701,7 +1701,7 @@ Be concise and professional.`;
           </div>
         )}
 
-        {/* ââ ORDERS ââ */}
+        {/* Ã¢ÂÂÃ¢ÂÂ ORDERS Ã¢ÂÂÃ¢ÂÂ */}
         {view==='orders'&&(
           <div style={{animation:'fadeIn 0.3s ease'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
@@ -1715,13 +1715,13 @@ Be concise and professional.`;
                   <div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Order Title</label><input value={orderTitle} onChange={e=>setOrderTitle(e.target.value)} placeholder="e.g. Transfer Order No. 123/2025" style={inp}/></div>
                   <div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Division</label><select value={orderDivision} onChange={e=>setOrderDivision(e.target.value)} style={inp}><option value="">Select Division...</option>{vArr.map(v=><option key={v.id} value={v.name}>{v.name}</option>)}</select></div>
                 </div>
-                <div style={{marginBottom:14}}><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>PDF File</label><input ref={fileInputRef} type="file" accept=".pdf" onChange={e=>setOrderFile(e.target.files[0]||null)} style={{...inp,padding:'7px 11px',cursor:'pointer'}}/>{orderFile&&<div style={{fontSize:11,color:t.muted,marginTop:4}}>ð {orderFile.name} Â· {fmtSize(orderFile.size)}</div>}</div>
+                <div style={{marginBottom:14}}><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>PDF File</label><input ref={fileInputRef} type="file" accept=".pdf" onChange={e=>setOrderFile(e.target.files[0]||null)} style={{...inp,padding:'7px 11px',cursor:'pointer'}}/>{orderFile&&<div style={{fontSize:11,color:t.muted,marginTop:4}}>Ã°ÂÂÂ {orderFile.name} ÃÂ· {fmtSize(orderFile.size)}</div>}</div>
                 {orderUploading&&<div style={{marginBottom:12}}><div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}><span style={{fontSize:12,color:t.muted}}>Uploading...</span><span style={{fontSize:12,color:t.accent,fontWeight:500}}>{orderProgress}%</span></div><div style={{height:6,background:t.bg,borderRadius:4,overflow:'hidden'}}><div style={{height:'100%',background:t.accent,borderRadius:4,width:orderProgress+'%',transition:'width 0.3s'}}/></div></div>}
                 <button onClick={handleUploadOrder} disabled={orderUploading||!orderFile||!orderTitle.trim()||!orderDivision} style={{background:orderFile&&orderTitle.trim()&&orderDivision&&!orderUploading?t.accent:'#334155',color:'#fff',border:'none',borderRadius:8,padding:'9px 20px',fontSize:13,fontWeight:500,cursor:orderFile&&orderTitle.trim()&&orderDivision&&!orderUploading?'pointer':'default',transition:'background 0.2s'}}>{orderUploading?'Uploading...':'Upload Order'}</button>
               </div>
             ):(
               <div style={{background:t.surface,border:'1px solid '+t.border,borderRadius:12,padding:'14px 18px',marginBottom:24,display:'flex',alignItems:'center',gap:10}}>
-                <span style={{fontSize:20}}>ð</span><span style={{fontSize:13,color:t.muted}}>Enable Admin Mode to upload orders.</span>
+                <span style={{fontSize:20}}>Ã°ÂÂÂ</span><span style={{fontSize:13,color:t.muted}}>Enable Admin Mode to upload orders.</span>
               </div>
             )}
             <div style={{display:'flex',gap:8,marginBottom:20,flexWrap:'wrap'}}>
@@ -1729,7 +1729,7 @@ Be concise and professional.`;
               {[...new Set(orders.map(o=>o.division))].sort().map(div=><button key={div} onClick={()=>setOrdersFilter(div)} style={{background:ordersFilter===div?t.accentGlow:'transparent',border:'1px solid '+(ordersFilter===div?t.accent:t.border),borderRadius:20,padding:'4px 14px',fontSize:12,cursor:'pointer',color:ordersFilter===div?t.accent:t.muted}}>{div}</button>)}
             </div>
             {orders.length===0?(
-              <div style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:40,textAlign:'center',boxShadow:t.shadow}}><div style={{fontSize:40,marginBottom:12}}>ð</div><div style={{fontSize:15,color:t.text,marginBottom:6}}>No orders uploaded yet</div><div style={{fontSize:13,color:t.muted}}>{adminMode?'Use the upload panel above.':'Enable Admin Mode to upload orders.'}</div></div>
+              <div style={{background:t.card,border:'1px solid '+t.border,borderRadius:12,padding:40,textAlign:'center',boxShadow:t.shadow}}><div style={{fontSize:40,marginBottom:12}}>Ã°ÂÂÂ</div><div style={{fontSize:15,color:t.text,marginBottom:6}}>No orders uploaded yet</div><div style={{fontSize:13,color:t.muted}}>{adminMode?'Use the upload panel above.':'Enable Admin Mode to upload orders.'}</div></div>
             ):(()=>{
               const filtered=ordersFilter==='all'?orders:orders.filter(o=>o.division===ordersFilter);
               const grouped={}; filtered.forEach(o=>{if(!grouped[o.division])grouped[o.division]=[];grouped[o.division].push(o);});
@@ -1740,10 +1740,10 @@ Be concise and professional.`;
                     {grouped[div].map((order,idx)=>(
                       <div key={order.id} className="jcard" style={{background:t.card,border:'1px solid '+t.border,borderRadius:10,padding:'14px 18px',display:'flex',alignItems:'center',gap:14,boxShadow:t.shadow,transition:'border-color 0.15s'}}>
                         <div style={{width:28,height:28,borderRadius:'50%',background:vtColor+'22',border:'1px solid '+vtColor+'44',display:'grid',placeItems:'center',fontSize:12,fontWeight:600,color:vtColor,flexShrink:0}}>{idx+1}</div>
-                        <div style={{width:36,height:36,borderRadius:8,background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',display:'grid',placeItems:'center',fontSize:18,flexShrink:0}}>ð</div>
-                        <div style={{flex:1,minWidth:0}}><div style={{fontSize:14,fontWeight:600,color:t.text,marginBottom:3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{order.title}</div><div style={{display:'flex',gap:12,fontSize:12,color:t.muted,flexWrap:'wrap'}}><span>ð {order.file_name}</span>{order.file_size&&<span>{fmtSize(order.file_size)}</span>}<span>ð {fmtDate(order.uploaded_at)}</span></div></div>
+                        <div style={{width:36,height:36,borderRadius:8,background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',display:'grid',placeItems:'center',fontSize:18,flexShrink:0}}>Ã°ÂÂÂ</div>
+                        <div style={{flex:1,minWidth:0}}><div style={{fontSize:14,fontWeight:600,color:t.text,marginBottom:3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{order.title}</div><div style={{display:'flex',gap:12,fontSize:12,color:t.muted,flexWrap:'wrap'}}><span>Ã°ÂÂÂ {order.file_name}</span>{order.file_size&&<span>{fmtSize(order.file_size)}</span>}<span>Ã°ÂÂÂ {fmtDate(order.uploaded_at)}</span></div></div>
                         <div style={{display:'flex',gap:8,flexShrink:0}}>
-                          <button onClick={()=>setViewPdf(order)} style={{background:t.accentGlow,color:t.accent,border:'1px solid '+t.accent,borderRadius:7,padding:'6px 14px',fontSize:12,fontWeight:500,cursor:'pointer'}}>â View</button>
+                          <button onClick={()=>setViewPdf(order)} style={{background:t.accentGlow,color:t.accent,border:'1px solid '+t.accent,borderRadius:7,padding:'6px 14px',fontSize:12,fontWeight:500,cursor:'pointer'}}>Ã¢ÂÂ View</button>
                           {adminMode&&<button onClick={()=>{setModalData({order});setModal('deleteOrder');}} style={{background:'transparent',border:'1px solid #ef4444',borderRadius:7,padding:'6px 14px',fontSize:12,cursor:'pointer',color:'#ef4444',fontWeight:500}}>Delete</button>}
                         </div>
                       </div>
@@ -1756,28 +1756,28 @@ Be concise and professional.`;
         )}
       </div>
 
-      {/* ââ MODALS ââ */}
-      {showUsernameModal&&<Modal t={t} onClose={()=>{setShowUsernameModal(false);if(!username)setView('dashboard');}}><ModalHeader icon="ð¤" title={username?'Change Username':'Set Your Username'} subtitle="This name will appear on all your team chat messages." t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><input type="text" value={usernameInput} onChange={e=>{setUsernameInput(e.target.value);setUsernameError('');}} placeholder="e.g. Rahul_IFS" autoFocus style={{...inp,fontSize:15,padding:'12px',border:'1px solid '+(usernameError?'#ef4444':t.border)}}/>{usernameError&&<p style={{margin:'0',fontSize:12,color:'#ef4444',textAlign:'center'}}>{usernameError}</p>}<div style={{display:'flex',gap:8,marginTop:8}}><button onClick={handleSaveUsername} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>{username?'Update Name':'Join Chat'}</button><button onClick={()=>{setShowUsernameModal(false);if(!username)setView('dashboard');}} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
-      {showAdminModal&&<Modal t={t} onClose={()=>setShowAdminModal(false)}><ModalHeader icon="â¡" title="Admin Mode" subtitle="Unlocks AI agentic capabilities and order uploads." t={t}/><input type="password" value={adminPwInput} onChange={e=>{setAdminPwInput(e.target.value);setAdminPwErr(false);}} onKeyDown={e=>e.key==='Enter'&&handleAdminUnlock()} placeholder="Admin password" autoFocus style={{...inp,textAlign:'center',fontSize:16,letterSpacing:4,marginBottom:8,border:'1px solid '+(adminPwErr?'#ef4444':t.border)}}/>{adminPwErr&&<p style={{margin:'0 0 12px',fontSize:12,color:'#ef4444',textAlign:'center'}}>Incorrect password.</p>}<div style={{display:'flex',gap:8}}><button onClick={handleAdminUnlock} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Unlock</button><button onClick={()=>setShowAdminModal(false)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></Modal>}
-      {showPasswordChangeModal&&<Modal t={t} onClose={()=>setShowPasswordChangeModal(false)}><ModalHeader icon="ð" title="Change Passwords" subtitle={`Update passwords for ${team?.team_name}. Requires Current Admin Password.`} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Current Admin Password (Required)</label><input type="password" value={pwChangeForm.auth} onChange={e=>setPwChangeForm(f=>({...f,auth:e.target.value}))} placeholder="Verify authorization..." style={inp}/></div><hr style={{border:'none',borderTop:'1px solid '+t.border,margin:'4px 0'}}/><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>New Site Password</label><input type="text" value={pwChangeForm.newSite} onChange={e=>setPwChangeForm(f=>({...f,newSite:e.target.value}))} placeholder="Leave blank to keep current" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>New Admin Password</label><input type="text" value={pwChangeForm.newAdmin} onChange={e=>setPwChangeForm(f=>({...f,newAdmin:e.target.value}))} placeholder="Leave blank to keep current" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>New AI Rules Password</label><input type="text" value={pwChangeForm.newAiRules} onChange={e=>setPwChangeForm(f=>({...f,newAiRules:e.target.value}))} placeholder="Leave blank to keep current" style={inp}/></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={handlePasswordChangeSubmit} disabled={!pwChangeForm.auth} style={{flex:1,background:pwChangeForm.auth?t.accent:'#334155',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:pwChangeForm.auth?'pointer':'default'}}>Save Changes</button><button onClick={()=>setShowPasswordChangeModal(false)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
-      {showAiRulesAuthModal&&<Modal t={t} onClose={()=>setShowAiRulesAuthModal(false)}><ModalHeader icon="âï¸" title="AI Configuration" subtitle="Enter the Rules password to configure system prompts." t={t}/><input type="password" value={aiRulesPwInput} onChange={e=>{setAiRulesPwInput(e.target.value);setAiRulesPwErr(false);}} onKeyDown={e=>e.key==='Enter'&&handleAiRulesUnlock()} placeholder="Rules password" autoFocus style={{...inp,textAlign:'center',fontSize:16,letterSpacing:4,marginBottom:8,border:'1px solid '+(aiRulesPwErr?'#ef4444':t.border)}}/>{aiRulesPwErr&&<p style={{margin:'0 0 12px',fontSize:12,color:'#ef4444',textAlign:'center'}}>Incorrect password.</p>}<div style={{display:'flex',gap:8}}><button onClick={handleAiRulesUnlock} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Unlock Rules</button><button onClick={()=>setShowAiRulesAuthModal(false)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></Modal>}
-      {showAiRulesModal&&<Modal t={t} onClose={()=>setShowAiRulesModal(false)}><ModalHeader icon="ð§ " title="Custom AI Rules" subtitle="Inject hidden system instructions for the AI agent." t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><textarea value={customAiRules} onChange={e=>setCustomAiRules(e.target.value)} placeholder="e.g., Always reply using bullet points. Prioritize Protocol tasks." style={{...inp,height:120,resize:'vertical',fontFamily:'monospace',fontSize:12}}/><button onClick={()=>setShowAiRulesModal(false)} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save & Close</button></div></Modal>}
-      {modal==='verticalForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="ðï¸" title={(modalData.id?'Edit':'Add')+' Vertical'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Name</label><input value={vForm.name} onChange={e=>setVForm(f=>({...f,name:e.target.value}))} placeholder="Vertical name" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Lead Officer</label><input value={vForm.lead} onChange={e=>setVForm(f=>({...f,lead:e.target.value}))} placeholder="Lead officer name" style={inp}/></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveVertical} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
+      {/* Ã¢ÂÂÃ¢ÂÂ MODALS Ã¢ÂÂÃ¢ÂÂ */}
+      {showUsernameModal&&<Modal t={t} onClose={()=>{setShowUsernameModal(false);if(!username)setView('dashboard');}}><ModalHeader icon="Ã°ÂÂÂ¤" title={username?'Change Username':'Set Your Username'} subtitle="This name will appear on all your team chat messages." t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><input type="text" value={usernameInput} onChange={e=>{setUsernameInput(e.target.value);setUsernameError('');}} placeholder="e.g. Rahul_IFS" autoFocus style={{...inp,fontSize:15,padding:'12px',border:'1px solid '+(usernameError?'#ef4444':t.border)}}/>{usernameError&&<p style={{margin:'0',fontSize:12,color:'#ef4444',textAlign:'center'}}>{usernameError}</p>}<div style={{display:'flex',gap:8,marginTop:8}}><button onClick={handleSaveUsername} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>{username?'Update Name':'Join Chat'}</button><button onClick={()=>{setShowUsernameModal(false);if(!username)setView('dashboard');}} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
+      {showAdminModal&&<Modal t={t} onClose={()=>setShowAdminModal(false)}><ModalHeader icon="Ã¢ÂÂ¡" title="Admin Mode" subtitle="Unlocks AI agentic capabilities and order uploads." t={t}/><input type="password" value={adminPwInput} onChange={e=>{setAdminPwInput(e.target.value);setAdminPwErr(false);}} onKeyDown={e=>e.key==='Enter'&&handleAdminUnlock()} placeholder="Admin password" autoFocus style={{...inp,textAlign:'center',fontSize:16,letterSpacing:4,marginBottom:8,border:'1px solid '+(adminPwErr?'#ef4444':t.border)}}/>{adminPwErr&&<p style={{margin:'0 0 12px',fontSize:12,color:'#ef4444',textAlign:'center'}}>Incorrect password.</p>}<div style={{display:'flex',gap:8}}><button onClick={handleAdminUnlock} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Unlock</button><button onClick={()=>setShowAdminModal(false)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></Modal>}
+      {showPasswordChangeModal&&<Modal t={t} onClose={()=>setShowPasswordChangeModal(false)}><ModalHeader icon="Ã°ÂÂÂ" title="Change Passwords" subtitle={`Update passwords for ${team?.team_name}. Requires Current Admin Password.`} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Current Admin Password (Required)</label><input type="password" value={pwChangeForm.auth} onChange={e=>setPwChangeForm(f=>({...f,auth:e.target.value}))} placeholder="Verify authorization..." style={inp}/></div><hr style={{border:'none',borderTop:'1px solid '+t.border,margin:'4px 0'}}/><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>New Site Password</label><input type="text" value={pwChangeForm.newSite} onChange={e=>setPwChangeForm(f=>({...f,newSite:e.target.value}))} placeholder="Leave blank to keep current" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>New Admin Password</label><input type="text" value={pwChangeForm.newAdmin} onChange={e=>setPwChangeForm(f=>({...f,newAdmin:e.target.value}))} placeholder="Leave blank to keep current" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>New AI Rules Password</label><input type="text" value={pwChangeForm.newAiRules} onChange={e=>setPwChangeForm(f=>({...f,newAiRules:e.target.value}))} placeholder="Leave blank to keep current" style={inp}/></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={handlePasswordChangeSubmit} disabled={!pwChangeForm.auth} style={{flex:1,background:pwChangeForm.auth?t.accent:'#334155',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:pwChangeForm.auth?'pointer':'default'}}>Save Changes</button><button onClick={()=>setShowPasswordChangeModal(false)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
+      {showAiRulesAuthModal&&<Modal t={t} onClose={()=>setShowAiRulesAuthModal(false)}><ModalHeader icon="Ã¢ÂÂÃ¯Â¸Â" title="AI Configuration" subtitle="Enter the Rules password to configure system prompts." t={t}/><input type="password" value={aiRulesPwInput} onChange={e=>{setAiRulesPwInput(e.target.value);setAiRulesPwErr(false);}} onKeyDown={e=>e.key==='Enter'&&handleAiRulesUnlock()} placeholder="Rules password" autoFocus style={{...inp,textAlign:'center',fontSize:16,letterSpacing:4,marginBottom:8,border:'1px solid '+(aiRulesPwErr?'#ef4444':t.border)}}/>{aiRulesPwErr&&<p style={{margin:'0 0 12px',fontSize:12,color:'#ef4444',textAlign:'center'}}>Incorrect password.</p>}<div style={{display:'flex',gap:8}}><button onClick={handleAiRulesUnlock} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Unlock Rules</button><button onClick={()=>setShowAiRulesAuthModal(false)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></Modal>}
+      {showAiRulesModal&&<Modal t={t} onClose={()=>setShowAiRulesModal(false)}><ModalHeader icon="Ã°ÂÂ§Â " title="Custom AI Rules" subtitle="Inject hidden system instructions for the AI agent." t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><textarea value={customAiRules} onChange={e=>setCustomAiRules(e.target.value)} placeholder="e.g., Always reply using bullet points. Prioritize Protocol tasks." style={{...inp,height:120,resize:'vertical',fontFamily:'monospace',fontSize:12}}/><button onClick={()=>setShowAiRulesModal(false)} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save & Close</button></div></Modal>}
+      {modal==='verticalForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="Ã°ÂÂÂÃ¯Â¸Â" title={(modalData.id?'Edit':'Add')+' Vertical'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Name</label><input value={vForm.name} onChange={e=>setVForm(f=>({...f,name:e.target.value}))} placeholder="Vertical name" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Lead Officer</label><input value={vForm.lead} onChange={e=>setVForm(f=>({...f,lead:e.target.value}))} placeholder="Lead officer name" style={inp}/></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveVertical} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
       
-      {modal==='officerForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="ð¤" title={(modalData.id?'Edit':'Add')+' Personnel'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Full Name</label><input value={oForm.name} onChange={e=>setOForm(f=>({...f,name:e.target.value}))} placeholder="Officer name" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Designation</label><input value={oForm.designation} onChange={e=>setOForm(f=>({...f,designation:e.target.value}))} placeholder="e.g. IFS (2015)" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Contact</label><input value={oForm.contact} onChange={e=>setOForm(f=>({...f,contact:e.target.value}))} placeholder="email@gov.in" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Vertical</label><select value={oForm.current_vertical} onChange={e=>setOForm(f=>({...f,current_vertical:e.target.value}))} style={inp}><option value="">Select vertical...</option>{vArr.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Origin Mission / Station</label><input value={oForm.origin_station||''} onChange={e=>setOForm(f=>({...f,origin_station:e.target.value}))} placeholder="e.g. MEA HQ, Geneva Mission" style={inp}/></div><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:36}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Start Date</label><input type="date" value={oForm.deployment_start||''} onChange={e=>setOForm(f=>({...f,deployment_start:e.target.value}))} style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>End Date</label><input type="date" value={oForm.deployment_end||''} onChange={e=>setOForm(f=>({...f,deployment_end:e.target.value}))} style={inp}/></div></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveOfficer} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
+      {modal==='officerForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="Ã°ÂÂÂ¤" title={(modalData.id?'Edit':'Add')+' Personnel'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Full Name</label><input value={oForm.name} onChange={e=>setOForm(f=>({...f,name:e.target.value}))} placeholder="Officer name" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Designation</label><input value={oForm.designation} onChange={e=>setOForm(f=>({...f,designation:e.target.value}))} placeholder="e.g. IFS (2015)" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Contact</label><input value={oForm.contact} onChange={e=>setOForm(f=>({...f,contact:e.target.value}))} placeholder="email@gov.in" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Vertical</label><select value={oForm.current_vertical} onChange={e=>setOForm(f=>({...f,current_vertical:e.target.value}))} style={inp}><option value="">Select vertical...</option>{vArr.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Origin Mission / Station</label><input value={oForm.origin_station||''} onChange={e=>setOForm(f=>({...f,origin_station:e.target.value}))} placeholder="e.g. MEA HQ, Geneva Mission" style={inp}/></div><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:36}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Start Date</label><input type="date" value={oForm.deployment_start||''} onChange={e=>setOForm(f=>({...f,deployment_start:e.target.value}))} style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>End Date</label><input type="date" value={oForm.deployment_end||''} onChange={e=>setOForm(f=>({...f,deployment_end:e.target.value}))} style={inp}/></div></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveOfficer} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
       
-      {modal==='resourceForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="ð¦" title={(modalData.id?'Edit':'Add')+' Equipment'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Item Name</label><input value={rForm.name} onChange={e=>setRForm(f=>({...f,name:e.target.value}))} placeholder="e.g. Laptops, Vehicles, Chairs" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Quantity</label><input type="number" min="0" value={rForm.quantity} onChange={e=>setRForm(f=>({...f,quantity:parseInt(e.target.value, 10)||0}))} style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Assign to Division</label><select value={rForm.current_vertical} onChange={e=>setRForm(f=>({...f,current_vertical:e.target.value}))} style={inp}><option value="">Select vertical...</option>{vArr.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveResource} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
+      {modal==='resourceForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="Ã°ÂÂÂ¦" title={(modalData.id?'Edit':'Add')+' Equipment'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Item Name</label><input value={rForm.name} onChange={e=>setRForm(f=>({...f,name:e.target.value}))} placeholder="e.g. Laptops, Vehicles, Chairs" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Quantity</label><input type="number" min="0" value={rForm.quantity} onChange={e=>setRForm(f=>({...f,quantity:parseInt(e.target.value, 10)||0}))} style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Assign to Division</label><select value={rForm.current_vertical} onChange={e=>setRForm(f=>({...f,current_vertical:e.target.value}))} style={inp}><option value="">Select vertical...</option>{vArr.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></div><div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveResource} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
 
-      {modal==='taskForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="â" title={(modalData.id?'Edit':'Add')+' Task'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Title</label><input value={tForm.title} onChange={e=>setTForm(f=>({...f,title:e.target.value}))} placeholder="Task title" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Description</label><textarea value={tForm.description} onChange={e=>setTForm(f=>({...f,description:e.target.value}))} placeholder="Description" style={{...inp,height:65,resize:'vertical'}}/></div><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Goal</label><input value={tForm.goal} onChange={e=>setTForm(f=>({...f,goal:e.target.value}))} placeholder="e.g. Protocol Readiness" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Order</label><input type="number" value={tForm.task_order} onChange={e=>setTForm(f=>({...f,task_order:parseInt(e.target.value)||1}))} style={inp}/></div></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Vertical</label><select value={tForm.vertical_id} onChange={e=>setTForm(f=>({...f,vertical_id:e.target.value}))} style={inp}><option value="">Select vertical...</option>{vArr.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Assigned Officer</label><select value={tForm.assigned_officer} onChange={e=>setTForm(f=>({...f,assigned_officer:e.target.value}))} style={inp}><option value="">Unassigned</option>{oArr.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Status</label><select value={tForm.status} onChange={e=>setTForm(f=>({...f,status:e.target.value}))} style={inp}>{['pending','in-progress','done'].map(s=><option key={s} value={s}>{s}</option>)}</select></div><div>
+      {modal==='taskForm'&&<Modal t={t} onClose={()=>setModal(null)}><ModalHeader icon="Ã¢ÂÂ" title={(modalData.id?'Edit':'Add')+' Task'} t={t}/><div style={{display:'flex',flexDirection:'column',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Title</label><input value={tForm.title} onChange={e=>setTForm(f=>({...f,title:e.target.value}))} placeholder="Task title" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Description</label><textarea value={tForm.description} onChange={e=>setTForm(f=>({...f,description:e.target.value}))} placeholder="Description" style={{...inp,height:65,resize:'vertical'}}/></div><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Goal</label><input value={tForm.goal} onChange={e=>setTForm(f=>({...f,goal:e.target.value}))} placeholder="e.g. Protocol Readiness" style={inp}/></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Order</label><input type="number" value={tForm.task_order} onChange={e=>setTForm(f=>({...f,task_order:parseInt(e.target.value)||1}))} style={inp}/></div></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Vertical</label><select value={tForm.vertical_id} onChange={e=>setTForm(f=>({...f,vertical_id:e.target.value}))} style={inp}><option value="">Select vertical...</option>{vArr.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Assigned Officer</label><select value={tForm.assigned_officer} onChange={e=>setTForm(f=>({...f,assigned_officer:e.target.value}))} style={inp}><option value="">Unassigned</option>{oArr.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></div><div><label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Status</label><select value={tForm.status} onChange={e=>setTForm(f=>({...f,status:e.target.value}))} style={inp}>{['pending','in-progress','done'].map(s=><option key={s} value={s}>{s}</option>)}</select></div><div>
   <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:6}}>Task Mode</label>
   <div style={{display:'flex',gap:8,marginBottom:10}}>
     <button onClick={()=>setTForm(f=>({...f,is_parallel:true,parent_task_id:''}))}
       style={{flex:1,padding:'8px',borderRadius:8,border:'2px solid '+(tForm.is_parallel?t.accent:t.border),background:tForm.is_parallel?t.accentGlow:'transparent',color:tForm.is_parallel?t.accent:t.muted,cursor:'pointer',fontSize:12,fontWeight:tForm.is_parallel?600:400,transition:'all 0.15s'}}>
-      ⬡ Parallel (Independent)
+      â¬¡ Parallel (Independent)
     </button>
     <button onClick={()=>setTForm(f=>({...f,is_parallel:false}))}
       style={{flex:1,padding:'8px',borderRadius:8,border:'2px solid '+(!tForm.is_parallel?t.accent:t.border),background:!tForm.is_parallel?t.accentGlow:'transparent',color:!tForm.is_parallel?t.accent:t.muted,cursor:'pointer',fontSize:12,fontWeight:!tForm.is_parallel?600:400,transition:'all 0.15s'}}>
-      ──▶ Chain (Link to task)
+      âââ¶ Chain (Link to task)
     </button>
   </div>
   {!tForm.is_parallel&&<div>
@@ -1789,11 +1789,11 @@ Be concise and professional.`;
   </div>}
 </div>
 <div style={{display:'flex',gap:8,marginTop:8}}><button onClick={saveTask} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Save</button><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button></div></div></Modal>}
-      {modal==='deleteConfirm'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="â ï¸" title="Confirm Deletion" subtitle="This action cannot be undone." danger t={t}/><p style={{textAlign:'center',fontSize:14,color:t.muted,marginBottom:'1.5rem',lineHeight:1.6}}>Are you sure you want to permanently delete this record?</p><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={handleDeleteConfirm} style={{flex:1,background:'#ef4444',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Delete</button></div></Modal>}
-      {modal==='deleteOrder'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="ð" title="Delete Order" subtitle="This will permanently remove the file and its record." danger t={t}/><p style={{textAlign:'center',fontSize:14,color:t.muted,marginBottom:'1.5rem',lineHeight:1.6}}>Delete <strong style={{color:t.text}}>{modalData.order?.title}</strong>?</p><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={()=>handleDeleteOrder(modalData.order)} style={{flex:1,background:'#ef4444',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Delete</button></div></Modal>}
-      {modal==='clearTeamChat'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="ðï¸" title="Clear Team Chat" subtitle="This will permanently delete all messages and attachments." danger t={t}/><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={handleClearTeamChat} style={{flex:1,background:'#ef4444',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Clear All</button></div></Modal>}
-      {modal==='clearData'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="ðï¸" title="Clear Dashboard Data" subtitle="Select what to delete. Verticals will be reseeded after clearing." danger t={t}/><div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:'1.5rem'}}>{[['verticals','ðï¸ Verticals','Reseeds with default 4 verticals after clearing'],['officers','ð¥ Personnel','All personnel records will be removed'],['resources','ð¦ Resources','All equipment/resource items'],['tasks','â Task Chains','All tasks across all verticals'],['movements','ð Movement Log','Full audit trail will be wiped']].map(([key,label,desc])=><div key={key} onClick={()=>setClearOpts(o=>({...o,[key]:!o[key]}))} style={{display:'flex',alignItems:'flex-start',gap:12,padding:'12px 14px',background:clearOpts[key]?'rgba(239,68,68,0.08)':t.surface,border:`1px solid ${clearOpts[key]?'#ef4444':t.border}`,borderRadius:10,cursor:'pointer',transition:'all 0.15s'}}><div style={{width:20,height:20,border:`2px solid ${clearOpts[key]?'#ef4444':t.border}`,borderRadius:4,background:clearOpts[key]?'#ef4444':'transparent',display:'grid',placeItems:'center',flexShrink:0,marginTop:1}}>{clearOpts[key]&&<span style={{color:'#fff',fontSize:12,fontWeight:700}}>â</span>}</div><div><div style={{fontSize:14,fontWeight:500,color:t.text}}>{label}</div><div style={{fontSize:12,color:t.muted,marginTop:2}}>{desc}</div></div></div>)}</div><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={handleClearData} disabled={!Object.values(clearOpts).some(Boolean)} style={{flex:1,background:Object.values(clearOpts).some(Boolean)?'#ef4444':'#334155',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:Object.values(clearOpts).some(Boolean)?'pointer':'default',transition:'background 0.2s'}}>Confirm Clear</button></div></Modal>}
-      {partialMove&&<Modal t={t} onClose={()=>setPartialMove(null)}><ModalHeader icon="âï¸" title="Split Resource" subtitle={`Move part of "${partialMove.resource.name}" (${partialMove.resource.quantity} available) to another vertical.`} t={t}/>
+      {modal==='deleteConfirm'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="Ã¢ÂÂ Ã¯Â¸Â" title="Confirm Deletion" subtitle="This action cannot be undone." danger t={t}/><p style={{textAlign:'center',fontSize:14,color:t.muted,marginBottom:'1.5rem',lineHeight:1.6}}>Are you sure you want to permanently delete this record?</p><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={handleDeleteConfirm} style={{flex:1,background:'#ef4444',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Delete</button></div></Modal>}
+      {modal==='deleteOrder'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="Ã°ÂÂÂ" title="Delete Order" subtitle="This will permanently remove the file and its record." danger t={t}/><p style={{textAlign:'center',fontSize:14,color:t.muted,marginBottom:'1.5rem',lineHeight:1.6}}>Delete <strong style={{color:t.text}}>{modalData.order?.title}</strong>?</p><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={()=>handleDeleteOrder(modalData.order)} style={{flex:1,background:'#ef4444',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Delete</button></div></Modal>}
+      {modal==='clearTeamChat'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="Ã°ÂÂÂÃ¯Â¸Â" title="Clear Team Chat" subtitle="This will permanently delete all messages and attachments." danger t={t}/><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={handleClearTeamChat} style={{flex:1,background:'#ef4444',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Clear All</button></div></Modal>}
+      {modal==='clearData'&&<Modal t={t} onClose={()=>setModal(null)} danger><ModalHeader icon="Ã°ÂÂÂÃ¯Â¸Â" title="Clear Dashboard Data" subtitle="Select what to delete. Verticals will be reseeded after clearing." danger t={t}/><div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:'1.5rem'}}>{[['verticals','Ã°ÂÂÂÃ¯Â¸Â Verticals','Reseeds with default 4 verticals after clearing'],['officers','Ã°ÂÂÂ¥ Personnel','All personnel records will be removed'],['resources','Ã°ÂÂÂ¦ Resources','All equipment/resource items'],['tasks','Ã¢ÂÂ Task Chains','All tasks across all verticals'],['movements','Ã°ÂÂÂ Movement Log','Full audit trail will be wiped']].map(([key,label,desc])=><div key={key} onClick={()=>setClearOpts(o=>({...o,[key]:!o[key]}))} style={{display:'flex',alignItems:'flex-start',gap:12,padding:'12px 14px',background:clearOpts[key]?'rgba(239,68,68,0.08)':t.surface,border:`1px solid ${clearOpts[key]?'#ef4444':t.border}`,borderRadius:10,cursor:'pointer',transition:'all 0.15s'}}><div style={{width:20,height:20,border:`2px solid ${clearOpts[key]?'#ef4444':t.border}`,borderRadius:4,background:clearOpts[key]?'#ef4444':'transparent',display:'grid',placeItems:'center',flexShrink:0,marginTop:1}}>{clearOpts[key]&&<span style={{color:'#fff',fontSize:12,fontWeight:700}}>Ã¢ÂÂ</span>}</div><div><div style={{fontSize:14,fontWeight:500,color:t.text}}>{label}</div><div style={{fontSize:12,color:t.muted,marginTop:2}}>{desc}</div></div></div>)}</div><div style={{display:'flex',gap:10}}><button onClick={()=>setModal(null)} style={{flex:1,background:'transparent',border:'1px solid '+t.border,borderRadius:8,padding:10,fontSize:14,cursor:'pointer',color:t.muted}}>Cancel</button><button onClick={handleClearData} disabled={!Object.values(clearOpts).some(Boolean)} style={{flex:1,background:Object.values(clearOpts).some(Boolean)?'#ef4444':'#334155',color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:Object.values(clearOpts).some(Boolean)?'pointer':'default',transition:'background 0.2s'}}>Confirm Clear</button></div></Modal>}
+      {partialMove&&<Modal t={t} onClose={()=>setPartialMove(null)}><ModalHeader icon="Ã¢ÂÂÃ¯Â¸Â" title="Split Resource" subtitle={`Move part of "${partialMove.resource.name}" (${partialMove.resource.quantity} available) to another vertical.`} t={t}/>
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
           <div>
             <label style={{fontSize:11,color:t.muted,display:'block',marginBottom:4}}>Quantity to Move</label>
@@ -1826,7 +1826,7 @@ Be concise and professional.`;
           </div>
           {partialMove.toVertical&&parseInt(partialMove.qty)>0&&(
             <div style={{background:t.bg,border:'1px solid '+t.border,borderRadius:8,padding:'10px 14px',fontSize:12,color:t.muted,lineHeight:1.6}}>
-              <span style={{color:t.text,fontWeight:500}}>{partialMove.qty} {partialMove.resource.name}</span> â <span style={{color:t.accent}}>{vArr.find(v=>v.id===partialMove.toVertical)?.name}</span>
+              <span style={{color:t.text,fontWeight:500}}>{partialMove.qty} {partialMove.resource.name}</span> Ã¢ÂÂ <span style={{color:t.accent}}>{vArr.find(v=>v.id===partialMove.toVertical)?.name}</span>
               {partialMove.resource.quantity - parseInt(partialMove.qty) > 0 && <><br/><span style={{color:t.text,fontWeight:500}}>{partialMove.resource.quantity - parseInt(partialMove.qty)} {partialMove.resource.name}</span> stay in <span style={{color:t.accent}}>{vArr.find(v=>v.id===partialMove.resource.current_vertical)?.name||'current vertical'}</span></>}
             </div>
           )}
@@ -1836,23 +1836,23 @@ Be concise and professional.`;
           </div>
         </div>
       </Modal>}
-      {showInactivityWarning&&<Modal t={t} onClose={()=>setShowInactivityWarning(false)}><ModalHeader icon="â±ï¸" title="Session Expiring Soon" subtitle="You will be logged out in 2 minutes due to inactivity." t={t}/><div style={{display:'flex',gap:10}}><button onClick={()=>setShowInactivityWarning(false)} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Stay Logged In</button></div></Modal>}
+      {showInactivityWarning&&<Modal t={t} onClose={()=>setShowInactivityWarning(false)}><ModalHeader icon="Ã¢ÂÂ±Ã¯Â¸Â" title="Session Expiring Soon" subtitle="You will be logged out in 2 minutes due to inactivity." t={t}/><div style={{display:'flex',gap:10}}><button onClick={()=>setShowInactivityWarning(false)} style={{flex:1,background:t.accent,color:'#fff',border:'none',borderRadius:8,padding:10,fontSize:14,fontWeight:500,cursor:'pointer'}}>Stay Logged In</button></div></Modal>}
       {modal==='alert'&&<Modal t={t} onClose={()=>setModal(null)} danger={modalData.danger}><ModalHeader icon={modalData.icon} title={modalData.title} danger={modalData.danger} t={t}/><p style={{textAlign:'center',fontSize:14,color:t.muted,marginBottom:'1.5rem',lineHeight:1.6}}>{modalData.text}</p><div style={{display:'flex',justifyContent:'center'}}><button onClick={()=>setModal(null)} style={{background:modalData.danger?'#ef4444':t.accent,color:'#fff',border:'none',borderRadius:8,padding:'10px 32px',fontSize:14,fontWeight:500,cursor:'pointer',boxShadow:t.shadow}}>OK</button></div></Modal>}
 
-      {/* ââ AI CHAT BUTTON ââ */}
+      {/* Ã¢ÂÂÃ¢ÂÂ AI CHAT BUTTON Ã¢ÂÂÃ¢ÂÂ */}
       <button onPointerDown={startDragChat} onClick={()=>{if(chatDragMoved.current)return;setChatOpen(o=>!o);}}
         style={{position:'fixed',bottom:30,right:30,zIndex:6000,width:64,height:64,borderRadius:'50%',background:t.accent,color:'#fff',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'grab',boxShadow:'0 8px 25px rgba(0,0,0,0.4)',transform:`translate(${chatPos.x}px,${chatPos.y}px)`,transition:isDraggingChat.current?'none':'transform 0.2s'}}>
-        {chatOpen?<span style={{fontSize:24}}>â</span>:<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a11.16 11.16 0 0 0-4.82 9.53c0 1.5.55 2.97 1.48 4.2V20l3.34-2.23L15.34 20v-4.27c.93-1.23 1.48-2.7 1.48-4.2A11.16 11.16 0 0 0 12 2zm-5 10c-1.5 0-3 1-4 3 2.5 0 3.5-1.5 4-3zm10 0c1 1.5 2 3 4 3-1-2-2.5-3-4-3z"/></svg>}
+        {chatOpen?<span style={{fontSize:24}}>Ã¢ÂÂ</span>:<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a11.16 11.16 0 0 0-4.82 9.53c0 1.5.55 2.97 1.48 4.2V20l3.34-2.23L15.34 20v-4.27c.93-1.23 1.48-2.7 1.48-4.2A11.16 11.16 0 0 0 12 2zm-5 10c-1.5 0-3 1-4 3 2.5 0 3.5-1.5 4-3zm10 0c1 1.5 2 3 4 3-1-2-2.5-3-4-3z"/></svg>}
       </button>
 
-      {/* ââ AI CHAT PANEL ââ */}
+      {/* Ã¢ÂÂÃ¢ÂÂ AI CHAT PANEL Ã¢ÂÂÃ¢ÂÂ */}
       <div className={`chat-panel ${chatOpen?'open':''}`}>
         <div style={{background:t.surface,padding:'12px 16px',borderBottom:'1px solid '+t.border,display:'flex',flexDirection:'column',gap:10,flexShrink:0}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
             <div style={{display:'flex',alignItems:'center',gap:8}}><div style={{color:t.accent,display:'flex'}}><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a11.16 11.16 0 0 0-4.82 9.53c0 1.5.55 2.97 1.48 4.2V20l3.34-2.23L15.34 20v-4.27c.93-1.23 1.48-2.7 1.48-4.2A11.16 11.16 0 0 0 12 2zm-5 10c-1.5 0-3 1-4 3 2.5 0 3.5-1.5 4-3zm10 0c1 1.5 2 3 4 3-1-2-2.5-3-4-3z"/></svg></div><h3 style={{margin:0,fontSize:15,fontWeight:600,color:t.text}}>EMS AI Agent</h3></div>
-            <div style={{display:'flex',gap:8}}><button onClick={()=>{setAiRulesPwInput('');setAiRulesPwErr(false);setShowAiRulesAuthModal(true);}} style={{background:'transparent',border:'none',color:t.muted,cursor:'pointer',fontSize:11}}>âï¸ Rules</button><button onClick={()=>setChatHistory([])} style={{background:'transparent',border:'none',color:t.muted,cursor:'pointer',fontSize:11}}>ð Clear</button></div>
+            <div style={{display:'flex',gap:8}}><button onClick={()=>{setAiRulesPwInput('');setAiRulesPwErr(false);setShowAiRulesAuthModal(true);}} style={{background:'transparent',border:'none',color:t.muted,cursor:'pointer',fontSize:11}}>Ã¢ÂÂÃ¯Â¸Â Rules</button><button onClick={()=>setChatHistory([])} style={{background:'transparent',border:'none',color:t.muted,cursor:'pointer',fontSize:11}}>Ã°ÂÂÂ Clear</button></div>
           </div>
-          <div style={{display:'flex',alignItems:'center',gap:10}}>{adminMode?<span style={{background:'rgba(239,68,68,0.1)',border:'1px solid #ef4444',color:'#ef4444',fontSize:10,fontWeight:700,padding:'6px 10px',borderRadius:8,flex:1,textAlign:'center',textTransform:'uppercase'}}>â¡ AGENTIC</span>:<span style={{background:'transparent',border:'1px solid '+t.border,color:t.muted,fontSize:10,fontWeight:700,padding:'6px 10px',borderRadius:8,flex:1,textAlign:'center',textTransform:'uppercase'}}>Read-Only</span>}</div>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>{adminMode?<span style={{background:'rgba(239,68,68,0.1)',border:'1px solid #ef4444',color:'#ef4444',fontSize:10,fontWeight:700,padding:'6px 10px',borderRadius:8,flex:1,textAlign:'center',textTransform:'uppercase'}}>Ã¢ÂÂ¡ AGENTIC</span>:<span style={{background:'transparent',border:'1px solid '+t.border,color:t.muted,fontSize:10,fontWeight:700,padding:'6px 10px',borderRadius:8,flex:1,textAlign:'center',textTransform:'uppercase'}}>Read-Only</span>}</div>
         </div>
         <div style={{flex:1,padding:16,overflowY:'auto',display:'flex',flexDirection:'column',gap:16}}>
           {chatHistory.length===0?<div style={{textAlign:'center',padding:'40px 20px',color:t.muted}}><div style={{marginBottom:16,display:'grid',placeItems:'center',color:t.accent}}><svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a11.16 11.16 0 0 0-4.82 9.53c0 1.5.55 2.97 1.48 4.2V20l3.34-2.23L15.34 20v-4.27c.93-1.23 1.48-2.7 1.48-4.2A11.16 11.16 0 0 0 12 2zm-5 10c-1.5 0-3 1-4 3 2.5 0 3.5-1.5 4-3zm10 0c1 1.5 2 3 4 3-1-2-2.5-3-4-3z"/></svg></div><div style={{fontSize:15,color:t.text,marginBottom:8}}>EMS AI Agent</div><div style={{fontSize:13,marginBottom:20}}>Ask about deployments, tasks or movements.{adminMode?' I can also make changes.':''}</div><div style={{display:'flex',flexWrap:'wrap',gap:8,justifyContent:'center'}}>{['Who is in Protocol?','Pending tasks?','Progress summary','Officers in EG & IT'].map(q=><button key={q} onClick={()=>sendChat(q)} style={{background:t.bg,border:'1px solid '+t.border,color:t.muted,padding:'6px 12px',borderRadius:8,fontSize:12,cursor:'pointer'}}>{q}</button>)}</div></div>:chatHistory.map((m,i)=>(
@@ -1866,18 +1866,18 @@ Be concise and professional.`;
         </div>
         <div style={{padding:'12px 16px',background:t.surface,borderTop:'1px solid '+t.border,display:'flex',gap:10,alignItems:'center',flexShrink:0}}>
           <textarea value={chatInput} onChange={e=>setChatInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}}} placeholder={adminMode?'Ask or instruct...':'Ask about your event...'} style={{flex:1,padding:'12px 16px',borderRadius:22,border:'1px solid '+t.border,background:t.inputBg,color:t.text,fontSize:13,outline:'none',resize:'none',maxHeight:100,minHeight:44,fontFamily:'inherit'}}/>
-          <button onClick={()=>sendChat()} disabled={chatLoading||!chatInput.trim()} style={{background:chatInput.trim()?t.accent:'transparent',border:chatInput.trim()?'none':'1px solid '+t.border,color:chatInput.trim()?'#fff':t.muted,borderRadius:'50%',width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',cursor:chatInput.trim()?'pointer':'default',transition:'all 0.2s',flexShrink:0}}>â¤</button>
+          <button onClick={()=>sendChat()} disabled={chatLoading||!chatInput.trim()} style={{background:chatInput.trim()?t.accent:'transparent',border:chatInput.trim()?'none':'1px solid '+t.border,color:chatInput.trim()?'#fff':t.muted,borderRadius:'50%',width:44,height:44,display:'flex',alignItems:'center',justifyContent:'center',cursor:chatInput.trim()?'pointer':'default',transition:'all 0.2s',flexShrink:0}}>Ã¢ÂÂ¤</button>
         </div>
       </div>
 
-      {/* ââ PDF VIEWER ââ */}
+      {/* Ã¢ÂÂÃ¢ÂÂ PDF VIEWER Ã¢ÂÂÃ¢ÂÂ */}
       {viewPdf&&(
         <div style={{position:'fixed',inset:0,zIndex:9999,background:t.bg,display:'flex',flexDirection:'column',animation:'fadeIn 0.2s ease'}}>
           <div style={{padding:'12px 24px',background:t.surface,borderBottom:'1px solid '+t.border,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <div style={{display:'flex',alignItems:'center',gap:12}}><div style={{width:36,height:36,borderRadius:8,background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',display:'grid',placeItems:'center',fontSize:18}}>ð</div><div><div style={{fontSize:16,fontWeight:600,color:t.text}}>{viewPdf.title}</div><div style={{fontSize:12,color:t.muted}}>{viewPdf.division}</div></div></div>
+            <div style={{display:'flex',alignItems:'center',gap:12}}><div style={{width:36,height:36,borderRadius:8,background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',display:'grid',placeItems:'center',fontSize:18}}>Ã°ÂÂÂ</div><div><div style={{fontSize:16,fontWeight:600,color:t.text}}>{viewPdf.title}</div><div style={{fontSize:12,color:t.muted}}>{viewPdf.division}</div></div></div>
             <div style={{display:'flex',alignItems:'center',gap:12}}>
-              <a href={viewPdf.file_url} download={viewPdf.file_name} target="_blank" rel="noreferrer" style={{background:t.accent,color:'#fff',padding:'8px 16px',borderRadius:8,fontSize:13,fontWeight:600,textDecoration:'none',display:'flex',alignItems:'center',gap:6}}>â¬ Download PDF</a>
-              <button onClick={()=>setViewPdf(null)} style={{background:'transparent',color:t.text,border:'1px solid '+t.border,padding:'8px 16px',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>â Close Viewer</button>
+              <a href={viewPdf.file_url} download={viewPdf.file_name} target="_blank" rel="noreferrer" style={{background:t.accent,color:'#fff',padding:'8px 16px',borderRadius:8,fontSize:13,fontWeight:600,textDecoration:'none',display:'flex',alignItems:'center',gap:6}}>Ã¢Â¬Â Download PDF</a>
+              <button onClick={()=>setViewPdf(null)} style={{background:'transparent',color:t.text,border:'1px solid '+t.border,padding:'8px 16px',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>Ã¢ÂÂ Close Viewer</button>
             </div>
           </div>
           <object data={`${viewPdf.file_url}#view=FitH`} type="application/pdf" style={{flex:1,width:'100%',height:'100%',border:'none',background:'#525659'}}>
